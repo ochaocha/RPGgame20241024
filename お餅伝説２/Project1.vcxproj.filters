@@ -57,6 +57,9 @@
     <ClCompile Include="MainScreen.cpp">
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>ヘッダー ファイル\描画関係</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FunctionDeclaration.h">
@@ -64,9 +67,6 @@
     </ClInclude>
     <ClInclude Include="Declaration.cpp">
       <Filter>ソース ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="player.h">
-      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>ヘッダー ファイル</Filter>
@@ -93,6 +93,12 @@
       <Filter>ソース ファイル\戦闘ファイル</Filter>
     </ClInclude>
     <ClInclude Include="MainScreen.h">
+      <Filter>ヘッダー ファイル\描画関係</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>ヘッダー ファイル\描画関係</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClInclude>
   </ItemGroup>
