@@ -36,17 +36,23 @@ void mapaupdate();
 
 class MapData {
 private:
-    std::vector<std::vector<int>> map;         // マップの2次元配列
+
+    std::vector<std::vector<int>> map;             // マップの2次元配列
+
 public:
-    bool LoadMapdata(std::string filePath) {
+    bool LoadMapdata(std::string filePath)
+    {
         std::string linebuf;                       // 1行読み込みバッファ
+
         std::string data;                          // カンマ区切りで切り出したデータ格納用
         //ファイルオープン
         std::ifstream csvFile(filePath);
-        if (csvFile.fail()) { return false; }//＊読み込みに失敗したのでfalseを返します
+        if (csvFile.fail()) { return false; }      //読み込みに失敗したのでfalseを返します
 
         // ファイルからCSV読み込み
+
         int line = 0;
+
         while (getline(csvFile, linebuf))
         {
             // map配列の行を追加
@@ -62,30 +68,41 @@ public:
             }
             line++;
         }
-        csvFile.close();//＊一応クローズします
+        csvFile.close();                     //一応クローズします
 
-        return true;//＊最後まで実行できたのでtrueを返します
+        return true;                         //最後まで実行できたのでtrueを返します
     }
 public:
-    //＊特定のチップのマップデータを取得します
-    int GetMapChip(int x, int y) {
+    //特定のチップのマップデータを取得します
+    int GetMapChip(int x, int y)
+    {
+        if (map[y][x] >= 0xFFFF)
+        {
+            return map[y][x] - 0xFFFF;
+        }
         return map[y][x];
     }
-    //＊＊特定のチップのマップデータが壁かどうかを判別します
+    //特定のチップのマップデータが壁かどうかを判別します
     bool IsWallMapChip(int x, int y) {
-        return map[y][x] >= 0xFFFF;//＊0xFFFF(65535)以上なら壁と判別します
+        return map[y][x] >= 0xFFFF;         //0xFFFF(65535)以上なら壁と判別します
     }
 
-    //＊マップのXサイズを返します
-    int GetMapXsize() {
+    //マップのXサイズを返します
+
+    int GetMapXsize()
+    {
         //仮でmap[0]~[max]まで全部同じサイズと仮定します
         return static_cast<int>(map[0].size());
     }
 
-    //＊マップのYサイズを返します
-    int GetMapYsize() {
+    //マップのYサイズを返します
+    int GetMapYsize()
+    {
         return static_cast<int>(map.size());
     }
 };
+
+
+static MapData mapData;
 
 void MapEngine();

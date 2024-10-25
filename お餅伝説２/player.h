@@ -1,22 +1,24 @@
 #pragma once
-/// <summary>
-/// キャラクターを出力
-/// </summary>
-void PlayerInit(int displaywidth, int displayhight);
-/// @brief プレイヤーの更新
-void Playerappdate();
 
-/// <summary>/// 
-/// プレイヤーの描画
-/// </summary>
-void PlayerDraw();
 
-/// <summary>///
-/// プレイヤーの後始末 
-/// </summary>
-void PlayerFinalize();
+class PlayerFunction {
+public:
+	void PlayerInit(int displaywidth, int displayhight);
+	void Playerappdate();
+	void PlayerDraw();
+	void PlayerFinalize();
 
-/// <summary>///
-/// プレイヤーの操作
-/// </summary>///
+};
 
+static PlayerFunction PlayerFunctionOll;
+
+class  ScreenCamera
+{
+public:
+	
+	void Screen(int displaywidthX, int displayhightY, int displaywidth2X, int displayhight2Y);
+
+
+};
+
+static ScreenCamera camera;
