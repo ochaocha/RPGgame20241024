@@ -18,10 +18,42 @@ typedef struct Location
 	int h;		//幅
 };
 
-
+#define SINGLETON (FALSE)
 
 class MapData {
-
+#if SINGLETON//Emiya 2-1:シングルトンのインターフェースを追加します。SINGLETONのdefineをFALSE->TRUEにすると有効化されます。
+private:
+    /// <summary>
+    /// シングルトンとして変数を宣言
+    /// </summary>
+    static const MapData* m_Singleton;
+public:
+    /// <summary>
+    /// シングルトンを作成
+    /// </summary>
+    static void Create(void) noexcept { m_Singleton = new MapData(); }
+    /// <summary>
+    /// シングルトンのポインタを取得
+    /// </summary>
+    static MapData* Instance(void) noexcept {
+        if (m_Singleton == nullptr) {                               
+            MessageBox(NULL, "Failed Instance Create", "", MB_OK);//エラーメッセージを出しています。
+            exit(-1);
+        }
+        return const_cast<MapData*>(m_Singleton);//const抜きのポインタを渡します。
+    }
+private:
+    /// <summary>
+    /// コンストラクタ(シングルトンではprivateで宣言します
+    /// )
+    /// </summary>
+    MapData() {}
+    /// <summary>
+    /// デストラクタ(シングルトンでは呼ばれません)
+    /// </summary>
+    /*~MapData(){}*/
+private:
+#endif
     const int mapChipSize = 40;  // マップチップ１個の大きさ
 
     const int mapImgXNum = 8;    // マップチップ画像の横方向チップ数

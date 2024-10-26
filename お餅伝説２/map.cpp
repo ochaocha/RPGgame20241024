@@ -1,7 +1,12 @@
 #include "map.h"
 #include "DxLib.h"
 
-
+#if SINGLETON//Emiya 2-1:
+/// <summary>
+/// シングルトンとして変数を定義
+/// </summary>
+const MapData* MapData::m_Singleton = nullptr;
+#endif
 
 void MapData::mapInit()
 {
