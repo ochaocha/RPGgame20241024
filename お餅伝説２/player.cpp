@@ -1,9 +1,9 @@
 #include "player.h"
 #include "DxLib.h"
-#include "collision.h"
+#include "collision.h"		//Emiya 1-3:1-1で移動後エラーが出るのでこれもplayer.hに移動しましょう
 
 
-
+//Emiya 1-1:ここから
 float px, py;
 float vx, vy;
 float animeTimer;
@@ -20,12 +20,12 @@ sHitRect playerHit;
 sHitRect playerFootCollider;
 sHitRect playerHeadCollider;
 
-const int animPatternNum = 8;			// アニメーションのパターン数
+const int animPatternNum = 8;			// アニメーションのパターン数		//Emiya 1-2:1-1で移動後エラーが出るので静的変数としてしまいましょう
 const int animDown = 0;			// 下方向
 const int animLeft = 1;			// 左方向
 const int animRight = 2;			// 右方向
 const int animUp = 3;			// 上方向
-const int animTypeNum = 6;			// アニメーションの種類
+const int animTypeNum = 6;			// アニメーションの種類		//Emiya 1-2:1-1で移動後エラーが出るので静的変数としてしまいましょう
 const int animSizeX = 48;
 const int animSizeY = 64;
 
@@ -43,6 +43,7 @@ int drawOffsetY;
 int charaimg[animPatternNum * animTypeNum];
 
 float time = 0.f;
+//Emiya 1-1:ここまでをplayer.hに移動しましょう(PlayerFunctionのメンバ変数にします)
 
 void PlayerFunction ::PlayerInit(int displaywidth, int displayhight)
 {
@@ -134,9 +135,11 @@ void PlayerFunction::PlayerDraw()
 		 }
 	 }
  }
+
+
+ //Emiya 1-4:ScreenCameraクラスはcamera2D.cppのようなファイルを用意してそちらに移動しちゃいましょう
  void ScreenCamera::Screen(int displaywidthX, int displayhightY, int displaywidth2X, int displayhight2Y)
  {
-
 	 if (CheckHitKey(KEY_INPUT_D))
 	 {
 		 displaywidth2X++;
