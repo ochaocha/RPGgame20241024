@@ -19,28 +19,46 @@ typedef struct Location
 };
 
 
-/// <summary>
-/// マップ初期化
-/// </summary>
-void mapInit();
-
-/// <summary>
-/// マップ描画
-/// </summary>
-void mapDraw();
-
-/// <summary>
-/// マップの動き
-/// </summary>
-void mapaupdate();
-/// @brief マップエンジン
 
 class MapData {
-private:
 
-    std::vector<std::vector<int>> map;             // マップの2次元配列
+    const int mapChipSize = 40;  // マップチップ１個の大きさ
+
+    static const int mapXNum = 100;     // マップの横方向チップ数
+
+    static const int mapYNum = 100;     // マップの縦方向チップ数
+
+    const int objectXNum = 50;
+
+    const int objectYNum = 50;
+
+    const int mapImgXNum = 8;    // マップチップ画像の横方向チップ数
+
+    const int mapImgYNum = 11;   // マップチップ画像の縦方向チップ数
+
+    const int riverImgXNum = 1;	 //海のマップチップ画像の横方向チップ数
+
+    const int riverImgYNum = 5;	 //海のマップチップ画像の縦方向チップ数
+
+    unsigned char map[mapYNum][mapXNum];
+    Location Maploca[mapYNum][mapXNum];
+
+    int mapChipImg[88]; // 画像ハンドル配列
+
+    int riverChipImg[5];
+
+    int offsetX = -2000;
+    int offsetY = -2000;
+private:
+    void mapInit();
+    void mapDraw();
+    void MapEngine();
+
+
+    std::vector<std::vector<int>> Map;   // マップの2次元配列
 
 public:
+    
     bool LoadMapdata(std::string filePath)
     {
         std::string linebuf;                       // 1行読み込みバッファ
@@ -52,12 +70,12 @@ public:
 
         // ファイルからCSV読み込み
 
-        int line = 0;
+         int line = 0;
 
         while (getline(csvFile, linebuf))
         {
             // map配列の行を追加
-            map.emplace_back();
+            Map.emplace_back();
             //カンマ区切りで読みやすいように istringstream型に変換
             std::istringstream iStream(linebuf);
 
@@ -65,7 +83,7 @@ public:
             while (getline(iStream, data, ','))
             {
                 // 文字列データを数値に変換して、map[line][]の末尾に追加
-                map[line].emplace_back(stoi(data));
+                Map[line].emplace_back(stoi(data));
             }
             line++;
         }
@@ -77,15 +95,15 @@ public:
     //特定のチップのマップデータを取得します
     int GetMapChip(int x, int y)
     {
-        if (map[y][x] >= 0xFFFF)
+        if (Map[y][x] >= 0xFFFF)
         {
-            return map[y][x] - 0xFFFF;
+            return Map[y][x] - 0xFFFF;
         }
-        return map[y][x];
+        return Map[y][x];
     }
     //特定のチップのマップデータが壁かどうかを判別します
     bool IsWallMapChip(int x, int y) {
-        return map[y][x] >= 0xFFFF;         //0xFFFF(65535)以上なら壁と判別します
+        return Map[y][x] >= 0xFFFF;         //0xFFFF(65535)以上なら壁と判別します
     }
 
     //マップのXサイズを返します
@@ -93,17 +111,12 @@ public:
     int GetMapXsize()
     {
         //仮でmap[0]~[max]まで全部同じサイズと仮定します
-        return static_cast<int>(map[0].size());
+        return static_cast<int>(Map[0].size());
     }
 
     //マップのYサイズを返します
     int GetMapYsize()
     {
-        return static_cast<int>(map.size());
+        return static_cast<int>(Map.size());
     }
 };
-
-
-static MapData mapData;
-
-void MapEngine();

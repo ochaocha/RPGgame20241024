@@ -22,9 +22,10 @@ int displayhigthY = 0;
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	//Emiya 1-5:移動先　staticである必要がなくなるので外しましょう
 
-	PlayerFunction PlayerFunctionOll;//Emiya 1-5:main.cppのローカル変数にするため移動しましょう
+	PlayerFunction PlayerFunctionOll;
+	
+	MapData MapDataOll;
 
 	ScreenCamera camera;
 	//FPS制御オブジェクトとしてローカル変数を作成
@@ -46,9 +47,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	PlayerFunctionOll.PlayerInit(displaywidth2X, displayhight2Y);
 
-	mapInit();//マップの初期化
+	MapData mapInit();//マップの初期化
 	
-	MapEngine();
+	MapData MapEngine();
 	
 
 	int nowCount, prevCount;
@@ -81,14 +82,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			
 			ClearDrawScreen();		//マップの描画
 			//MapEngine();
-			mapaupdate();			//マップの動き
+			MapData mapaupdate();			//マップの動き
 			
 			
 
 			PlayerFunctionOll.Playerappdate();		//プレイヤーの更新
 
 			
-			mapDraw();	
+			MapData mapDraw();
 
 			
 						//画面更新処理

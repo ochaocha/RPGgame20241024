@@ -30,7 +30,7 @@ VOID FPSControl::StartMeasureTime(VOID)
 VOID FPSControl::Draw(VOID)
 {
 	//左上に描画
-	DrawFormatString(0, 0, GetColor(255, 255, 255), "FPS：%3.1f", this->m_AverageFPS);	//%3.1f->小数点込みで3文字以上、小数点1桁まで表示
+	DrawFormatString(0, 0, GetColor(255, 255, 255), "FPS：%3.1f", this->m_AverageFPS);//%3.1f->小数点込みで3文字以上、小数点1桁まで表示
 	return;
 }
 

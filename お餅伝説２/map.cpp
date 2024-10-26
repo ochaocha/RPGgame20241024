@@ -3,41 +3,7 @@
 
 
 
-const int mapChipSize = 40;  // マップチップ１個の大きさ
-
-const int mapXNum = 100;     // マップの横方向チップ数
-
-const int mapYNum = 100;     // マップの縦方向チップ数
-
-const int objectXNum = 50;
-
-const int objectYNum = 50;
-
-const int mapImgXNum = 8;    // マップチップ画像の横方向チップ数
-
-const int mapImgYNum = 11;   // マップチップ画像の縦方向チップ数
-
-const int riverImgXNum = 1;	 //海のマップチップ画像の横方向チップ数
-
-const int riverImgYNum = 5;	 //海のマップチップ画像の縦方向チップ数
-
-unsigned char map[mapYNum][mapXNum];
-Location Maploca[mapYNum][mapXNum];
-
-int mapChipImg[88]; // 画像ハンドル配列
-
-int riverChipImg[5];
-
-int offsetX = -2000;
-int offsetY = -2000;
-
-
-
-
-
-
-
-void mapInit()
+void MapData::mapInit()
 {
 	for (int i = 0; i > mapYNum; i++)
 	{
@@ -71,16 +37,16 @@ void mapInit()
 }
 
 
-void mapDraw()
+void  MapData::mapDraw()
 {
 	
-		for (int y = 0; y < mapData.GetMapYsize(); y++)
+		for (int y = 0; y < GetMapYsize(); y++)
 		{
-			for (int x = 0; x < mapData.GetMapXsize(); x++)
+			for (int x = 0; x < GetMapXsize(); x++)
 			{
-				if (mapData.IsWallMapChip(x,y))
+				if (IsWallMapChip(x,y))
 				{
-					int imgIndex = mapData.GetMapChip(x, y);              // map配列よりブロック種類を取得
+					int imgIndex =GetMapChip(x, y);              // map配列よりブロック種類を取得
 
 					int imgHandle = riverChipImg[imgIndex];  // indexをつかって画像ハンドル配列から画像ハンドルを取得
 
@@ -90,7 +56,7 @@ void mapDraw()
 				}
 				else
 				{
-					int imgIndex = mapData.GetMapChip(x, y);              // map配列よりブロック種類を取得
+					int imgIndex = GetMapChip(x, y);              // map配列よりブロック種類を取得
 
 					int imgHandle = mapChipImg[imgIndex];  // indexをつかって画像ハンドル配列から画像ハンドルを取得
 
@@ -127,25 +93,25 @@ void mapaupdate()
 	//*/
 }
 
-void MapEngine()
+void  MapData::MapEngine()
 {
 	std::string filePath = "mapTest.csv";      // CSVファイル名
 
-	if (mapData.LoadMapdata(filePath) == false) {
+	if (LoadMapdata(filePath) == false) {
 		std::cout << "ファイルのオープンに失敗" << std::endl;
 	}
 
 	// マップにデータが格納されたか表示
-	for (int ypos = 0; ypos < mapData.GetMapYsize(); ypos++)
+	for (int ypos = 0; ypos < GetMapYsize(); ypos++)
 	{
-		for (int xpos = 0; xpos < mapData.GetMapXsize(); xpos++)
+		for (int xpos = 0; xpos < GetMapXsize(); xpos++)
 		{
-			if (mapData.IsWallMapChip(xpos, ypos)) {
+			if (IsWallMapChip(xpos, ypos)) {
 				//壁として四角で出力
 				std::cout << "■" << ",";
 			}
 			else {
-				std::cout << mapData.GetMapChip(xpos, ypos) << ",";
+				std::cout << GetMapChip(xpos, ypos) << ",";
 			}
 		}
 		std::cout << std::endl;
