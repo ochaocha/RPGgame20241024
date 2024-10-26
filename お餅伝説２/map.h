@@ -24,10 +24,6 @@ class MapData {
 
     const int mapChipSize = 40;  // マップチップ１個の大きさ
 
-    const int objectXNum = 50;
-
-    const int objectYNum = 50;
-
     const int mapImgXNum = 8;    // マップチップ画像の横方向チップ数
 
     const int mapImgYNum = 11;   // マップチップ画像の縦方向チップ数
@@ -40,7 +36,7 @@ class MapData {
 
     int mapChipImg[88]; // 画像ハンドル配列
 
-    int riverChipImg[5];
+    int riverChipImg[5];//川の画像チップ
 
     int offsetX = -2000;
     int offsetY = -2000;
@@ -50,10 +46,14 @@ private:
     std::vector<std::vector<int>> Map;   // マップの2次元配列
 
 public:
+    /// @briefマップの読み込み  
     void mapInit();
-    void mapaupdate();
-    void mapDraw();
-    void MapEngine();
+
+    void mapaupdate(); 
+    /// @briefマップの描画
+    void mapDraw();    
+    /// @brief マップのCSVファイルから読み取り
+    void MapEngine();         
 
     bool LoadMapdata(std::string filePath)
     {

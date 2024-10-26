@@ -12,11 +12,7 @@ void PlayerFunction ::PlayerInit(int displaywidth, int displayhight)
 {
 	px = float(displaywidth / 2);
 	py = float(displayhight / 2);
-	vx = 0.0f;
-	vy = 0.0f;
-	animeTimer = 0.0f;
-	animNowType = animDown;
-	animNowPattern = 0;
+	animNowType;
 	animNowIndex = 0;
 	animDirectionOffset = 0;
 

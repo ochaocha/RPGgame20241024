@@ -4,50 +4,41 @@
 
 class PlayerFunction {
 	//Emiya 1-1:ここに移動
-	float px, py;
-	float vx, vy;
-	float animeTimer;
-	int animNowType;
-	int animNowIndex;
+	float px, py;								//プレイヤーの初期座標
+	int animNowType;							//プレイヤーの配列の縦要素数
+	int animNowIndex;							//プレイヤーの現在のアニメーション
 
-	int animDirectionOffset;
+	int animDirectionOffset;					//アニメーションの方向を変えるための変数
 
-	int animNowPattern;
-
-	bool charaMove = false;
-
-	sHitRect playerHit;
-	sHitRect playerFootCollider;
-	sHitRect playerHeadCollider;
+	bool charaMove = false;						//プレイヤーが動いているかどうか
 
 	static const int animPatternNum = 8;			// アニメーションのパターン数		//Emiya 1-2:1-1で移動後エラーが出るので静的変数としてしまいましょう
-	const int animDown = 0;			// 下方向
-	const int animLeft = 1;			// 左方向
-	const int animRight = 2;			// 右方向
-	const int animUp = 3;			// 上方向
+
 	static const int animTypeNum = 6;			// アニメーションの種類		//Emiya 1-2:1-1で移動後エラーが出るので静的変数としてしまいましょう
-	const int animSizeX = 48;
+	const int animSizeX = 48;					//プレイヤーのアニメーションサイズ
 	const int animSizeY = 64;
 
-	const int hitSizeX = 40;
+	const int hitSizeX = 40;					
 	const int hitSizeY = 60;
 
-	const float animationFPS = 6.0f;		// 秒間 6コマのアニメーション
-	const float moveSpeed = 200.0f;		// 移動速度 (ここで指定した値分のピクセル/秒進む) 
-	const int animetion = 11;
-	bool charaPrev;
 
 
-	int drawOffsetX;
-	int drawOffsetY;
-	int charaimg[animPatternNum * animTypeNum];
+	int drawOffsetX;								//プレイヤーの大きさを変える変数
+	int drawOffsetY;					
 
-	float time = 0.f;
+	int charaimg[animPatternNum * animTypeNum];		//キャラクターのアニメーション要素数
+
+	float time = 0.f;								
 public:
-	
+	/// @brief プレイヤーの読み込み
+	/// @param displaywidth 
+	/// @param displayhight 
 	void PlayerInit(int displaywidth, int displayhight);
+	/// @brief プレイヤーの移動
 	void Playerappdate();
+	/// @brief プレイヤ―アニメーションを描画
 	void PlayerDraw();
+	/// @brief プレイヤーの後始末
 	void PlayerFinalize();
 
 };
