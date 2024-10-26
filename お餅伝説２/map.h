@@ -24,10 +24,6 @@ class MapData {
 
     const int mapChipSize = 40;  // マップチップ１個の大きさ
 
-    static const int mapXNum = 100;     // マップの横方向チップ数
-
-    static const int mapYNum = 100;     // マップの縦方向チップ数
-
     const int objectXNum = 50;
 
     const int objectYNum = 50;
@@ -40,8 +36,7 @@ class MapData {
 
     const int riverImgYNum = 5;	 //海のマップチップ画像の縦方向チップ数
 
-    unsigned char map[mapYNum][mapXNum];
-    Location Maploca[mapYNum][mapXNum];
+    std::vector<std::vector<Location>>  Maploca;
 
     int mapChipImg[88]; // 画像ハンドル配列
 
@@ -50,15 +45,16 @@ class MapData {
     int offsetX = -2000;
     int offsetY = -2000;
 private:
-    
 
 
     std::vector<std::vector<int>> Map;   // マップの2次元配列
 
 public:
     void mapInit();
+    void mapaupdate();
     void mapDraw();
     void MapEngine();
+
     bool LoadMapdata(std::string filePath)
     {
         std::string linebuf;                       // 1行読み込みバッファ
@@ -76,6 +72,7 @@ public:
         {
             // map配列の行を追加
             Map.emplace_back();
+            Maploca.emplace_back();
             //カンマ区切りで読みやすいように istringstream型に変換
             std::istringstream iStream(linebuf);
 
@@ -84,6 +81,7 @@ public:
             {
                 // 文字列データを数値に変換して、map[line][]の末尾に追加
                 Map[line].emplace_back(stoi(data));
+                Maploca[line].emplace_back();
             }
             line++;
         }

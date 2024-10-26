@@ -5,23 +5,16 @@
 
 void MapData::mapInit()
 {
-	for (int i = 0; i > mapYNum; i++)
-	{
-		for (int j = 0; i > mapXNum; j++)
-		{
-			map[j][i] = 0;
-		}
-	}
-
 	// 画像総数  横枚数x縦枚数,横方向個数,縦方向個数,チップ1枚の横サイズ, チップ1毎の縦サイズ, 画像配列先頭ポインタ 
 	LoadDivGraph("map/map.png", mapImgXNum * mapImgYNum, mapImgXNum, mapImgYNum, mapChipSize, mapChipSize, mapChipImg);
 
 	LoadDivGraph("map/river.png", riverImgXNum * riverImgYNum, riverImgXNum, riverImgYNum,mapChipSize, mapChipSize, riverChipImg);
 
-	for (int iy = 0; iy < mapYNum; iy++)
+	//Maplocaをstd::vector化したので、現状mapInit()の前にMapEngine()をする必要があります
+	for (int iy = 0; iy < GetMapYsize(); iy++)
 	{
 
-		for (int ix = 0; ix < mapXNum; ix++)
+		for (int ix = 0; ix < GetMapXsize(); ix++)
 		{
 
 			Maploca[iy][ix].ly = iy * mapChipSize+offsetY;			    //マップチップの左上Y座標
@@ -69,13 +62,13 @@ void  MapData::mapDraw()
 		}
 }
 
-void mapaupdate()
+void MapData::mapaupdate()
 {
 	/*
-	for (int iy = 0; iy < mapYNum; iy++)
+	for (int iy = 0; iy < GetMapYsize(); iy++)
 	{
 
-		for (int ix = 0; ix < mapXNum; ix++)
+		for (int ix = 0; ix < GetMapXsize(); ix++)
 		{
 			Maploca[iy][ix].ly;
 			Maploca[iy][ix].ry;
