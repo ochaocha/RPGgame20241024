@@ -24,6 +24,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 	//Emiya 1-5:移動先　staticである必要がなくなるので外しましょう
 	
+	//FPS制御オブジェクトとしてローカル変数を作成
+	FPSControl FPSCtrl;
 
 	// DxLib初期化
 	ChangeWindowMode(TRUE);
@@ -50,10 +52,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	nowCount = prevCount = GetNowCount();
 	// ゲームループ
 	//FPS初期化
-	FPSInit();
+	FPSCtrl.Initialize();
 	int Exchange = 0;
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
+		FPSCtrl.StartMeasureTime(); //FPS計測を開始
+
 		// deltaTime計測
 		float deltaTime;
 		nowCount = GetNowCount();
@@ -94,16 +98,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 		// ヒットしたか?を画面表示
-		ScreenFlip();   //スクリーンの動きを滑らかにする処理
-		{
-			FPSCheck(); //FPS計測
-			FPSDraw();  //FPS描画
-			FPSWait();  //FPS待機
-		}
-	
+
+		FPSCtrl.Draw();		//FPS描画
+		ScreenFlip();		//これまで描画した内容をウィンドウに反映する
+		FPSCtrl.FPSWait();  //処理時間計測を終了し、これまでの時間と目標FPSとで待機する時間を割り出し待機します
 	}
 	PlayerFunctionOll.PlayerFinalize();	//プレイヤーの後始末
-	WaitKey();
+	//WaitKey();//終了時に即時に終了できるように一応コメントアウトします
 	DxLib_End();
 	return 0;
 }

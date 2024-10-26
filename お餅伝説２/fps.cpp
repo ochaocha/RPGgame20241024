@@ -1,84 +1,94 @@
 #include "fps.h"
 
-//グローバル変数
-FPS fps;
-
-//初期化
-VOID FPSInit(VOID)
+/// <summary>
+/// メインループ前に行う内容:各メンバ変数の初期化など
+/// </summary>
+/// <param name=""></param>
+/// <returns></returns>
+VOID FPSControl::Initialize(VOID)
 {
-	//Windowsが起動してから現在までの時間を得る
-	fps.FirstTakeTime = GetNowHiPerformanceCount();
-	
+	InitializeRecord();																	//FPS値の記録を初期化
+	return;//※VOIDが戻り値の場合returnは書かなくてもok
+}
 
-	//他の値も初期化
-	fps.NowTakeTime = fps.FirstTakeTime;
-	fps.OldTakeTime = fps.FirstTakeTime;
-	fps.Deltatime = 0.000001f;
-	fps.Average = 60.0f;
-
+/// <summary>
+/// 処理時間計測の開始
+/// </summary>
+/// <param name=""></param>
+/// <returns></returns>
+VOID FPSControl::StartMeasureTime(VOID)
+{
+	this->m_FirstTakeTime = GetNowHiPerformanceCount();									//Windowsが起動してから現在までの時間をマイクロ秒で得る
 	return;
 }
 
-VOID FPSCheck(VOID)
+/// <summary>
+/// 平均FPSを描画
+/// </summary>
+/// <param name=""></param>
+/// <returns></returns>
+VOID FPSControl::Draw(VOID)
 {
-	//現在の時刻
-	fps.NowTakeTime = GetNowHiPerformanceCount();
+	//左上に描画
+	DrawFormatString(0, 0, GetColor(255, 255, 255), "FPS：%3.1f", this->m_AverageFPS);	//%3.1f->小数点込みで3文字以上、小数点1桁まで表示
+	return;
+}
 
-	//デルタタイムを計算
-	fps.Deltatime = (fps.NowTakeTime - fps.OldTakeTime) / MicroSecond;
-
-	//現在の時刻を保存
-	fps.OldTakeTime = fps.NowTakeTime;
-
-	//現在がMAXフレーム目なら
-	if (fps.FrameCount == GameFPS)
+/// <summary>
+/// 処理時間計測を終了し、これまでの時間と目標FPSとで待機する時間を割り出し待機します
+/// </summary>
+/// <param name=""></param>
+/// <returns></returns>
+VOID FPSControl::FPSWait(VOID)
+{
+	LONGLONG NowTakeTime = GetNowHiPerformanceCount();									//Windowsが起動してから現在までの時間をマイクロ秒で得る
+	float Deltatime = (NowTakeTime - this->m_FirstTakeTime) / MicroSecond;				//計測開始と終了までの差分時間（デルタタイム）を計算して秒数として保存
+	if (Deltatime > 0.0f)																//0で割ってはいけないためそれを確認
 	{
-		//1フレーム目～MAXフレーム目までの合計時間を計算
-		float TotalFrameTime = fps.NowTakeTime - fps.FirstTakeTime;
-
-		//合計時間を理想のFPS値で割って平均値を計算
-		float CalcAverage = TotalFrameTime / GameFPS;
-
-		//１秒あたりのフレーム数に変換
-		fps.Average = MicroSecond / CalcAverage;
-		
-		//1フレーム目の時刻を取得
-		fps.FirstTakeTime = GetNowHiPerformanceCount();
-
-		//フレーム数を１に戻す
-		fps.FrameCount = 1;
-
+		RecordNowFPS(1.0f / Deltatime);													//平均FPSの記録 現在のFPS値は 1秒/1フレームにかかった秒数 で求められます
 	}
-	else
-	{
-		//フレーム数をカウントアップ
-		fps.FrameCount;
 
+	float WaitSecond = (1.0f / TargetFPS - Deltatime);									//目標FPSを出すのにかかる時間-デルタタイム=待機する必要がある秒数
+	if (0.f < WaitSecond)																//待機時間がある場合
+	{
+		WaitTimer(static_cast<int>(WaitSecond * MillSecond));							//ミリ秒単位でWaitSecond秒ぶん待機
 	}
 	return;
 }
 
-VOID FPSDraw(VOID)
+/// <summary>
+/// 平均FPSを計算する処理の初期化
+/// </summary>
+/// <returns></returns>
+VOID FPSControl::InitializeRecord()
 {
-	DrawFormatString(0, 0, GetColor(255, 255, 255), "FPS：%3.1f", fps.Average);
+	for (auto& RecordFPS : this->m_OldFPS)												//リストを全て範囲forで走査
+	{
+		RecordFPS = TargetFPS;															//計測値をすべてTargetFPSで初期化
+	}
+	this->m_NowRecordPoint = 0;															//m_NowRecordPointで指定する値を初期化
+	this->m_AverageFPS = TargetFPS;														//平均値もTargetFPSになるはずなのでそちらで初期化
 	return;
 }
 
-VOID FPSWait(VOID)
+/// <summary>
+/// 現在のFPS値を記録し、これまでの値から平均FPS値を計算
+/// </summary>
+/// <param name="nowFPS">保存するFPS値</param>
+/// <returns></returns>
+VOID FPSControl::RecordNowFPS(float nowFPS)
 {
-	int wait = 0;
-	wait =
-		MicroSecond / GameFPS * fps.FrameCount
-		- (fps.NowTakeTime - fps.FirstTakeTime);
-
-	wait /= MillSecond;
-	
-	if (wait > 0 && wait <= waitTimeMill)
-	{
-		WaitTimer(wait);
-	
+	this->m_OldFPS[this->m_NowRecordPoint] = nowFPS;									//現在のFPSをm_NowRecordPointの位置に記録
+	this->m_NowRecordPoint++;															//m_NowRecordPointで指定する値を移動
+	if (this->m_NowRecordPoint >= RecordFPSCount) {
+		this->m_NowRecordPoint = 0;														//記録する位置がthis->m_OldFPSの範囲を超えてしまったら位置をリセット
 	}
 
+	float TotalFPS = 0.0f;
+	for (auto& RecordFPS : this->m_OldFPS)												//リストを全て範囲forで走査
+	{
+		TotalFPS += RecordFPS;															//平均値を求めるため、これまで記録していたFPSを合算
+	}
+	this->m_AverageFPS = TotalFPS / static_cast<float>(RecordFPSCount);					//データの総数で割り、平均を求める
 	return;
-
 }
