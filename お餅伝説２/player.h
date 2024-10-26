@@ -4,7 +4,6 @@
 
 class PlayerFunction {
 	//Emiya 1-1:ここに移動
-public:
 	float px, py;
 	float vx, vy;
 	float animeTimer;
@@ -44,14 +43,14 @@ public:
 	int charaimg[animPatternNum * animTypeNum];
 
 	float time = 0.f;
+public:
+	
 	void PlayerInit(int displaywidth, int displayhight);
 	void Playerappdate();
 	void PlayerDraw();
 	void PlayerFinalize();
 
 };
-
-static PlayerFunction PlayerFunctionOll;//Emiya 1-5:main.cppのローカル変数にするため移動しましょう
 
 //Emiya 1-4:ScreenCameraクラスはcamera2D.hのようなファイルを用意してそちらに移動しちゃいましょう
 

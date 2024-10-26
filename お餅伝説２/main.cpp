@@ -23,6 +23,9 @@ int displayhigthY = 0;
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 	//Emiya 1-5:移動先　staticである必要がなくなるので外しましょう
+
+	PlayerFunction PlayerFunctionOll;//Emiya 1-5:main.cppのローカル変数にするため移動しましょう
+
 	ScreenCamera camera;
 	//FPS制御オブジェクトとしてローカル変数を作成
 	FPSControl FPSCtrl;
