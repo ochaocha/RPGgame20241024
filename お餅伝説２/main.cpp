@@ -22,7 +22,9 @@ int displayhigthY = 0;
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
+	//Emiya 1-5:移動先　staticである必要がなくなるので外しましょう
 	
+
 	// DxLib初期化
 	ChangeWindowMode(TRUE);
 
