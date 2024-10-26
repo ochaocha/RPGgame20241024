@@ -6,7 +6,7 @@
 #include "fight.h"
 #include "fps.h"
 #include"MainScreen.h"
-#include "Camera.h"
+#include "camera2D.h"
 
 
 int displaywidhtX = 0;
@@ -23,7 +23,7 @@ int displayhigthY = 0;
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 	//Emiya 1-5:移動先　staticである必要がなくなるので外しましょう
-	
+	ScreenCamera camera;
 	//FPS制御オブジェクトとしてローカル変数を作成
 	FPSControl FPSCtrl;
 

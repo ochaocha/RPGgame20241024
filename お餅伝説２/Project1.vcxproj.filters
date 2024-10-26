@@ -57,7 +57,7 @@
     <ClCompile Include="MainScreen.cpp">
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="camera2D.cpp">
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClCompile>
   </ItemGroup>
@@ -95,7 +95,7 @@
     <ClInclude Include="MainScreen.h">
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="camera2D.h">
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClInclude>
     <ClInclude Include="player.h">
