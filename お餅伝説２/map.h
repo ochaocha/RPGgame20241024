@@ -28,6 +28,7 @@ void mapInit();
 /// マップ描画
 /// </summary>
 void mapDraw();
+
 /// <summary>
 /// マップの動き
 /// </summary>
