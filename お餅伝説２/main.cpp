@@ -47,9 +47,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	PlayerFunctionOll.PlayerInit(displaywidth2X, displayhight2Y);
 
+	//MapDataOll変数を初期化
+	MapDataOll.MapEngine();//マップの読み込み
 	MapDataOll.mapInit();//マップの初期化
-	
-	MapDataOll.MapEngine();
 	
 
 	int nowCount, prevCount;
@@ -82,6 +82,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			
 			ClearDrawScreen();		//マップの描画
 			//MapEngine();		//マップの動き
+			MapDataOll.mapaupdate();			//マップの動き
 			
 			
 
