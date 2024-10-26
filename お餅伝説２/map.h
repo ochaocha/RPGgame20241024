@@ -50,15 +50,15 @@ class MapData {
     int offsetX = -2000;
     int offsetY = -2000;
 private:
-    void mapInit();
-    void mapDraw();
-    void MapEngine();
+    
 
 
     std::vector<std::vector<int>> Map;   // マップの2次元配列
 
 public:
-    
+    void mapInit();
+    void mapDraw();
+    void MapEngine();
     bool LoadMapdata(std::string filePath)
     {
         std::string linebuf;                       // 1行読み込みバッファ
