@@ -75,7 +75,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case 0://メインスクリーン
 			
 			Mein.MeinDrawScreen(&Exchange);
-
+				
 			break;
 			
 		case 1:
