@@ -25,7 +25,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	PlayerFunction PlayerFunctionOll;
 	
+	//Emiya 2-2:MapDataのシングルトンを作成しそのポインタを作成
+#if SINGLETON//Emiya 2-1:
+	MapData::Create();
+	MapData* MapDataOllPtr = MapData::Instance();
+#else
 	MapData MapDataOll;
+#endif
+	//Emiya 2-3:ポインタをもちいるようにマップ処理を差し替えて、動くことを確認してください
+	//例:MapDataOll. -> MapDataOllPtr->
 
 	ScreenCamera camera;
 	//FPS制御オブジェクトとしてローカル変数を作成
