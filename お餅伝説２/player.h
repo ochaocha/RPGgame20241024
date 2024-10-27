@@ -1,9 +1,8 @@
 #pragma once
 #include "collision.h"
-//Emiya 1-3:ここに移動
 
 class PlayerFunction {
-	//Emiya 1-1:ここに移動
+
 	float px, py;								//プレイヤーの初期座標
 	int animNowType;							//プレイヤーの配列の縦要素数
 	int animNowIndex;							//プレイヤーの現在のアニメーション
@@ -12,9 +11,9 @@ class PlayerFunction {
 
 	bool charaMove = false;						//プレイヤーが動いているかどうか
 
-	static const int animPatternNum = 8;			// アニメーションのパターン数		//Emiya 1-2:1-1で移動後エラーが出るので静的変数としてしまいましょう
+	static const int animPatternNum = 8;			// アニメーションのパターン数		
 
-	static const int animTypeNum = 6;			// アニメーションの種類		//Emiya 1-2:1-1で移動後エラーが出るので静的変数としてしまいましょう
+	static const int animTypeNum = 6;			// アニメーションの種類		
 	const int animSizeX = 48;					//プレイヤーのアニメーションサイズ
 	const int animSizeY = 64;
 
@@ -42,8 +41,3 @@ public:
 	void PlayerFinalize();
 
 };
-
-//Emiya 1-4:ScreenCameraクラスはcamera2D.hのようなファイルを用意してそちらに移動しちゃいましょう
-
-//Emiya 1-5:main.cppのローカル変数にするため移動しましょう
-

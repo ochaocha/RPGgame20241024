@@ -25,7 +25,7 @@ public://外に出すメンバ関数のプロトタイプ宣言
 	VOID StartMeasureTime(VOID);		//処理時間計測の開始				
 	VOID Draw(VOID);					//FPS描画			
 	VOID FPSWait(VOID);					//処理時間計測を終了し、これまでの時間と目標FPSとで待機する時間を割り出し待機します
-private://外に出さないメンバ関数のプロトタイプ宣言
+private:								//外に出さないメンバ関数のプロトタイプ宣言
 	VOID InitializeRecord();			//平均FPSを計算する処理の初期化
 	VOID RecordNowFPS(float nowFPS);	//現在のFPS値を記録し、これまでの値から平均FPS値を計算
 };

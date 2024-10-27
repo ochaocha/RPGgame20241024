@@ -1,13 +1,6 @@
 #include "player.h"
 #include "DxLib.h"
 
-		//Emiya 1-3:1-1で移動後エラーが出るのでこれもplayer.hに移動しましょう
-
-
-//Emiya 1-1:ここから
-
-//Emiya 1-1:ここまでをplayer.hに移動しましょう(PlayerFunctionのメンバ変数にします)
-
 void PlayerFunction ::PlayerInit(int displaywidth, int displayhight)
 {
 	px = float(displaywidth / 2);
@@ -90,15 +83,7 @@ void PlayerFunction::PlayerDraw()
 	 {
 		 for (int i = 0; i < animPatternNum * animTypeNum; i++)
 		 {
-			 DeleteGraph(charaimg[i]);
+			 DeleteGraph(charaimg[i]);			
 		 }
 	 }
  }
-
-
- //Emiya 1-4:ScreenCameraクラスはcamera2D.cppのようなファイルを用意してそちらに移動しちゃいましょう
-
-
-
-
-
