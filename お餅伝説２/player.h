@@ -19,18 +19,17 @@ class PlayerFunction {
 	const int animSizeX = 48;					//プレイヤーのアニメーションサイズ
 	const int animSizeY = 64;
 
-	const int hitSizeX = 40;					
+	const int hitSizeX = 40;
 	const int hitSizeY = 60;
 
 
 
 	int drawOffsetX;								//プレイヤーの大きさを変える変数
-	int drawOffsetY;					
+	int drawOffsetY;
 
 	int charaimg[animPatternNum * animTypeNum];		//キャラクターのアニメーション要素数
 
-	float time = 0.f;			
-	bool  PlayerStatusEffect = false;
+	float time = 0.f;
 public:
 	/// @brief プレイヤーの読み込み
 	/// @param displaywidth 

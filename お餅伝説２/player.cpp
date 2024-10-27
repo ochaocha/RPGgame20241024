@@ -3,10 +3,10 @@
 
 #include "map.h"
 
-void PlayerFunction ::PlayerInit(int displaywidth, int displayhight)
+void PlayerFunction::PlayerInit(int displaywidth, int displayhight)
 {
-	px = float(displaywidth / 2);
-	py = float(displayhight / 2);
+	PlayerPos.x = float(displaywidth / 2);
+	PlayerPos.y = float(displayhight / 2);
 	animNowType;
 	animNowIndex = 0;
 	animDirectionOffset = 0;
@@ -18,7 +18,7 @@ void PlayerFunction ::PlayerInit(int displaywidth, int displayhight)
 
 }
 
-void PlayerFunction ::Playerappdate()
+void PlayerFunction::Playerappdate()
 {
 	time += 1.0f / 60.f;						//60FPSは１秒間だからそれをtimeに時間を入れている
 
@@ -26,6 +26,7 @@ void PlayerFunction ::Playerappdate()
 	//3,4,5
 	//6,7,8
 	//9,10,11
+
 
 	if (time > 1.0f) {							//0,1,2,3-3=0,1,2,,	1秒以上にならないようにする
 		time -= 1.0f;							//１秒以上になると1秒マイナスさせる
@@ -37,12 +38,11 @@ void PlayerFunction ::Playerappdate()
 	}
 
 	//移動前のプレイヤー座標を保存
-	float prevXpos = px;
-	float prevYpos = py;
+	Vector2DX prevPos = PlayerPos;
 
 	if (CheckHitKey(KEY_INPUT_A))
 	{
-		px-=1.0f;
+		PlayerPos.x -= 1.0f;
 
 		charaMove = true;
 		animDirectionOffset = 8;
@@ -50,19 +50,19 @@ void PlayerFunction ::Playerappdate()
 	}
 	if (CheckHitKey(KEY_INPUT_D))
 	{
-		px+=1.0f;
+		PlayerPos.x += 1.0f;
 		charaMove = true;
 		animDirectionOffset = 40;
 	}
 	if (CheckHitKey(KEY_INPUT_S))
 	{
-		py+=1.0;
+		PlayerPos.y += 1.0;
 		charaMove = true;
 		animDirectionOffset = 0;
 	}
 	if (CheckHitKey(KEY_INPUT_W))
 	{
-		py-=1.0f;
+		PlayerPos.y -= 1.0f;
 		charaMove = true;
 		animDirectionOffset = 24;
 	}
@@ -74,31 +74,40 @@ void PlayerFunction ::Playerappdate()
 
 	//移動処理前後の線分とマップにある壁との判定
 	MapData* MapDataOllPtr = MapData::Instance();
-	MapDataOllPtr->CalcVectorSlideOnWallChip(
-		prevXpos, prevYpos,
-		&px, &py,
-		static_cast<float>(-hitSizeX / 2), static_cast<float>(hitSizeX / 2),
-		static_cast<float>(-hitSizeY / 2), static_cast<float>(hitSizeY / 2)
+	MapDataOllPtr->CalcVectorSlideOnWallChips(
+		prevPos,
+		&PlayerPos,
+		Vector2DX::vget(static_cast<float>(-hitSizeX / 2), static_cast<float>(-hitSizeY / 2)),
+		Vector2DX::vget(static_cast<float>(hitSizeX / 2), static_cast<float>(hitSizeY / 2))
 	);
 }
 
 void PlayerFunction::PlayerDraw()
- {
+{
 
-	DrawExtendGraph(static_cast<int>(px) + drawOffsetX, static_cast<int>(py) + drawOffsetY,px+drawOffsetX+110,py+drawOffsetY+110,charaimg[animDirectionOffset + animNowIndex], TRUE);
+	DrawExtendGraph(static_cast<int>(PlayerPos.x) + drawOffsetX, static_cast<int>(PlayerPos.y) + drawOffsetY, PlayerPos.x + drawOffsetX + 110, PlayerPos.y + drawOffsetY + 110, charaimg[animDirectionOffset + animNowIndex], TRUE);
 
 	//移動判定に正確なキャラクター描画
-	DrawExtendGraph(static_cast<int>(px) - hitSizeX / 2, static_cast<int>(py) - hitSizeY / 2, px + hitSizeX / 2, py + hitSizeY / 2, charaimg[animDirectionOffset + animNowIndex], TRUE);
-	DrawBox(static_cast<int>(px - hitSizeX / 2), static_cast<int>(py - hitSizeY / 2), static_cast<int>(px + hitSizeX / 2), static_cast<int>(py + hitSizeY / 2), GetColor(255, 0, 0), FALSE);
- }
+	Vector2DX PlayerMinSize = Vector2DX::vget(static_cast<float>(-hitSizeX / 2), static_cast<float>(-hitSizeY / 2));
+	Vector2DX PlayerMaxSize = Vector2DX::vget(static_cast<float>(hitSizeX / 2), static_cast<float>(hitSizeY / 2));
+	Vector2DX PlayerMinPos = PlayerPos + PlayerMinSize;
+	Vector2DX PlayerMaxPos = PlayerPos + PlayerMaxSize;
+	DrawExtendGraph(
+		static_cast<int>(PlayerMinPos.x), static_cast<int>(PlayerMinPos.y),
+		static_cast<int>(PlayerMaxPos.x), static_cast<int>(PlayerMaxPos.y),
+		charaimg[animDirectionOffset + animNowIndex], TRUE);
+	DrawBox(static_cast<int>(PlayerMinPos.x), static_cast<int>(PlayerMinPos.y),
+		static_cast<int>(PlayerMaxPos.x), static_cast<int>(PlayerMaxPos.y),
+		GetColor(255, 0, 0), FALSE);
+}
 
- void PlayerFunction::PlayerFinalize()
- {
-	 if (charaimg[0] != -1)
-	 {
-		 for (int i = 0; i < animPatternNum * animTypeNum; i++)
-		 {
-			 DeleteGraph(charaimg[i]);
-		 }
-	 }
- }
+void PlayerFunction::PlayerFinalize()
+{
+	if (charaimg[0] != -1)
+	{
+		for (int i = 0; i < animPatternNum * animTypeNum; i++)
+		{
+			DeleteGraph(charaimg[i]);
+		}
+	}
+}
