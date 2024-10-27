@@ -138,6 +138,10 @@ public:
 
     //特定のチップのマップデータが壁かどうかを判別します
     bool IsWallMapChip(int x, int y) {
+        //指定した座標が取得できない箇所である場合、壁として判別します
+        if ((x < 0) || (GetMapXsize() <= x) || (y < 0) || (GetMapYsize() < y)) {
+            return true;
+        }
         return Map[y][x] >= 0xFFFF;         //0xFFFF(65535)以上なら壁と判別します
     }
 
@@ -154,4 +158,11 @@ public:
     {
         return static_cast<int>(Map.size());
     }
+
+    //線分とマップチップのうち壁判定があるものとの当たり判定＋当たった後の移動処理
+    bool CalcVectorSlideOnWallChips(
+        float PlayerPrevX, float PlayerPrevY, float* pPlayerNowX, float* pPlayerNowY,
+        float PlayerXminSize, float PlayerXmaxSize, float PlayerYminSize, float PlayerYmaxSize
+    );
+
 };
