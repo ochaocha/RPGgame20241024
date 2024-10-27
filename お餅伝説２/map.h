@@ -7,16 +7,16 @@
 #include <vector>
 #include "map.h"
 
+#include "Source/Algorithm/Vector2D.h"
 
 typedef struct Location
 {
-	float rx;		//右下の座標
-	float ry;		//右下の座標
-	float lx;		//左上の座標
-	float ly;		//左下の座標
-	int w;		//幅
-	int h;		//幅
-  
+    float rx;		//右下の座標
+    float ry;		//右下の座標
+    float lx;		//左上の座標
+    float ly;		//左下の座標
+    int w;		//幅
+    int h;		//幅
 };
 
 #define SINGLETON (TRUE)
@@ -36,9 +36,9 @@ public:
     /// <summary>
     /// シングルトンのポインタを取得
     /// </summary>
-    static MapData* Instance(void) noexcept 
+    static MapData* Instance(void) noexcept
     {
-        if (m_Singleton == nullptr) {                               
+        if (m_Singleton == nullptr) {
             MessageBox(NULL, "Failed Instance Create", "", MB_OK);//エラーメッセージを出しています。
             exit(-1);
         }
@@ -73,27 +73,24 @@ private:
 
     int riverChipImg[5];//川の画像チップ
 
-    int offsetX = -2000;
-
-    int offsetY = -2000;
-
+    int offsetX = 0;
+    int offsetY = 0;
 private:
 
 
     std::vector<std::vector<int>> Map;   // マップの2次元配列
-   
-public:
-  
 
-    bool CalcVectorSlideOnWallChip(float PlayerPrevX, float PlayerPrevY, float* pPlayerNowX, float* pPlayerNowY, float PlayerXminSize, float PlayerXmaxSize, float PlayerYminSize, float PlayerYmaxSize);
+public:
+    //線分とマップチップのうち壁判定があるものとの当たり判定＋当たった後の移動処理
+    bool CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX* pPlayerNow, const Vector2DX& PlayerMinSize, const Vector2DX& PlayerMaxSize);
     /// @briefマップの読み込み  
     void mapInit();
 
-    void mapaupdate(); 
+    void mapaupdate();
     /// @briefマップの描画
-    void mapDraw();    
+    void mapDraw();
     /// @brief マップのCSVファイルから読み取り
-    void MapEngine();         
+    void MapEngine();
 
     bool LoadMapdata(std::string filePath)
     {
@@ -106,7 +103,7 @@ public:
 
         // ファイルからCSV読み込み
 
-         int line = 0;
+        int line = 0;
 
         while (getline(csvFile, linebuf))
         {
@@ -139,9 +136,18 @@ public:
         }
         return Map[y][x];
     }
+
+    const Location& GetMapLoca(int x, int y) {
+        return Maploca[y][x];
+    }
+
     //特定のチップのマップデータが壁かどうかを判別します
     bool IsWallMapChip(int x, int y) {
 
+        //指定した座標が取得できない箇所である場合、壁として判別します
+        if ((x < 0) || (GetMapXsize() <= x) || (y < 0) || (GetMapYsize() < y)) {
+            return true;
+        }
         return Map[y][x] >= 0xFFFF;         //0xFFFF(65535)以上なら壁と判別します
     }
 
@@ -162,7 +168,7 @@ public:
 
 class MapVector2D
 {
- private:
-     std::vector<std::vector<int>> GetMapLoca;
+private:
+    std::vector<std::vector<int>> GetMapLoca;
 
 };
