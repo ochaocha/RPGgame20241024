@@ -263,8 +263,8 @@ bool MapData::CalcVectorSlideOnWallChip
 					//右上→右下の判定
 					if (!IsWallMapChip(xpos + 1, ypos))
 					{
-						float HitPosX = 0.f;
-						float HitPosY = 0.f;
+						float HitPosX = 0.0f;
+						float HitPosY = 0.0f;
 						float SlidePosX = 0.f;
 						float SlidePosY = 0.f;
 						if (CalcLineToLineSlideVector(PlayerPrevX, PlayerPrevY, PlayerNowX, PlayerNowY, &HitPosX, &HitPosY, &SlidePosX, &SlidePosY,
@@ -283,10 +283,10 @@ bool MapData::CalcVectorSlideOnWallChip
 					//右下→左下の判定
 					if (!IsWallMapChip(xpos, ypos + 1))
 					{
-						float HitPosX = 0.f;
-						float HitPosY = 0.f;
-						float SlidePosX = 0.f;
-						float SlidePosY = 0.f;
+						float HitPosX = 0.0f;
+						float HitPosY = 0.0f;
+						float SlidePosX = 0.0f;
+						float SlidePosY = 0.0f;
 						if (CalcLineToLineSlideVector(PlayerPrevX, PlayerPrevY, PlayerNowX, PlayerNowY, &HitPosX, &HitPosY, &SlidePosX, &SlidePosY,
 							mapLoca.rx + PlayerXmaxSize, mapLoca.ry + PlayerYmaxSize, mapLoca.lx + PlayerXminSize, mapLoca.ry + PlayerYmaxSize, 0.f, 1.f))
 						{
@@ -328,7 +328,8 @@ bool MapData::CalcVectorSlideOnWallChip
 			//何かに当たったフラグをオン
 			IsHitAnyWall = true;
 			//保持した演算結果を反映(XYそれぞれ別々に)
-			if (xySel == XSEL) {
+			if (xySel == XSEL)
+			{
 				*pPlayerNowX = ResultNowX;
 			}
 			else {

@@ -14,13 +14,14 @@ constexpr auto MillSecond = 1000.0f;				//1ミリ秒
 /// FPS = 画面の更新を1秒に何回行うか(FramePerSecond)
 /// </summary>
 class FPSControl {
-private://外に出さないメンバ変数
+private:								//外に出さないメンバ変数
 	LONGLONG		m_FirstTakeTime = 0;				//計測開始時の時間をマイクロ秒単位で保存
-	//平均FPSを計算するための変数
+														//平均FPSを計算するための変数
 	std::array<float, RecordFPSCount> m_OldFPS{};		//記録するFPS値(RecordFPSCountフレーム前まで記録します)
 	int				m_NowRecordPoint{};					//m_OldFPSのどの位置に現在のFPSを記録するか
 	float			m_AverageFPS = 0.0f;				//平均FPS値
-public://外に出すメンバ関数のプロトタイプ宣言
+
+public:									//外に出すメンバ関数のプロトタイプ宣言
 	VOID Initialize(VOID);				//メインループ前に行う内容:各メンバ変数の初期化など			
 	VOID StartMeasureTime(VOID);		//処理時間計測の開始				
 	VOID Draw(VOID);					//FPS描画			

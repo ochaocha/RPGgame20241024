@@ -49,7 +49,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		return -1;
 	}
 	
-	
 
 	PlayerFunctionOll.PlayerInit(displaywidth2X, displayhight2Y);
 

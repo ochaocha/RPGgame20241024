@@ -49,7 +49,8 @@ private:
     /// コンストラクタ(シングルトンではprivateで宣言します
     /// )
     /// </summary>
-    MapData() {}
+    MapData() {
+    }
     /// <summary>
     /// デストラクタ(シングルトンでは呼ばれません)
     /// </summary>
@@ -76,7 +77,6 @@ private:
 
     int offsetY = -2000;
 
-   
 private:
 
 
@@ -163,6 +163,6 @@ public:
 class MapVector2D
 {
  private:
-    std::vector<std::vector<int>> GetMapLoca;
+     std::vector<std::vector<int>> GetMapLoca;
 
 };
