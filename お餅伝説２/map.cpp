@@ -42,25 +42,24 @@ void  MapData::mapDraw()
 		{
 			for (int x = 0; x < GetMapXsize(); x++)
 			{
+				int imgIndex = GetMapChip(x, y);              // map配列よりブロック種類を取得
+				const Location& mapLoca = GetMapLoca(x, y);
+
 				if (IsWallMapChip(x,y))
 				{
-					int imgIndex =GetMapChip(x, y);              // map配列よりブロック種類を取得
-
 					int imgHandle = riverChipImg[imgIndex];  // indexをつかって画像ハンドル配列から画像ハンドルを取得
 
 					// マップチップ幅でブロック画像を敷き詰めて描画する
 					// xは0,1,2・・・と変化する。 x * mapChipSize の計算は 0,64,128,196, ... とブロック幅ごとに増える
-					DrawGraph(x * mapChipSize, y * mapChipSize, imgHandle, TRUE);
+					//DrawGraph(mapLoca.lx, mapLoca.ly, imgHandle, TRUE);
 				}
 				else
 				{
-					int imgIndex = GetMapChip(x, y);              // map配列よりブロック種類を取得
-
 					int imgHandle = mapChipImg[imgIndex];  // indexをつかって画像ハンドル配列から画像ハンドルを取得
 
 					// マップチップ幅でブロック画像を敷き詰めて描画する
 					// xは0,1,2・・・と変化する。 x * mapChipSize の計算は 0,64,128,196, ... とブロック幅ごとに増える
-					DrawGraph(x * mapChipSize, y * mapChipSize, imgHandle, TRUE);
+					DrawGraph(mapLoca.lx, mapLoca.ly, imgHandle, TRUE);
 				}
 				
 			}

@@ -70,8 +70,8 @@ private:
 
     int riverChipImg[5];//川の画像チップ
 
-    int offsetX = -2000;
-    int offsetY = -2000;
+    int offsetX = 0;
+    int offsetY = 0;
 private:
 
 
@@ -131,6 +131,11 @@ public:
         }
         return Map[y][x];
     }
+
+    const Location& GetMapLoca(int x, int y) {
+        return Maploca[y][x];
+    }
+
     //特定のチップのマップデータが壁かどうかを判別します
     bool IsWallMapChip(int x, int y) {
         return Map[y][x] >= 0xFFFF;         //0xFFFF(65535)以上なら壁と判別します
