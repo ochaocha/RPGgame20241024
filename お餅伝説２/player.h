@@ -1,9 +1,11 @@
 #pragma once
 #include "collision.h"
 
+#include "Source/Algorithm/Vector2D.h"
+
 class PlayerFunction {
 
-	float px, py;								//プレイヤーの初期座標
+	Vector2DX PlayerPos;						//プレイヤーの初期座標
 	int animNowType;							//プレイヤーの配列の縦要素数
 	int animNowIndex;							//プレイヤーの現在のアニメーション
 

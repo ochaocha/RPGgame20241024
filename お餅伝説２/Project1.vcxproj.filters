@@ -22,6 +22,12 @@
     <Filter Include="ソース ファイル\当たり判定">
       <UniqueIdentifier>{896044bb-1ebf-4b31-b55a-30f8f958d94f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Source">
+      <UniqueIdentifier>{98cf5518-e217-4e1e-85cc-057dcca4535c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Source\Algorithm">
+      <UniqueIdentifier>{1161ea57-6c52-44f5-89d3-d6d8ac019ef3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -99,7 +105,10 @@
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClInclude>
     <ClInclude Include="player.h">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ヘッダー ファイル\描画関係</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Algorithm\Vector2D.h">
+      <Filter>ソース ファイル\Source\Algorithm</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
