@@ -25,15 +25,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	PlayerFunction PlayerFunctionOll;
 	
-	//Emiya 2-2:MapDataのシングルトンを作成しそのポインタを作成
-#if SINGLETON//Emiya 2-1:
+#if SINGLETON
 	MapData::Create();
 	MapData* MapDataOllPtr = MapData::Instance();
 #else
 	MapData MapDataOll;
 #endif
-	//Emiya 2-3:ポインタをもちいるようにマップ処理を差し替えて、動くことを確認してください
-	//例:MapDataOll. -> MapDataOllPtr->
+	
 
 	ScreenCamera camera;
 	//FPS制御オブジェクトとしてローカル変数を作成
@@ -56,8 +54,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	PlayerFunctionOll.PlayerInit(displaywidth2X, displayhight2Y);
 
 	//MapDataOll変数を初期化
-	MapDataOll.MapEngine();//マップの読み込み
-	MapDataOll.mapInit();//マップの初期化
+	MapDataOllPtr->MapEngine();//マップの読み込み
+	MapDataOllPtr->mapInit();//マップの初期化
 	
 
 	int nowCount, prevCount;
@@ -90,14 +88,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			
 			ClearDrawScreen();		//マップの描画
 			//MapEngine();		//マップの動き
-			MapDataOll.mapaupdate();			//マップの動き
+			MapDataOllPtr->mapaupdate();			//マップの動き
 			
 			
 
 			PlayerFunctionOll.Playerappdate();		//プレイヤーの更新
 
 			
-			MapDataOll.mapDraw();
+			MapDataOllPtr->mapDraw();
 
 			
 						//画面更新処理

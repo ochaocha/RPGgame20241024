@@ -25,7 +25,6 @@ void PlayerFunction ::Playerappdate()
 	//6,7,8
 	//9,10,11
 
-
 	if (time > 1.0f) {							//0,1,2,3-3=0,1,2,,	1•bˆÈã‚É‚È‚ç‚È‚¢‚æ‚¤‚É‚·‚é
 		time -= 1.0f;							//‚P•bˆÈã‚É‚È‚é‚Æ1•bƒ}ƒCƒiƒX‚³‚¹‚é
 		animNowIndex += 1;						//‚P•b‚É‚È‚é‚Æ”z—ñ‚Ì—v‘f”‚ğ‚P‘‚â‚µ‚Ä‚¢‚é
@@ -86,4 +85,9 @@ void PlayerFunction::PlayerDraw()
 			 DeleteGraph(charaimg[i]);			
 		 }
 	 }
+ }
+
+ void PlayerFunction::PlayerStatusEffect()
+ {
+	 if()
  }

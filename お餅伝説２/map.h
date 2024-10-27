@@ -18,10 +18,10 @@ typedef struct Location
 	int h;		//幅
 };
 
-#define SINGLETON (FALSE)
+#define SINGLETON (TRUE)
 
 class MapData {
-#if SINGLETON//Emiya 2-1:シングルトンのインターフェースを追加します。SINGLETONのdefineをFALSE->TRUEにすると有効化されます。
+#if SINGLETON
 private:
     /// <summary>
     /// シングルトンとして変数を宣言
@@ -35,7 +35,8 @@ public:
     /// <summary>
     /// シングルトンのポインタを取得
     /// </summary>
-    static MapData* Instance(void) noexcept {
+    static MapData* Instance(void) noexcept 
+    {
         if (m_Singleton == nullptr) {                               
             MessageBox(NULL, "Failed Instance Create", "", MB_OK);//エラーメッセージを出しています。
             exit(-1);
@@ -71,6 +72,7 @@ private:
     int riverChipImg[5];//川の画像チップ
 
     int offsetX = -2000;
+
     int offsetY = -2000;
 private:
 

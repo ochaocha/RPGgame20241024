@@ -27,7 +27,8 @@ class PlayerFunction {
 
 	int charaimg[animPatternNum * animTypeNum];		//キャラクターのアニメーション要素数
 
-	float time = 0.f;								
+	float time = 0.f;			
+	bool  PlayerStatusEffect = false;
 public:
 	/// @brief プレイヤーの読み込み
 	/// @param displaywidth 
@@ -39,5 +40,6 @@ public:
 	void PlayerDraw();
 	/// @brief プレイヤーの後始末
 	void PlayerFinalize();
-
+	/// @brief プレイヤーの状態異常管理
+	void PlayerStatusEffect();
 };
