@@ -7,6 +7,7 @@
 #include <vector>
 #include "map.h"
 
+#include "Source/Algorithm/Vector2D.h"
 
 typedef struct Location
 {
@@ -160,9 +161,6 @@ public:
     }
 
     //線分とマップチップのうち壁判定があるものとの当たり判定＋当たった後の移動処理
-    bool CalcVectorSlideOnWallChips(
-        float PlayerPrevX, float PlayerPrevY, float* pPlayerNowX, float* pPlayerNowY,
-        float PlayerXminSize, float PlayerXmaxSize, float PlayerYminSize, float PlayerYmaxSize
-    );
+    bool CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX* pPlayerNow, const Vector2DX& PlayerMinSize, const Vector2DX& PlayerMaxSize);
 
 };

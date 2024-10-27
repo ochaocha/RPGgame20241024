@@ -3,41 +3,29 @@
 
 #include <cmath>
 
-
-/// <summary>
-/// 2次元の外積
-/// </summary>
-float			Cross(float Ax, float Ay, float Bx, float By) noexcept { return Ax * By - Ay * Bx; }
-
-/// <summary>
-/// 2次元の内積
-/// </summary>
-float			Dot(float Ax, float Ay, float Bx, float By) noexcept { return Ax * Bx + Ay * By; }
-
 // 直線と直線の判定
 // 戻り値=直線が交わっているかどうか
 bool GetHitLineToLine(
-	float Line1X1, float Line1Y1, float Line1X2, float Line1Y2,
-	float Line2X1, float Line2Y1, float Line2X2, float Line2Y2,
-	float* pReturnX, float* pReturnY,		// pReturnX,pReturnY=線同士で一番近い座標のうちLine1上のものを返すためのポインタ
-	float* pLine1AcrossPer					// 交点のLine1上の割合 (交点-Line11)/(Line12-Line11)
+	const Vector2DX& Line11, const Vector2DX& Line12,
+	const Vector2DX& Line21, const Vector2DX& Line22,
+	Vector2DX* pReturn,		// pReturn=線同士で一番近い座標のうちLine1上のものを返すためのポインタ
+	float* pLine1AcrossPer	// 交点のLine1上の割合 (交点-Line11)/(Line12-Line11)
 ) {
 	//完全に平行な場合は除外
-	if (std::fabsf(Cross(Line1X2 - Line1X1, Line1Y2 - Line1Y1, Line2X2 - Line2X1, Line2Y2 - Line2Y1)) <= 0.001f) {
+	if (std::fabsf(Vector2DX::Cross(Line12 - Line11, Line22 - Line21)) <= 0.001f) {
 		return false;
 	}
 
 	//z=0としてDXLIBでの直線と直線の判定関数を実行
 	SEGMENT_SEGMENT_RESULT Result;
-	VECTOR Pos11 = VGet(Line1X1, Line1Y1, 0.f);
-	VECTOR Pos12 = VGet(Line1X2, Line1Y2, 0.f);
-	VECTOR Pos21 = VGet(Line2X1, Line2Y1, 0.f);
-	VECTOR Pos22 = VGet(Line2X2, Line2Y2, 0.f);
+	VECTOR Pos11 = Line11.get();
+	VECTOR Pos12 = Line12.get();
+	VECTOR Pos21 = Line21.get();
+	VECTOR Pos22 = Line22.get();
 	DxLib::Segment_Segment_Analyse(&Pos11, &Pos12, &Pos21, &Pos22, &Result);
 
 	//戻り値を設定
-	*pReturnX = Result.SegA_MinDist_Pos.x;
-	*pReturnY = Result.SegA_MinDist_Pos.y;
+	*pReturn = Result.SegA_MinDist_Pos;
 	*pLine1AcrossPer = Result.SegA_MinDist_Pos1_Pos2_t;
 
 	return Result.SegA_SegB_MinDist_Square <= 0.001f * 0.001f;
@@ -47,28 +35,21 @@ bool GetHitLineToLine(
 // Line1=接触している場合、接触点とスライドした点とを代入します
 // 戻り値=接触しているならTRUE
 bool CalcLineToLineSlideVector(
-	float Line1X1, float Line1Y1, float Line1X2, float Line1Y2, float* LineHitX, float* LineHitY, float* LineSlideX, float* LineSlideY,
-	float Line2X1, float Line2Y1, float Line2X2, float Line2Y2,//
-	float Line2NormalX, float Line2NormalY//Line2と垂直なベクトルで、外向きを指すものを長さ1.0としたもの
+	const Vector2DX& Line11, const Vector2DX& Line12, Vector2DX* LineHit, Vector2DX* LineSlide,
+	const Vector2DX& Line21, const Vector2DX& Line22,
+	const Vector2DX& Line2Normal//Line2と垂直なベクトルで、外向きを指すものを長さ1.0としたもの
 ) {
-	float ReturnX = 0.f;
-	float ReturnY = 0.f;
+	Vector2DX Return;
 	float Line1AcrossPer = 0.f;
 	//交差した場合
-	if (GetHitLineToLine(
-		Line1X1, Line1Y1, Line1X2, Line1Y2,
-		Line2X1, Line2Y1, Line2X2, Line2Y2,
-		&ReturnX, &ReturnY, &Line1AcrossPer)
-		)
+	if (GetHitLineToLine(Line11, Line12, Line21, Line22, &Return, &Line1AcrossPer))
 	{
 		//NormalとLine1との法線
-		float NormalToLine1Dot = std::fabsf(Dot(Line2NormalX, Line2NormalY, Line1X2 - Line1X1, Line1Y2 - Line1Y1));
+		float NormalToLine1Dot = std::fabsf(Vector2DX::Dot(Line2Normal, Line12 - Line11));
 		//接触点を代入
-		*LineHitX = Line1X1 + (Line1X2 - Line1X1) * (1.f - Line1AcrossPer);
-		*LineHitY = Line1Y1 + (Line1Y2 - Line1Y1) * (1.f - Line1AcrossPer);
+		*LineHit = Line11 + (Line12 - Line11) * (1.f - Line1AcrossPer);
 		//交点とPlayerNowとの距離ぶん、Normal方向に移動した場所がスライド後の座標
-		*LineSlideX = Line1X2 + Line2NormalX * NormalToLine1Dot * (1.f - Line1AcrossPer);
-		*LineSlideY = Line1Y2 + Line2NormalY * NormalToLine1Dot * (1.f - Line1AcrossPer);
+		*LineSlide = Line12 + Line2Normal * NormalToLine1Dot * (1.f - Line1AcrossPer);
 		return true;
 	}
 	return false;
@@ -191,13 +172,10 @@ void  MapData::MapEngine()
 }
 
 //線分とマップチップのうち壁判定があるものとの当たり判定＋当たった後の移動処理
-//PlayerPrev :  
-//pPlayerNow :  
+//PlayerPrev :  移動前の座標
+//pPlayerNow :  移動後の座標を渡す(内部で移動処理を経た値を反映します)
 //PlayerSize :  キャラの判定サイズの中央からのサイズ値
-bool MapData::CalcVectorSlideOnWallChips(
-	float PlayerPrevX, float PlayerPrevY, float* pPlayerNowX, float* pPlayerNowY,
-	float PlayerXminSize, float PlayerXmaxSize, float PlayerYminSize, float PlayerYmaxSize
-)
+bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX* pPlayerNow, const Vector2DX& PlayerMinSize, const Vector2DX& PlayerMaxSize)
 {
 	constexpr int XSEL = 0;//xySelでXを選択している事を示す定数
 
@@ -207,21 +185,19 @@ bool MapData::CalcVectorSlideOnWallChips(
 	for (int xySel = 0; xySel < 2; xySel++)
 	{
 		//移動後の座標をローカル変数として保持します
-		float PlayerNowX = *pPlayerNowX;
-		float PlayerNowY = *pPlayerNowY;
+		Vector2DX PlayerNow = *pPlayerNow;
 		//(XYそれぞれ別々にするため、計算しない方をPrevにして各方向のみのベクトルにします)
 		if (xySel == XSEL) {
-			PlayerNowY = PlayerPrevY;
+			PlayerNow.y = PlayerPrev.y;
 		}
 		else {
-			PlayerNowX = PlayerPrevX;
+			PlayerNow.x = PlayerPrev.x;
 		}
 		//このマップチップ上での演算結果を判断するためのローカル変数
-		float PlayerVectorLength = std::hypotf(PlayerNowX - PlayerPrevX, PlayerNowY - PlayerPrevY);//ヒットするまでに進んだ距離(最初にヒットするまでは ヒットするまでに進むはずだった距離)
+		float PlayerVectorLength = (PlayerNow - PlayerPrev).sqrMagnitude();//ヒットするまでに進んだ距離(最初にヒットするまでは ヒットするまでに進むはずだった距離)
 		bool IsHitLine = false;//このループ上で何かのマップチップに当たったか
 		//マップチップに当たった場合の結果を代入するための変数
-		float ResultNowX = PlayerNowX;
-		float ResultNowY = PlayerNowY;
+		Vector2DX ResultNow = PlayerNow;
 		//全てのマップチップに対して、当たっているかと当たった場合のベクトル変異を演算します(全部やる必要はないので、ブレゼンハムのアルゴリズムなどを用いて最適化できます)
 		for (int ypos = 0; ypos < GetMapYsize(); ypos++)
 		{
@@ -237,23 +213,21 @@ bool MapData::CalcVectorSlideOnWallChips(
 					if (!IsWallMapChip(xpos, ypos - 1))//この辺に面したマップチップが壁なら、判断しなくてもよいものとして省きます
 					{
 						//一時変数を用意します
-						float HitPosX = 0.f;
-						float HitPosY = 0.f;
-						float SlidePosX = 0.f;
-						float SlidePosY = 0.f;
+						Vector2DX HitPos;
+						Vector2DX SlidePos;
 						//この辺に移動ベクトルが当たった際のずりベクトルを計算します。
-						if (CalcLineToLineSlideVector(PlayerPrevX, PlayerPrevY, PlayerNowX, PlayerNowY, &HitPosX, &HitPosY, &SlidePosX, &SlidePosY,
-							mapLoca.lx + PlayerXminSize, mapLoca.ly + PlayerYminSize, mapLoca.rx + PlayerXmaxSize, mapLoca.ly + PlayerYminSize, 0.f, -1.f))
+						if (CalcLineToLineSlideVector(PlayerPrev, PlayerNow, &HitPos, &SlidePos,
+							Vector2DX::vget(mapLoca.lx + PlayerMinSize.x, mapLoca.ly + PlayerMinSize.y),
+							Vector2DX::vget(mapLoca.rx + PlayerMaxSize.x, mapLoca.ly + PlayerMinSize.y), Vector2DX::down()))
 						{
 							//ずり計算後、ずる直前に辺にヒットした座標まで進んでいた長さを取ります
-							float Length = std::hypotf(HitPosX - PlayerPrevX, HitPosY - PlayerPrevY);
+							float Length = (HitPos - PlayerPrev).sqrMagnitude();
 							//もしそれが今ある辺の中で一番短いのであれば、ヒットしたものとして更新します。
 							if (PlayerVectorLength >= Length)
 							{
 								PlayerVectorLength = Length;
 								IsHitLine = true;
-								ResultNowX = SlidePosX;
-								ResultNowY = SlidePosY;
+								ResultNow = SlidePos;
 							}
 						}
 					}
@@ -261,60 +235,60 @@ bool MapData::CalcVectorSlideOnWallChips(
 					//右上→右下の判定
 					if (!IsWallMapChip(xpos + 1, ypos))
 					{
-						float HitPosX = 0.f;
-						float HitPosY = 0.f;
-						float SlidePosX = 0.f;
-						float SlidePosY = 0.f;
-						if (CalcLineToLineSlideVector(PlayerPrevX, PlayerPrevY, PlayerNowX, PlayerNowY, &HitPosX, &HitPosY, &SlidePosX, &SlidePosY,
-							mapLoca.rx + PlayerXmaxSize, mapLoca.ly + PlayerYminSize, mapLoca.rx + PlayerXmaxSize, mapLoca.ry + PlayerYmaxSize, 1.f, 0.f))
+						//一時変数を用意します
+						Vector2DX HitPos;
+						Vector2DX SlidePos;
+						//この辺に移動ベクトルが当たった際のずりベクトルを計算します。
+						if (CalcLineToLineSlideVector(PlayerPrev, PlayerNow, &HitPos, &SlidePos,
+							Vector2DX::vget(mapLoca.rx + PlayerMaxSize.x, mapLoca.ly + PlayerMinSize.y),
+							Vector2DX::vget(mapLoca.rx + PlayerMaxSize.x, mapLoca.ry + PlayerMaxSize.y), Vector2DX::right()))
 						{
-							float Length = std::hypotf(HitPosX - PlayerPrevX, HitPosY - PlayerPrevY);
+							float Length = (HitPos - PlayerPrev).sqrMagnitude();
 							if (PlayerVectorLength >= Length)
 							{
 								PlayerVectorLength = Length;
 								IsHitLine = true;
-								ResultNowX = SlidePosX;
-								ResultNowY = SlidePosY;
+								ResultNow = SlidePos;
 							}
 						}
 					}
 					//右下→左下の判定
 					if (!IsWallMapChip(xpos, ypos + 1))
 					{
-						float HitPosX = 0.f;
-						float HitPosY = 0.f;
-						float SlidePosX = 0.f;
-						float SlidePosY = 0.f;
-						if (CalcLineToLineSlideVector(PlayerPrevX, PlayerPrevY, PlayerNowX, PlayerNowY, &HitPosX, &HitPosY, &SlidePosX, &SlidePosY,
-							mapLoca.rx + PlayerXmaxSize, mapLoca.ry + PlayerYmaxSize, mapLoca.lx + PlayerXminSize, mapLoca.ry + PlayerYmaxSize, 0.f, 1.f))
+						//一時変数を用意します
+						Vector2DX HitPos;
+						Vector2DX SlidePos;
+						//この辺に移動ベクトルが当たった際のずりベクトルを計算します。
+						if (CalcLineToLineSlideVector(PlayerPrev, PlayerNow, &HitPos, &SlidePos,
+							Vector2DX::vget(mapLoca.rx + PlayerMaxSize.x, mapLoca.ry + PlayerMaxSize.y),
+							Vector2DX::vget(mapLoca.lx + PlayerMinSize.x, mapLoca.ry + PlayerMaxSize.y), Vector2DX::up()))
 						{
-							float Length = std::hypotf(HitPosX - PlayerPrevX, HitPosY - PlayerPrevY);
+							float Length = (HitPos - PlayerPrev).sqrMagnitude();
 							if (PlayerVectorLength >= Length)
 							{
 								PlayerVectorLength = Length;
 								IsHitLine = true;
-								ResultNowX = SlidePosX;
-								ResultNowY = SlidePosY;
+								ResultNow = SlidePos;
 							}
 						}
 					}
 					//左下→左上の判定
 					if (!IsWallMapChip(xpos - 1, ypos))
 					{
-						float HitPosX = 0.f;
-						float HitPosY = 0.f;
-						float SlidePosX = 0.f;
-						float SlidePosY = 0.f;
-						if (CalcLineToLineSlideVector(PlayerPrevX, PlayerPrevY, PlayerNowX, PlayerNowY, &HitPosX, &HitPosY, &SlidePosX, &SlidePosY,
-							mapLoca.lx + PlayerXminSize, mapLoca.ry + PlayerYmaxSize, mapLoca.lx + PlayerXminSize, mapLoca.ly + PlayerYminSize, -1.f, 0.f))
+						//一時変数を用意します
+						Vector2DX HitPos;
+						Vector2DX SlidePos;
+						//この辺に移動ベクトルが当たった際のずりベクトルを計算します。
+						if (CalcLineToLineSlideVector(PlayerPrev, PlayerNow, &HitPos, &SlidePos,
+							Vector2DX::vget(mapLoca.lx + PlayerMinSize.x, mapLoca.ry + PlayerMaxSize.y),
+							Vector2DX::vget(mapLoca.lx + PlayerMinSize.x, mapLoca.ly + PlayerMinSize.y), Vector2DX::left()))
 						{
-							float Length = std::hypotf(HitPosX - PlayerPrevX, HitPosY - PlayerPrevY);
+							float Length = (HitPos - PlayerPrev).sqrMagnitude();
 							if (PlayerVectorLength >= Length)
 							{
 								PlayerVectorLength = Length;
 								IsHitLine = true;
-								ResultNowX = SlidePosX;
-								ResultNowY = SlidePosY;
+								ResultNow = SlidePos;
 							}
 						}
 					}
@@ -327,10 +301,10 @@ bool MapData::CalcVectorSlideOnWallChips(
 			IsHitAnyWall = true;
 			//保持した演算結果を反映(XYそれぞれ別々に)
 			if (xySel == XSEL) {
-				*pPlayerNowX = ResultNowX;
+				pPlayerNow->x = ResultNow.x;
 			}
 			else {
-				*pPlayerNowY = ResultNowY;
+				pPlayerNow->y = ResultNow.y;
 			}
 		}
 	}
