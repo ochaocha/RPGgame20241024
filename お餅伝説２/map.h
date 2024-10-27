@@ -18,7 +18,7 @@ typedef struct Location
 	int h;		//幅
 };
 
-#define SINGLETON (FALSE)
+#define SINGLETON (TRUE)
 
 class MapData {
 #if SINGLETON//Emiya 2-1:シングルトンのインターフェースを追加します。SINGLETONのdefineをFALSE->TRUEにすると有効化されます。
