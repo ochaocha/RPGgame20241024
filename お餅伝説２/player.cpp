@@ -1,6 +1,8 @@
 #include "player.h"
 #include "DxLib.h"
 
+#include "map.h"
+
 void PlayerFunction ::PlayerInit(int displaywidth, int displayhight)
 {
 	px = float(displaywidth / 2);
@@ -34,6 +36,9 @@ void PlayerFunction ::Playerappdate()
 		}
 	}
 
+	//移動前のプレイヤー座標を保存
+	float prevXpos = px;
+	float prevYpos = py;
 
 	if (CheckHitKey(KEY_INPUT_A))
 	{
@@ -66,6 +71,15 @@ void PlayerFunction ::Playerappdate()
 	{
 		charaMove = false;
 	}
+
+	//移動処理前後の線分とマップにある壁との判定
+	MapData* MapDataOllPtr = MapData::Instance();
+	MapDataOllPtr->CalcVectorSlideOnWallChips(
+		prevXpos, prevYpos,
+		&px, &py,
+		static_cast<float>(-hitSizeX / 2), static_cast<float>(hitSizeX / 2),
+		static_cast<float>(-hitSizeY / 2), static_cast<float>(hitSizeY / 2)
+	);
 }
 
 void PlayerFunction::PlayerDraw()
@@ -73,7 +87,9 @@ void PlayerFunction::PlayerDraw()
 
 	DrawExtendGraph(static_cast<int>(px) + drawOffsetX, static_cast<int>(py) + drawOffsetY,px+drawOffsetX+110,py+drawOffsetY+110,charaimg[animDirectionOffset + animNowIndex], TRUE);
 
-
+	//移動判定に正確なキャラクター描画
+	DrawExtendGraph(static_cast<int>(px) - hitSizeX / 2, static_cast<int>(py) - hitSizeY / 2, px + hitSizeX / 2, py + hitSizeY / 2, charaimg[animDirectionOffset + animNowIndex], TRUE);
+	DrawBox(static_cast<int>(px - hitSizeX / 2), static_cast<int>(py - hitSizeY / 2), static_cast<int>(px + hitSizeX / 2), static_cast<int>(py + hitSizeY / 2), GetColor(255, 0, 0), FALSE);
  }
 
  void PlayerFunction::PlayerFinalize()
@@ -82,7 +98,7 @@ void PlayerFunction::PlayerDraw()
 	 {
 		 for (int i = 0; i < animPatternNum * animTypeNum; i++)
 		 {
-			 DeleteGraph(charaimg[i]);			
+			 DeleteGraph(charaimg[i]);
 		 }
 	 }
  }
