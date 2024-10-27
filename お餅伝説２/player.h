@@ -40,6 +40,5 @@ public:
 	void PlayerDraw();
 	/// @brief プレイヤーの後始末
 	void PlayerFinalize();
-	/// @brief プレイヤーの状態異常管理
-	void PlayerStatusEffect();
+
 };

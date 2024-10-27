@@ -16,7 +16,8 @@ float			Dot(float Ax, float Ay, float Bx, float By) noexcept { return Ax * Bx + 
 
 // 直線と直線の判定
 // 戻り値=直線が交わっているかどうか
-bool GetHitLineToLine(
+bool GetHitLineToLine
+(
 	float Line1X1, float Line1Y1, float Line1X2, float Line1Y2,
 	float Line2X1, float Line2Y1, float Line2X2, float Line2Y2,
 	float* pReturnX, float* pReturnY,		// pReturnX,pReturnY=線同士で一番近い座標のうちLine1上のものを返すためのポインタ
@@ -76,7 +77,7 @@ bool CalcLineToLineSlideVector(
 
 
 
-#if SINGLETON//Emiya 2-1:
+#if SINGLETON
 /// <summary>
 /// シングルトンとして変数を定義
 /// </summary>
@@ -118,7 +119,7 @@ void  MapData::mapDraw()
 			for (int x = 0; x < GetMapXsize(); x++)
 			{
 				int imgIndex = GetMapChip(x, y);              // map配列よりブロック種類を取得
-				const Location& mapLoca = GetMapLoca(x, y);
+				const Location& mapLoca = MapVector2D::GetMapLoca(x, y);
 
 				if (IsWallMapChip(x,y))
 				{
@@ -194,7 +195,8 @@ void  MapData::MapEngine()
 //PlayerPrev :  
 //pPlayerNow :  
 //PlayerSize :  キャラの判定サイズの中央からのサイズ値
-bool MapData::CalcVectorSlideOnWallChips(
+bool MapData::CalcVectorSlideOnWallChip
+(
 	float PlayerPrevX, float PlayerPrevY, float* pPlayerNowX, float* pPlayerNowY,
 	float PlayerXminSize, float PlayerXmaxSize, float PlayerYminSize, float PlayerYmaxSize
 )
@@ -231,7 +233,7 @@ bool MapData::CalcVectorSlideOnWallChips(
 				if (IsWallMapChip(xpos, ypos))
 				{
 					//そのマップのデータを取得します
-					const Location& mapLoca = GetMapLoca(xpos, ypos);
+					const Location& mapLoca = MapVector2D::GetMapLoca(xpos, ypos);
 					//チップの矩形の辺と線分との交点のうちPlayerPrevに一番近い方を得る
 					//左上→右上の判定
 					if (!IsWallMapChip(xpos, ypos - 1))//この辺に面したマップチップが壁なら、判断しなくてもよいものとして省きます

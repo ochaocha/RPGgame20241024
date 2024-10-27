@@ -74,7 +74,7 @@ void PlayerFunction ::Playerappdate()
 
 	//移動処理前後の線分とマップにある壁との判定
 	MapData* MapDataOllPtr = MapData::Instance();
-	MapDataOllPtr->CalcVectorSlideOnWallChips(
+	MapDataOllPtr->CalcVectorSlideOnWallChip(
 		prevXpos, prevYpos,
 		&px, &py,
 		static_cast<float>(-hitSizeX / 2), static_cast<float>(hitSizeX / 2),
@@ -101,9 +101,4 @@ void PlayerFunction::PlayerDraw()
 			 DeleteGraph(charaimg[i]);
 		 }
 	 }
- }
-
- void PlayerFunction::PlayerStatusEffect()
- {
-	 if()
  }

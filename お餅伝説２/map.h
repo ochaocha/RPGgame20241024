@@ -16,6 +16,7 @@ typedef struct Location
 	float ly;		//左下の座標
 	int w;		//幅
 	int h;		//幅
+  
 };
 
 #define SINGLETON (TRUE)
@@ -74,12 +75,17 @@ private:
     int offsetX = -2000;
 
     int offsetY = -2000;
+
+   
 private:
 
 
     std::vector<std::vector<int>> Map;   // マップの2次元配列
-
+   
 public:
+  
+
+    bool CalcVectorSlideOnWallChip(float PlayerPrevX, float PlayerPrevY, float* pPlayerNowX, float* pPlayerNowY, float PlayerXminSize, float PlayerXmaxSize, float PlayerYminSize, float PlayerYmaxSize);
     /// @briefマップの読み込み  
     void mapInit();
 
@@ -135,6 +141,7 @@ public:
     }
     //特定のチップのマップデータが壁かどうかを判別します
     bool IsWallMapChip(int x, int y) {
+
         return Map[y][x] >= 0xFFFF;         //0xFFFF(65535)以上なら壁と判別します
     }
 
@@ -151,4 +158,11 @@ public:
     {
         return static_cast<int>(Map.size());
     }
+};
+
+class MapVector2D
+{
+ private:
+    std::vector<std::vector<int>> GetMapLoca;
+
 };
