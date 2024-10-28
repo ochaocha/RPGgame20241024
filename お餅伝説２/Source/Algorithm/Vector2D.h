@@ -10,7 +10,7 @@ public:
 	float x{ 0 };
 	float y{ 0 };
 public:
-	//初期化コンストラクタ:実体作成時に何も引数を設定しない場合、0で初期化します  例)Vector2DX XXX;
+	//初期化コンストラクタ:実体作成時に何も引数を設定しない場合、0で初期化します  
 	Vector2DX(void) noexcept : x(0), y(0) {}
 	//初期化コンストラクタ:実体作成時にDXライブラリのVECTORを設定する場合、その値で初期化します。Zは切り捨てられます。  例)Vector2DX YYY = VGet(100.f,100.f,0.f);
 	Vector2DX(const DxLib::VECTOR& value) noexcept { this->Set(value.x, value.y); }
@@ -28,6 +28,7 @@ public:
 	static const Vector2DX left(void) noexcept { return vget(-1.f, 0.f); }
 	static const Vector2DX up(void) noexcept { return vget(0.f, 1.f); }
 	static const Vector2DX down(void) noexcept { return vget(0.f, -1.f); }
+
 
 	static const Vector2DX one(void) noexcept { return vget(1.f, 1.f); }
 	static const Vector2DX zero(void) noexcept { return vget(0.f, 0.f); }
@@ -97,7 +98,6 @@ public:
 	//ベクトルとベクトルとでのスケーリングを行う
 	inline static Vector2DX		Scale(const Vector2DX& A, const Vector2DX& B) noexcept { return vget((A.x * B.x), (A.y * B.y)); }
 
-	//以下、Unityにはあるが使用頻度が多少低いのでオミットした関数
 	/*
 	// MoveTowards
 	// OrthoNormalize

@@ -64,12 +64,10 @@ bool CalcLineToLineSlideVector(
 const MapData* MapData::m_Singleton = nullptr;
 #endif
 
-void MapData::mapInit()
+void Location::mapInit()
 {
 	// 画像総数  横枚数x縦枚数,横方向個数,縦方向個数,チップ1枚の横サイズ, チップ1毎の縦サイズ, 画像配列先頭ポインタ 
-	LoadDivGraph("map/map.png", mapImgXNum * mapImgYNum, mapImgXNum, mapImgYNum, mapChipSize, mapChipSize, mapChipImg);
 
-	LoadDivGraph("map/river.png", riverImgXNum * riverImgYNum, riverImgXNum, riverImgYNum, mapChipSize, mapChipSize, riverChipImg);
 
 	//Maplocaをstd::vector化したので、現状mapInit()の前にMapEngine()をする必要があります
 	for (int iy = 0; iy < GetMapYsize(); iy++)
@@ -91,7 +89,7 @@ void MapData::mapInit()
 }
 
 
-void  MapData::mapDraw()
+void  Location::mapDraw()
 {
 
 	for (int y = 0; y < GetMapYsize(); y++)
@@ -122,7 +120,7 @@ void  MapData::mapDraw()
 	}
 }
 
-void MapData::mapaupdate()
+void Location::mapaupdate()
 {
 	/*
 	for (int iy = 0; iy < GetMapYsize(); iy++)
@@ -146,7 +144,7 @@ void MapData::mapaupdate()
 	//*/
 }
 
-void  MapData::MapEngine()
+void Location::MapEngine()
 {
 	std::string filePath = "mapTest.csv";      // CSVファイル名
 
@@ -177,6 +175,8 @@ void  MapData::MapEngine()
 //PlayerSize :  キャラの判定サイズの中央からのサイズ値
 bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX* pPlayerNow, const Vector2DX& PlayerMinSize, const Vector2DX& PlayerMaxSize)
 {
+	Location loca;
+
 	constexpr int XSEL = 0;//xySelでXを選択している事を示す定数
 
 	bool IsHitAnyWall = false;
@@ -199,18 +199,18 @@ bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX*
 		//マップチップに当たった場合の結果を代入するための変数
 		Vector2DX ResultNow = PlayerNow;
 		//全てのマップチップに対して、当たっているかと当たった場合のベクトル変異を演算します(全部やる必要はないので、ブレゼンハムのアルゴリズムなどを用いて最適化できます)
-		for (int ypos = 0; ypos < GetMapYsize(); ypos++)
+		for (int ypos = 0; ypos < loca.GetMapYsize(); ypos++)
 		{
-			for (int xpos = 0; xpos < GetMapXsize(); xpos++)
+			for (int xpos = 0; xpos < loca.GetMapXsize(); xpos++)
 			{
 				//壁チップの場合
-				if (IsWallMapChip(xpos, ypos))
+				if (loca.IsWallMapChip(xpos, ypos))
 				{
 					//そのマップのデータを取得します
-					const Location& mapLoca = GetMapLoca(xpos, ypos);
+					const Location& mapLoca = loca.GetMapLoca(xpos, ypos);
 					//チップの矩形の辺と線分との交点のうちPlayerPrevに一番近い方を得る
 					//左上→右上の判定
-					if (!IsWallMapChip(xpos, ypos - 1))//この辺に面したマップチップが壁なら、判断しなくてもよいものとして省きます
+					if (!loca.IsWallMapChip(xpos, ypos - 1))//この辺に面したマップチップが壁なら、判断しなくてもよいものとして省きます
 					{
 						//一時変数を用意します
 						Vector2DX HitPos;
@@ -233,7 +233,7 @@ bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX*
 					}
 					//以下、ほとんど同じ処理が入るのでコメントを省きます
 					//右上→右下の判定
-					if (!IsWallMapChip(xpos + 1, ypos))
+					if (!loca.IsWallMapChip(xpos + 1, ypos))
 					{
 						//一時変数を用意します
 						Vector2DX HitPos;
@@ -253,7 +253,7 @@ bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX*
 						}
 					}
 					//右下→左下の判定
-					if (!IsWallMapChip(xpos, ypos + 1))
+					if (!loca.IsWallMapChip(xpos, ypos + 1))
 					{
 						//一時変数を用意します
 						Vector2DX HitPos;
@@ -273,7 +273,7 @@ bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX*
 						}
 					}
 					//左下→左上の判定
-					if (!IsWallMapChip(xpos - 1, ypos))
+					if (!loca.IsWallMapChip(xpos - 1, ypos))
 					{
 						//一時変数を用意します
 						Vector2DX HitPos;
