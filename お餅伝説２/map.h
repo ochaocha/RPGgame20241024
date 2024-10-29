@@ -9,32 +9,52 @@
 
 #include "Source/Algorithm/Vector2D.h"
 
-/*
-Location構造体をクラスに変更し、中に
-・ std::vector<std::vector<int>> Mapが示していたデータを含める
-　→マップチップとして使用する画像ID
-　→マップチップが壁かどうかの判定
-・Mapを消し、MapLocaでデータを補完する*/
-class Location
+typedef struct Location
 {
+    float rx;		//右下の座標
+    float ry;		//右下の座標
+    float lx;		//左上の座標
+    float ly;		//左下の座標
+    int w;		//幅
+    int h;		//幅
+};
+
+#define SINGLETON (TRUE)
+
+class MapData {
+#if SINGLETON//Emiya 2-1:シングルトンのインターフェースを追加します。SINGLETONのdefineをFALSE->TRUEにすると有効化されます。
 private:
-    std::vector<std::vector<Location>>  Maploca;
-    std::vector<std::vector<int>> Map;
-    int mapChipImg[88]; // 画像ハンドル配列
-
-    int riverChipImg[5];//川の画像チップ
-
-    int offsetX = 0;
-    int offsetY = 0;
+    /// <summary>
+    /// シングルトンとして変数を宣言
+    /// </summary>
+    static const MapData* m_Singleton;
 public:
-    /// @briefマップの読み込み  
-    void mapInit();
-
-    void mapaupdate();
-    /// @briefマップの描画
-    void mapDraw();
-    /// @brief マップのCSVファイルから読み取り
-    void MapEngine();
+    /// <summary>
+    /// シングルトンを作成
+    /// </summary>
+    static void Create(void) noexcept { m_Singleton = new MapData(); }
+    /// <summary>
+    /// シングルトンのポインタを取得
+    /// </summary>
+    static MapData* Instance(void) noexcept {
+        if (m_Singleton == nullptr) {
+            MessageBox(NULL, "Failed Instance Create", "", MB_OK);//エラーメッセージを出しています。
+            exit(-1);
+        }
+        return const_cast<MapData*>(m_Singleton);//const抜きのポインタを渡します。
+    }
+private:
+    /// <summary>
+    /// コンストラクタ(シングルトンではprivateで宣言します
+    /// )
+    /// </summary>
+    MapData() {}
+    /// <summary>
+    /// デストラクタ(シングルトンでは呼ばれません)
+    /// </summary>
+    /*~MapData(){}*/
+private:
+#endif
     const int mapChipSize = 40;  // マップチップ１個の大きさ
 
     const int mapImgXNum = 8;    // マップチップ画像の横方向チップ数
@@ -45,15 +65,28 @@ public:
 
     const int riverImgYNum = 5;	 //海のマップチップ画像の縦方向チップ数
 
-    int mapdata=LoadDivGraph("map/map.png", mapImgXNum* mapImgYNum, mapImgXNum, mapImgYNum, mapChipSize, mapChipSize, mapChipImg);
+    std::vector<std::vector<Location>>  Maploca;
 
-    int riverdata=LoadDivGraph("map/river.png", riverImgXNum* riverImgYNum, riverImgXNum, riverImgYNum, mapChipSize, mapChipSize, riverChipImg);
-    float rx;		//右下の座標
-    float ry;		//右下の座標
-    float lx;		//左上の座標
-    float ly;		//左下の座標
-    int w;		//幅
-    int h;		//幅
+    int mapChipImg[88]; // 画像ハンドル配列
+
+    int riverChipImg[5];//川の画像チップ
+
+    int offsetX = 0;
+    int offsetY = 0;
+private:
+
+
+    std::vector<std::vector<int>> Map;   // マップの2次元配列
+
+public:
+    /// @briefマップの読み込み  
+    void mapInit();
+
+    void mapaupdate();
+    /// @briefマップの描画
+    void mapDraw();
+    /// @brief マップのCSVファイルから読み取り
+    void MapEngine();
 
     bool LoadMapdata(std::string filePath)
     {
@@ -126,54 +159,6 @@ public:
     {
         return static_cast<int>(Map.size());
     }
-};
-
-#define SINGLETON (TRUE)
-
-class MapData {
-#if SINGLETON   //シングルトンのインターフェースを追加します。SINGLETONのdefineをFALSE->TRUEにすると有効化されます。
-private:
-    /// <summary>
-    /// シングルトンとして変数を宣言
-    /// </summary>
-    static const MapData* m_Singleton;
-public:
-    /// <summary>
-    /// シングルトンを作成
-    /// </summary>
-    static void Create(void) noexcept { m_Singleton = new MapData(); }
-    /// <summary>
-    /// シングルトンのポインタを取得
-    /// </summary>
-    static MapData* Instance(void) noexcept {
-        if (m_Singleton == nullptr) {
-            MessageBox(NULL, "Failed Instance Create", "", MB_OK);//エラーメッセージを出しています。
-            exit(-1);
-        }
-        return const_cast<MapData*>(m_Singleton);//const抜きのポインタを渡します。
-    }
-private:
-    /// <summary>
-    /// コンストラクタ(シングルトンではprivateで宣言します
-    /// )
-    /// </summary>
-    MapData() {}
-    /// <summary>
-    /// デストラクタ(シングルトンでは呼ばれません)
-    /// </summary>
-    /*~MapData(){}*/
-
-#endif
-
-private:
-
-
-  
-
-public:
-   
-
-    
 
     //線分とマップチップのうち壁判定があるものとの当たり判定＋当たった後の移動処理
     bool CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX* pPlayerNow, const Vector2DX& PlayerMinSize, const Vector2DX& PlayerMaxSize);

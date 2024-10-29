@@ -3,27 +3,23 @@
 
 #include "map.h"
 
-void PlayerFunction::PlayerInit(int displaywidth, int displayhight)		//画面のサイズを引数として持ってくる
+void PlayerFunction::PlayerInit(int displaywidth, int displayhight)
 {
-	PlayerPos.x = float(displaywidth / 2);								//プレイヤーの初期位置座標ｘを真ん中にしている
-	PlayerPos.y = float(displayhight / 2);								//プレイヤーの初期位置座標ｙを真ん中にしている
-	animNowType;														//プレイヤーの縦要素数
-	animNowIndex = 0;													//プレイヤーの現在のアニメーション
-	animDirectionOffset = 0;											//プレイヤーアニメーションの方向を変更するための変数
+	PlayerPos.x = float(displaywidth / 2);
+	PlayerPos.y = float(displayhight / 2);
+	animNowType;
+	animNowIndex = 0;
+	animDirectionOffset = 0;
 
-				//プレイヤー画像パス　//プレイヤー合計要素数　//横要素	//縦要素　//画像のｘとｙサイズ //画像ハンドル
+	//initRect(playerHit,hitSizeX,hitSize)
 	LoadDivGraph("chara/walk.png", animPatternNum * animTypeNum, animPatternNum, animTypeNum, animSizeX, animSizeY, charaimg);
-
-	
 	drawOffsetX = (hitSizeX - animSizeX);
 	drawOffsetY = (hitSizeY - animSizeY);
 
 }
 
-/// @brief プレイヤーのアップデート要素
 void PlayerFunction::Playerappdate()
 {
-
 	time += 1.0f / 60.f;						//60FPSは１秒間だからそれをtimeに時間を入れている
 
 	//0,1,2
@@ -78,11 +74,7 @@ void PlayerFunction::Playerappdate()
 
 	//移動処理前後の線分とマップにある壁との判定
 	MapData* MapDataOllPtr = MapData::Instance();
-
-	//マップデータポインタの
-	MapDataOllPtr->CalcVectorSlideOnWallChips
-	(
-
+	MapDataOllPtr->CalcVectorSlideOnWallChips(
 		prevPos,
 		&PlayerPos,
 		Vector2DX::vget(static_cast<float>(-hitSizeX / 2), static_cast<float>(-hitSizeY / 2)),
@@ -106,9 +98,7 @@ void PlayerFunction::PlayerDraw()
 		charaimg[animDirectionOffset + animNowIndex], TRUE);
 	DrawBox(static_cast<int>(PlayerMinPos.x), static_cast<int>(PlayerMinPos.y),
 		static_cast<int>(PlayerMaxPos.x), static_cast<int>(PlayerMaxPos.y),
-
 		GetColor(255, 0, 0), FALSE);
-
 }
 
 void PlayerFunction::PlayerFinalize()

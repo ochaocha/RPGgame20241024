@@ -6,8 +6,8 @@
 //定数定義(defineでもいいのですが、記法が古いので非推奨です。)
 constexpr float TargetFPS = 60.f;					//設定するFPS
 constexpr int RecordFPSCount = 60;					//FPSの数値を記録する総数
-constexpr auto MicroSecond = 100.0f * 100.0f;		//1マイクロ秒
-constexpr auto MillSecond = 100.0f;				//1ミリ秒
+constexpr auto MicroSecond = 1000.0f * 1000.0f;		//1マイクロ秒
+constexpr auto MillSecond = 1000.0f;				//1ミリ秒
 
 /// <summary>
 /// FPS制御クラス

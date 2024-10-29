@@ -72,6 +72,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		nowCount = GetNowCount();
 		deltaTime = (nowCount - prevCount) / 1000.0f;
 
+		PlayeAttackType Playerchoicetern(); //プレイヤーの攻撃パターン構造体
 		
 
 		switch (Exchange)
