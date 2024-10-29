@@ -71,23 +71,6 @@ void MapData::mapInit()
 
 	LoadDivGraph("map/river.png", riverImgXNum * riverImgYNum, riverImgXNum, riverImgYNum, mapChipSize, mapChipSize, riverChipImg);
 
-	//Maplocaをstd::vector化したので、現状mapInit()の前にMapEngine()をする必要があります
-	for (int iy = 0; iy < GetMapYsize(); iy++)
-	{
-
-		for (int ix = 0; ix < GetMapXsize(); ix++)
-		{
-
-			Maploca[iy][ix].ly = iy * mapChipSize + offsetY;			    //マップチップの左上Y座標
-
-			Maploca[iy][ix].ry = Maploca[iy][ix].ly + mapChipSize;      //マップチップの右下座標
-
-			Maploca[iy][ix].lx = ix * mapChipSize + offsetX;				//マップチップの左上X座標
-
-			Maploca[iy][ix].rx = Maploca[iy][ix].lx + mapChipSize;		//マップチップの右下座標
-		}
-	}
-
 }
 
 
@@ -107,7 +90,7 @@ void  MapData::mapDraw()
 
 				// マップチップ幅でブロック画像を敷き詰めて描画する
 				// xは0,1,2・・・と変化する。 x * mapChipSize の計算は 0,64,128,196, ... とブロック幅ごとに増える
-				DrawGraph(mapLoca.lx, mapLoca.ly, imgHandle, TRUE);
+				DrawGraph(static_cast<int>(mapLoca.GetMinPos().x), static_cast<int>(mapLoca.GetMinPos().y), imgHandle, TRUE);
 			}
 			else
 			{
@@ -115,7 +98,7 @@ void  MapData::mapDraw()
 
 				// マップチップ幅でブロック画像を敷き詰めて描画する
 				// xは0,1,2・・・と変化する。 x * mapChipSize の計算は 0,64,128,196, ... とブロック幅ごとに増える
-				DrawGraph(mapLoca.lx, mapLoca.ly, imgHandle, TRUE);
+				DrawGraph(static_cast<int>(mapLoca.GetMinPos().x), static_cast<int>(mapLoca.GetMinPos().y), imgHandle, TRUE);
 			}
 
 		}
@@ -130,17 +113,17 @@ void MapData::mapaupdate()
 
 		for (int ix = 0; ix < GetMapXsize(); ix++)
 		{
-			Maploca[iy][ix].ly;
-			Maploca[iy][ix].ry;
-			Maploca[iy][ix].lx;
-			Maploca[iy][ix].rx;
+			Maploca[iy][ix].GetMinPos().y;
+			Maploca[iy][ix].GetMaxPos().y;
+			Maploca[iy][ix].GetMinPos().x;
+			Maploca[iy][ix].GetMaxPos().x;
 			int imgIndex = map[iy][ix];            // map配列よりブロック種類を取得
 			int imgHandle = mapChipImg[imgIndex];  // indexをつかって画像ハンドル配列から画像ハンドルを取得
 
 			// マップチップ幅でブロック画像を敷き詰めて描画する
 			// xは0,1,2・・・と変化する。 x * mapChipSize の計算は 0,64,128,196, ... とブロック幅ごとに増える
 			//if(Maploca[iy][ix])
-			DrawGraph(Maploca[iy][ix].lx, Maploca[iy][ix].ly, imgHandle, TRUE);
+			DrawGraph(Maploca[iy][ix].GetMinPos().x, Maploca[iy][ix].GetMinPos().y, imgHandle, TRUE);
 		}
 	}
 	//*/
@@ -217,8 +200,8 @@ bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX*
 						Vector2DX SlidePos;
 						//この辺に移動ベクトルが当たった際のずりベクトルを計算します。
 						if (CalcLineToLineSlideVector(PlayerPrev, PlayerNow, &HitPos, &SlidePos,
-							Vector2DX::vget(mapLoca.lx + PlayerMinSize.x, mapLoca.ly + PlayerMinSize.y),
-							Vector2DX::vget(mapLoca.rx + PlayerMaxSize.x, mapLoca.ly + PlayerMinSize.y), Vector2DX::down()))
+							Vector2DX::vget(mapLoca.GetMinPos().x + PlayerMinSize.x, mapLoca.GetMinPos().y + PlayerMinSize.y),
+							Vector2DX::vget(mapLoca.GetMaxPos().x + PlayerMaxSize.x, mapLoca.GetMinPos().y + PlayerMinSize.y), Vector2DX::down()))
 						{
 							//ずり計算後、ずる直前に辺にヒットした座標まで進んでいた長さを取ります
 							float Length = (HitPos - PlayerPrev).sqrMagnitude();
@@ -240,8 +223,8 @@ bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX*
 						Vector2DX SlidePos;
 						//この辺に移動ベクトルが当たった際のずりベクトルを計算します。
 						if (CalcLineToLineSlideVector(PlayerPrev, PlayerNow, &HitPos, &SlidePos,
-							Vector2DX::vget(mapLoca.rx + PlayerMaxSize.x, mapLoca.ly + PlayerMinSize.y),
-							Vector2DX::vget(mapLoca.rx + PlayerMaxSize.x, mapLoca.ry + PlayerMaxSize.y), Vector2DX::right()))
+							Vector2DX::vget(mapLoca.GetMaxPos().x + PlayerMaxSize.x, mapLoca.GetMinPos().y + PlayerMinSize.y),
+							Vector2DX::vget(mapLoca.GetMaxPos().x + PlayerMaxSize.x, mapLoca.GetMaxPos().y + PlayerMaxSize.y), Vector2DX::right()))
 						{
 							float Length = (HitPos - PlayerPrev).sqrMagnitude();
 							if (PlayerVectorLength >= Length)
@@ -260,8 +243,8 @@ bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX*
 						Vector2DX SlidePos;
 						//この辺に移動ベクトルが当たった際のずりベクトルを計算します。
 						if (CalcLineToLineSlideVector(PlayerPrev, PlayerNow, &HitPos, &SlidePos,
-							Vector2DX::vget(mapLoca.rx + PlayerMaxSize.x, mapLoca.ry + PlayerMaxSize.y),
-							Vector2DX::vget(mapLoca.lx + PlayerMinSize.x, mapLoca.ry + PlayerMaxSize.y), Vector2DX::up()))
+							Vector2DX::vget(mapLoca.GetMaxPos().x + PlayerMaxSize.x, mapLoca.GetMaxPos().y + PlayerMaxSize.y),
+							Vector2DX::vget(mapLoca.GetMinPos().x + PlayerMinSize.x, mapLoca.GetMaxPos().y + PlayerMaxSize.y), Vector2DX::up()))
 						{
 							float Length = (HitPos - PlayerPrev).sqrMagnitude();
 							if (PlayerVectorLength >= Length)
@@ -280,8 +263,8 @@ bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX*
 						Vector2DX SlidePos;
 						//この辺に移動ベクトルが当たった際のずりベクトルを計算します。
 						if (CalcLineToLineSlideVector(PlayerPrev, PlayerNow, &HitPos, &SlidePos,
-							Vector2DX::vget(mapLoca.lx + PlayerMinSize.x, mapLoca.ry + PlayerMaxSize.y),
-							Vector2DX::vget(mapLoca.lx + PlayerMinSize.x, mapLoca.ly + PlayerMinSize.y), Vector2DX::left()))
+							Vector2DX::vget(mapLoca.GetMinPos().x + PlayerMinSize.x, mapLoca.GetMaxPos().y + PlayerMaxSize.y),
+							Vector2DX::vget(mapLoca.GetMinPos().x + PlayerMinSize.x, mapLoca.GetMinPos().y + PlayerMinSize.y), Vector2DX::left()))
 						{
 							float Length = (HitPos - PlayerPrev).sqrMagnitude();
 							if (PlayerVectorLength >= Length)

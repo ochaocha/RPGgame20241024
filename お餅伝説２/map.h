@@ -9,14 +9,44 @@
 
 #include "Source/Algorithm/Vector2D.h"
 
-typedef struct Location
+static const int mapChipSize = 40;  // マップチップ１個の大きさ
+
+class Location                                  // Emiya:構造体からクラスに
 {
-    float rx;		//右下の座標
-    float ry;		//右下の座標
-    float lx;		//左上の座標
-    float ly;		//左下の座標
-    int w;		//幅
-    int h;		//幅
+private:                                        // Emiya:メンバ変数は外に出さないようにします
+    Vector2DX MinPos;		//右下の座標        // Emiya:lx,lyを最小サイズとして変更
+    Vector2DX MaxPos;		//左上の座標        // Emiya:rx,ryを最大サイズとして変更
+    //int w;		//幅                        // Emiya:たぶん使ってないので消します
+    //int h;		//幅                        // Emiya:たぶん使ってないので消します
+    
+    int graphID = 0;        //画像ID            // Emiya:追加
+    bool isWall = false;    //壁かどうか        // Emiya:追加
+
+public://上記のローカル変数を必要な情報だけ開示するメンバ関数
+    const Vector2DX& GetMinPos() const { return MinPos; }
+    const Vector2DX& GetMaxPos() const { return MaxPos; }
+    const int GetGraphID() const { return graphID; }
+    const bool IsWall() const { return isWall; }
+
+public://メンバ関数
+   
+    void Setup(int xchip, int ychip, int DataByCSV) { // Emiya:貰ったデータをもとに各変数を決めるメンバ関数
+        if (DataByCSV >= 0xFFFF)         //0xFFFF(65535)以上なら壁と判別します
+        {
+            isWall = true;
+            graphID = DataByCSV - 0xFFFF;
+        }
+        else {
+            isWall = false;
+            graphID = DataByCSV;
+        }
+
+        MinPos.x = static_cast<float>(xchip * mapChipSize);			//マップチップの左上X座標
+        MaxPos.x = static_cast<float>(MinPos.x + mapChipSize);		//マップチップの右下座標
+
+        MinPos.y = static_cast<float>(ychip * mapChipSize); 	    //マップチップの左上Y座標
+        MaxPos.y = static_cast<float>(MinPos.y + mapChipSize);      //マップチップの右下座標
+    }
 };
 
 #define SINGLETON (TRUE)
@@ -55,7 +85,6 @@ private:
     /*~MapData(){}*/
 private:
 #endif
-    const int mapChipSize = 40;  // マップチップ１個の大きさ
 
     const int mapImgXNum = 8;    // マップチップ画像の横方向チップ数
 
@@ -70,13 +99,7 @@ private:
     int mapChipImg[88]; // 画像ハンドル配列
 
     int riverChipImg[5];//川の画像チップ
-
-    int offsetX = 0;
-    int offsetY = 0;
 private:
-
-
-    std::vector<std::vector<int>> Map;   // マップの2次元配列
 
 public:
     /// @briefマップの読み込み  
@@ -99,24 +122,27 @@ public:
 
         // ファイルからCSV読み込み
 
-        int line = 0;
+        int xpos = 0;
+        int ypos = 0;
 
         while (getline(csvFile, linebuf))
         {
             // map配列の行を追加
-            Map.emplace_back();
             Maploca.emplace_back();
             //カンマ区切りで読みやすいように istringstream型に変換
             std::istringstream iStream(linebuf);
 
             // カンマ区切り単位でdataに文字列格納
+            xpos = 0;
             while (getline(iStream, data, ','))
             {
-                // 文字列データを数値に変換して、map[line][]の末尾に追加
-                Map[line].emplace_back(stoi(data));
-                Maploca[line].emplace_back();
+                // 文字列データを数値に変換して、map[ypos][]の末尾に追加
+                Maploca[ypos].emplace_back();
+
+                Maploca[ypos][xpos].Setup(xpos, ypos, stoi(data));                //データの構築
+                xpos++;
             }
-            line++;
+            ypos++;
         }
         csvFile.close();                     //一応クローズします
 
@@ -126,11 +152,7 @@ public:
     //特定のチップのマップデータを取得します
     int GetMapChip(int x, int y)
     {
-        if (Map[y][x] >= 0xFFFF)
-        {
-            return Map[y][x] - 0xFFFF;
-        }
-        return Map[y][x];
+        return Maploca[y][x].GetGraphID();
     }
 
     const Location& GetMapLoca(int x, int y) {
@@ -143,7 +165,7 @@ public:
         if ((x < 0) || (GetMapXsize() <= x) || (y < 0) || (GetMapYsize() < y)) {
             return true;
         }
-        return Map[y][x] >= 0xFFFF;         //0xFFFF(65535)以上なら壁と判別します
+        return Maploca[y][x].IsWall();
     }
 
     //マップのXサイズを返します
@@ -151,13 +173,13 @@ public:
     int GetMapXsize()
     {
         //仮でmap[0]~[max]まで全部同じサイズと仮定します
-        return static_cast<int>(Map[0].size());
+        return static_cast<int>(Maploca[0].size());
     }
 
     //マップのYサイズを返します
     int GetMapYsize()
     {
-        return static_cast<int>(Map.size());
+        return static_cast<int>(Maploca.size());
     }
 
     //線分とマップチップのうち壁判定があるものとの当たり判定＋当たった後の移動処理
