@@ -3,24 +3,38 @@
 
 #include "Source/Algorithm/Vector2D.h"
 
-class PlayerFunction {
+
+
+
+class OllPlayerData {
 
 	Vector2DX PlayerPos;						//プレイヤーの初期座標
+
 	int animNowType;							//プレイヤーの配列の縦要素数
+
 	int animNowIndex;							//プレイヤーの現在のアニメーション
 
 	int animDirectionOffset;					//アニメーションの方向を変えるための変数
 
+	bool AnimStopRighttFlag = false;
+	bool AnimStopLeftFlag = false;
+	bool AnimStopUnderFlag = false;
+	bool AnimStopTopFlag = false;
+
+
 	bool charaMove = false;						//プレイヤーが動いているかどうか
 
-	static const int animPatternNum = 8;			// アニメーションのパターン数		
+	static const int animPatternNum = 8;		// アニメーションのパターン数		
 
 	static const int animTypeNum = 6;			// アニメーションの種類		
-	const int animSizeX = 48;					//プレイヤーのアニメーションサイズ
-	const int animSizeY = 64;
 
-	const int hitSizeX = 40;
-	const int hitSizeY = 60;
+	const int animSizeX = 48;					//プレイヤーのアニメーションサイズ
+
+	const int animSizeY = 64;					//プレイヤーのアニメーションサイズ
+
+	const int hitSizeX = 40;				
+											
+	const int hitSizeY = 60;				
 
 
 

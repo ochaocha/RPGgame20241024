@@ -23,7 +23,7 @@ int displayhigthY = 0;
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 
-	PlayerFunction PlayerFunctionOll;
+	OllPlayerData PlayerFunctionOll;
 	
 #if SINGLETON
 	MapData::Create();
