@@ -1,0 +1,15 @@
+GraphicsPreset=0
+DirectXVer=11
+bloom=true
+shadow=1
+vsync=true
+FpsLimit=60
+SE=0.500000
+VOICE=0.500000
+BGM=0.500000
+WindowMode=0
+ScreenEffect=true
+MotionBlur=false
+Xsensing=0.500000
+Ysensing=0.500000
+ControlType=XBox
