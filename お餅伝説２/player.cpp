@@ -30,6 +30,11 @@ void OllCharacterData::PlayerInit(int displaywidth, int displayhight)
 
 }
 
+void OllCharacterData::CalcInput(const Input& input)
+{
+	MyInput = input;
+}
+
 void OllCharacterData::Playerappdate()
 {
 	//移動前のプレイヤー座標を保存
@@ -39,22 +44,22 @@ void OllCharacterData::Playerappdate()
 	PlayerVelocity.y = 0;
 
 	//Aが押されたとき
-	if (CheckHitKey(KEY_INPUT_A))
+	if (MyInput.IsMoveLeft())
 	{	
 		PlayerVelocity.x = -1;
 	}
 	//Dが押されたとき
-	if (CheckHitKey(KEY_INPUT_D))
+	if (MyInput.IsMoveRight())
 	{
 		PlayerVelocity.x = 1;
 	}
 	//Sが押されたとき
-	if (CheckHitKey(KEY_INPUT_S))
+	if (MyInput.IsMoveDown())
 	{
 		PlayerVelocity.y = 1;
 	}
 	//Wが押されたとき
-	if (CheckHitKey(KEY_INPUT_W))
+	if (MyInput.IsMoveUp())
 	{
 		PlayerVelocity.y = -1;
 	}
