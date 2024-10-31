@@ -32,38 +32,35 @@ void OllCharacterData::PlayerInit(int displaywidth, int displayhight)
 
 void OllCharacterData::Playerappdate()
 {
-	//time += 1.0f / 60.f;						//60FPSは１秒間だからそれをtimeに時間を入れている
-	//
-	////0,1,2
-	////3,4,5
-	////6,7,8
-	////9,10,11
-	//if (time > 1.0f) {							//0,1,2,3-3=0,1,2,,	1秒以上にならないようにする
-	//	time -= 1.0f;							//１秒以上になると1秒マイナスさせる
-	//	animNowIndex += 1;						//１秒になると配列の要素数を１増やしている
-	//	if (animNowIndex >= animPatternNum)		//animNowIndexがアニメーションの横要素数になると
-	//	{
-	//		animNowIndex -= animPatternNum;		//３animPatternNumをanimIndexにマイナスさせて0～にしている
-	//	}
-	//}
-
+	Vector2DX  playervelo = PlayerVelocity;
 	
+	PlayerVelocity.x = 1;
+	PlayerVelocity.y = 1;
+	time += 1.0f / 60.f;						//60FPSは１秒間だからそれをtimeに時間を入れている
 	
-
+	//0,1,2
+	//3,4,5
+	//6,7,8
+	//9,10,11
+	if (time > 1.0f) {							//0,1,2,3-3=0,1,2,,	1秒以上にならないようにする
+		time -= 1.0f;							//１秒以上になると1秒マイナスさせる
+		animNowIndex += 1;						//１秒になると配列の要素数を１増やしている
+		if (animNowIndex >= animPatternNum)		//animNowIndexがアニメーションの横要素数になると
+		{
+			animNowIndex -= animPatternNum;		//３animPatternNumをanimIndexにマイナスさせて0～にしている
+		}
+	}
+	
 	//移動前のプレイヤー座標を保存
 	Vector2DX prevPos = PlayerPos;
-
+	
 
 	//Aが押されたとき
 	if (CheckHitKey(KEY_INPUT_A))
 	{	
 		animDirectionOffset = 8;
 		AnimStopLeftFlag =true;
-		PlayerPos.x -= PlayerVelocity;
-		if (PlayerPos.x -= PlayerVelocity)
-		{
-			
-		}
+		PlayerPos.x -= PlayerVelocity.x;
 	
 	}
 	//Dが押されたとき
@@ -71,7 +68,7 @@ void OllCharacterData::Playerappdate()
 	{
 		animDirectionOffset = 40;
 		AnimStopRighttFlag = true;
-		PlayerPos.x += PlayerVelocity;
+		PlayerPos.x += PlayerVelocity.x;
 		
 	}
 	//Sが押されたとき
@@ -80,14 +77,14 @@ void OllCharacterData::Playerappdate()
 
 		animDirectionOffset = 0;
 		AnimStopUnderFlag = true;
-		PlayerPos.y += PlayerVelocity;
+		PlayerPos.y += PlayerVelocity.y;
 	
 	}
 	//Wが押されたとき
 	if (CheckHitKey(KEY_INPUT_W))
 	{
 		animDirectionOffset = 24;
-		PlayerPos.y -= PlayerVelocity;
+		PlayerPos.y -= PlayerVelocity.y;
 		
 	}
 
@@ -118,7 +115,7 @@ void OllCharacterData::PlayerDraw()
 	DrawExtendGraph(
 		static_cast<int>(PlayerMinPos.x), static_cast<int>(PlayerMinPos.y),
 		static_cast<int>(PlayerMaxPos.x), static_cast<int>(PlayerMaxPos.y),
-		charaimg[animDirectionOffset + PlayerVelocity], TRUE);
+		charaimg[animDirectionOffset + animNowIndex], TRUE);
 	DrawBox(static_cast<int>(PlayerMinPos.x), static_cast<int>(PlayerMinPos.y),
 		static_cast<int>(PlayerMaxPos.x), static_cast<int>(PlayerMaxPos.y),
 		GetColor(255, 0, 0), FALSE);

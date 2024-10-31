@@ -1,6 +1,6 @@
 #pragma once
 #include "collision.h"
-
+#include <vector>
 #include "Source/Algorithm/Vector2D.h"
 
 
@@ -9,7 +9,7 @@
 class OllCharacterData {
 
 
-	int PlayerVelocity=1;
+	Vector2DX PlayerVelocity;
 
 
 	Vector2DX PlayerPos;						//プレイヤーの初期座標
