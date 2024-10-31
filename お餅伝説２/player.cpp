@@ -32,63 +32,107 @@ void OllCharacterData::PlayerInit(int displaywidth, int displayhight)
 
 void OllCharacterData::Playerappdate()
 {
-	Vector2DX  playervelo = PlayerVelocity;
-	
-	PlayerVelocity.x = 1;
-	PlayerVelocity.y = 1;
-	time += 1.0f / 60.f;						//60FPS‚Í‚P•bŠÔ‚¾‚©‚ç‚»‚ê‚ðtime‚ÉŽžŠÔ‚ð“ü‚ê‚Ä‚¢‚é
-	
-	//0,1,2
-	//3,4,5
-	//6,7,8
-	//9,10,11
-	if (time > 1.0f) {							//0,1,2,3-3=0,1,2,,	1•bˆÈã‚É‚È‚ç‚È‚¢‚æ‚¤‚É‚·‚é
-		time -= 1.0f;							//‚P•bˆÈã‚É‚È‚é‚Æ1•bƒ}ƒCƒiƒX‚³‚¹‚é
-		animNowIndex += 1;						//‚P•b‚É‚È‚é‚Æ”z—ñ‚Ì—v‘f”‚ð‚P‘‚â‚µ‚Ä‚¢‚é
-		if (animNowIndex >= animPatternNum)		//animNowIndex‚ªƒAƒjƒ[ƒVƒ‡ƒ“‚Ì‰¡—v‘f”‚É‚È‚é‚Æ
-		{
-			animNowIndex -= animPatternNum;		//‚RanimPatternNum‚ðanimIndex‚Éƒ}ƒCƒiƒX‚³‚¹‚Ä0`‚É‚µ‚Ä‚¢‚é
-		}
-	}
-	
 	//ˆÚ“®‘O‚ÌƒvƒŒƒCƒ„[À•W‚ð•Û‘¶
 	Vector2DX prevPos = PlayerPos;
 	
+	PlayerVelocity.x = 0;
+	PlayerVelocity.y = 0;
 
 	//A‚ª‰Ÿ‚³‚ê‚½‚Æ‚«
 	if (CheckHitKey(KEY_INPUT_A))
 	{	
-		animDirectionOffset = 8;
-		AnimStopLeftFlag =true;
-		PlayerPos.x -= PlayerVelocity.x;
-	
+		PlayerVelocity.x = -1;
 	}
 	//D‚ª‰Ÿ‚³‚ê‚½‚Æ‚«
 	if (CheckHitKey(KEY_INPUT_D))
 	{
-		animDirectionOffset = 40;
-		AnimStopRighttFlag = true;
-		PlayerPos.x += PlayerVelocity.x;
-		
+		PlayerVelocity.x = 1;
 	}
 	//S‚ª‰Ÿ‚³‚ê‚½‚Æ‚«
 	if (CheckHitKey(KEY_INPUT_S))
 	{
-
-		animDirectionOffset = 0;
-		AnimStopUnderFlag = true;
-		PlayerPos.y += PlayerVelocity.y;
-	
+		PlayerVelocity.y = 1;
 	}
 	//W‚ª‰Ÿ‚³‚ê‚½‚Æ‚«
 	if (CheckHitKey(KEY_INPUT_W))
 	{
-		animDirectionOffset = 24;
-		PlayerPos.y -= PlayerVelocity.y;
-		
+		PlayerVelocity.y = -1;
 	}
 
-	
+	if (PlayerVelocity.magnitude() > 0.f) {
+		//‚¤‚²‚¢‚Ä‚é
+		time += 1.0f / 60.f;						//60FPS‚Í‚P•bŠÔ‚¾‚©‚ç‚»‚ê‚ðtime‚ÉŽžŠÔ‚ð“ü‚ê‚Ä‚¢‚é
+		//0,1,2
+		//3,4,5
+		//6,7,8
+		//9,10,11
+		if (time > 1.0f) {							//0,1,2,3-3=0,1,2,,	1•bˆÈã‚É‚È‚ç‚È‚¢‚æ‚¤‚É‚·‚é
+			time -= 1.0f;							//‚P•bˆÈã‚É‚È‚é‚Æ1•bƒ}ƒCƒiƒX‚³‚¹‚é
+			animNowIndex += 1;						//‚P•b‚É‚È‚é‚Æ”z—ñ‚Ì—v‘f”‚ð‚P‘‚â‚µ‚Ä‚¢‚é
+			if (animNowIndex >= animPatternNum)		//animNowIndex‚ªƒAƒjƒ[ƒVƒ‡ƒ“‚Ì‰¡—v‘f”‚É‚È‚é‚Æ
+			{
+				animNowIndex -= animPatternNum;		//‚RanimPatternNum‚ðanimIndex‚Éƒ}ƒCƒiƒX‚³‚¹‚Ä0`‚É‚µ‚Ä‚¢‚é
+			}
+		}
+
+#if FALSE
+		//ƒAƒjƒ[ƒVƒ‡ƒ“Žw’è(—á1)@c‰¡‘Î‰ž
+		if (PlayerVelocity.x > 0.f && PlayerVelocity.y == 0.f) {
+			//‰E
+			animDirectionOffset = 40;
+		}
+		if (PlayerVelocity.x == 0.f && PlayerVelocity.y < 0.f) {
+			//ã
+			animDirectionOffset = 24;
+		}
+		if (PlayerVelocity.x < 0.f && PlayerVelocity.y == 0.f) {
+			//¶
+			animDirectionOffset = 8;
+		}
+		if (PlayerVelocity.x == 0.f && PlayerVelocity.y > 0.f) {
+			//‰º
+			animDirectionOffset = 0;
+		}
+#else
+		//ƒAƒjƒ[ƒVƒ‡ƒ“Žw’è(—á2) Šp“x‚ð‹‚ß‚Ä‚»‚±‚©‚ç
+		float radian = std::atan2f(PlayerVelocity.x, PlayerVelocity.y);//-DX_PI_F~DX_PI_F‚Ì”ÍˆÍ‚Å“ü—ÍŠp“x‚ð“¾‚é
+		float degree = radian * 180.f / DX_PI_F;//Šp“x‚ðDegree‚É•ÏŠ·
+
+		//‰º
+		if (-150.f > degree || degree > 150.f) {
+			animDirectionOffset = 8 * 3;
+		}
+		//‰E‰º
+		if (90.f <= degree && degree <= 150.f) {
+			animDirectionOffset = 8 * 4;
+		}
+		//‰Eã
+		if (30.f <= degree && degree <= 90.f) {
+			animDirectionOffset = 8 * 5;
+		}
+		//ã
+		if (-30.f <= degree && degree <= 30.f) {
+			animDirectionOffset = 8 * 0;
+		}
+		//¶ã
+		if (-90.f <= degree && degree <= -30.f) {
+			animDirectionOffset = 8 * 1;
+		}
+		//¶‰º
+		if (-150.f <= degree && degree <= -90.f) {
+			animDirectionOffset = 8 * 2;
+		}
+#endif
+	}
+	else {
+		//Ž~‚Ü‚Á‚Ä‚¢‚é
+	}
+
+
+
+	PlayerPos += PlayerVelocity;
+
+
 	//if(CheckHitKey(KEY_INPUT_))
 
 
