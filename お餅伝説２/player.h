@@ -6,7 +6,11 @@
 
 
 
-class OllPlayerData {
+class OllCharacterData {
+
+
+	int PlayerVelocity=1;
+
 
 	Vector2DX PlayerPos;						//プレイヤーの初期座標
 

@@ -294,3 +294,4 @@ bool MapData::CalcVectorSlideOnWallChips(const Vector2DX& PlayerPrev, Vector2DX*
 	//‚Ç‚±‚©‚µ‚ç‚Åƒqƒbƒg‚µ‚½ê‡TRUE
 	return IsHitAnyWall;
 }
+

@@ -104,11 +104,11 @@
     <ClInclude Include="camera2D.h">
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClInclude>
-    <ClInclude Include="player.h">
-      <Filter>ヘッダー ファイル\描画関係</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Algorithm\Vector2D.h">
       <Filter>ソース ファイル\Source\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>ソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

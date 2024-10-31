@@ -23,7 +23,7 @@ int displayhigthY = 0;
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 
-	OllPlayerData PlayerFunctionOll;
+	OllCharacterData PlayerFunctionOll;
 	
 #if SINGLETON
 	MapData::Create();
@@ -89,19 +89,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//MapEngine();		//マップの動き
 			MapDataOllPtr->mapaupdate();			//マップの動き
 			
-			
-
 			PlayerFunctionOll.Playerappdate();		//プレイヤーの更新
 
-			
 			MapDataOllPtr->mapDraw();
-
-			
-						//画面更新処理
-			
+			//画面更新処理
 			PlayerFunctionOll.PlayerDraw();			//プレイヤー描画
 			
-
 			break;
 
 		}
@@ -115,6 +108,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	PlayerFunctionOll.PlayerFinalize();	//プレイヤーの後始末
 	//WaitKey();//終了時に即時に終了できるように一応コメントアウトします
 	DxLib_End();
+
 	return 0;
 }
 
