@@ -3,6 +3,7 @@
 #include "map.h"
 #include "collision.h"
 #include "mobchara.h"
+#include "fight.h"
 #include "fps.h"
 #include"MainScreen.h"
 #include "camera2D.h"
@@ -22,8 +23,7 @@ int displayhigthY = 0;
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 	CharacterManager charaManager;
-	Input::SetInput();
-	Input* PlayerInput = Input::Instance();
+
 #if SINGLETON
 	MapData::Create();
 	MapData* MapDataOllPtr = MapData::Instance();
@@ -72,7 +72,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		nowCount = GetNowCount();
 		deltaTime = (nowCount - prevCount) / 1000.0f;
 
-	
+		PlayeAttackType Playerchoicetern(); //プレイヤーの攻撃パターン構造体
 		
 
 		switch (Exchange)
@@ -91,8 +91,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			//プレイヤーの入力処理
 			{
+				Input Player;
 
-				PlayerInput->SetInput(
+				Player.SetInput(
 					CheckHitKey(KEY_INPUT_A),
 					CheckHitKey(KEY_INPUT_D),
 					CheckHitKey(KEY_INPUT_S),
@@ -104,15 +105,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			//NPCの入力処理
 			{
-			
+				Input Player;
 
-				PlayerInput->SetInput(
+				Player.SetInput(
 					1,
 					0,
 					0,
 					0
 				);
-				charaManager.GetChara(1).CalcInput(PlayerInput);
+				charaManager.GetChara(1).CalcInput(Player);
 			}
 
 			charaManager.Update();		//プレイヤーの更新
