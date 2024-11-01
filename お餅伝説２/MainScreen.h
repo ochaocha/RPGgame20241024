@@ -5,7 +5,7 @@
 class MeinScreen
 {
 public:
-	int mauseX, mauseY;
+	int mauseX=0, mauseY=0;
 
 	bool rangeATK = true;
 
@@ -16,7 +16,7 @@ public:
 	/// @param change 
 	/// @param MeinscreenVertical 
 	/// @param MeinscreenHorizontal 
-	void MeinDrawScreen(int* change);	
+	void Draw(int* change);	
 
 
 };

@@ -1,6 +1,5 @@
 #include "player.h"
 #include "DxLib.h"
-
 #include "map.h"
 
 
@@ -35,7 +34,7 @@ void OllCharacterData::CalcInput(const Input& input)
 	MyInput = input;
 }
 
-void OllCharacterData::Playerappdate()
+void OllCharacterData::Update()
 {
 	//移動前のプレイヤー座標を保存
 	Vector2DX prevPos = PlayerPos;
@@ -154,7 +153,7 @@ void OllCharacterData::Playerappdate()
 void OllCharacterData::PlayerDraw()
 {
 
-	DrawExtendGraph(static_cast<int>(PlayerPos.x) + drawOffsetX, static_cast<int>(PlayerPos.y) + drawOffsetY, PlayerPos.x + drawOffsetX + 110, PlayerPos.y + drawOffsetY + 110, charaimg[animDirectionOffset + animNowIndex], TRUE);
+	DrawExtendGraph(static_cast<int>(PlayerPos.x) + drawOffsetX, static_cast<int>(PlayerPos.y) + drawOffsetY, static_cast<int>(PlayerPos.x) + drawOffsetX + 110, static_cast<int>(PlayerPos.y)+ drawOffsetY + 110, charaimg[animDirectionOffset + animNowIndex], TRUE);
 
 	//移動判定に正確なキャラクター描画
 	Vector2DX PlayerMinSize = Vector2DX::vget(static_cast<float>(-hitSizeX / 2), static_cast<float>(-hitSizeY / 2));

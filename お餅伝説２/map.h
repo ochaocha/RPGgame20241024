@@ -96,22 +96,22 @@ private:
 
     std::vector<std::vector<Location>>  Maploca;
 
-    int mapChipImg[88]; // 画像ハンドル配列
+    int mapChipImg[88] = {0}; // 画像ハンドル配列
 
-    int riverChipImg[5];//川の画像チップ
+    int riverChipImg[5] = {0};//川の画像チップ
 private:
 
 public:
     /// @briefマップの読み込み  
-    void mapInit();
+    void Init();
 
-    void mapaupdate();
+    void Update();
     /// @briefマップの描画
-    void mapDraw();
+    void Draw();
     /// @brief マップのCSVファイルから読み取り
-    void MapEngine();
+    void Engine();
 
-    bool LoadMapdata(std::string filePath)
+    bool LoadData(std::string filePath)
     {
         std::string linebuf;                       // 1行読み込みバッファ
 

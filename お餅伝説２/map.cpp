@@ -64,7 +64,7 @@ bool CalcLineToLineSlideVector(
 const MapData* MapData::m_Singleton = nullptr;
 #endif
 
-void MapData::mapInit()
+void MapData::Init()
 {
 	// 画像総数  横枚数x縦枚数,横方向個数,縦方向個数,チップ1枚の横サイズ, チップ1毎の縦サイズ, 画像配列先頭ポインタ 
 	LoadDivGraph("map/map.png", mapImgXNum * mapImgYNum, mapImgXNum, mapImgYNum, mapChipSize, mapChipSize, mapChipImg);
@@ -74,7 +74,7 @@ void MapData::mapInit()
 }
 
 
-void  MapData::mapDraw()
+void  MapData::Draw()
 {
 
 	for (int y = 0; y < GetMapYsize(); y++)
@@ -105,7 +105,7 @@ void  MapData::mapDraw()
 	}
 }
 
-void MapData::mapaupdate()
+void MapData::Update()
 {
 	/*
 	for (int iy = 0; iy < GetMapYsize(); iy++)
@@ -129,11 +129,11 @@ void MapData::mapaupdate()
 	//*/
 }
 
-void  MapData::MapEngine()
+void  MapData::Engine()
 {
 	std::string filePath = "mapTest.csv";      // CSVファイル名
 
-	if (LoadMapdata(filePath) == false) {
+	if (LoadData(filePath) == false) {
 		std::cout << "ファイルのオープンに失敗" << std::endl;
 	}
 

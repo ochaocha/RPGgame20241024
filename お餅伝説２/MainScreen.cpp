@@ -9,11 +9,8 @@ int graphX = 600, graphY = 600, graph2X = 1320, graph2Y = 1000;
 /// @param change 
 /// @param MeinscreenVertical 
 /// @param MeinscreenHorizontal 
-void MeinScreen::MeinDrawScreen(int* change)
+void MeinScreen::Draw(int* change)
 {
-
-
-	
 	GetMousePoint(&mauseX, &mauseY);
 	SetFontSize(34);
 	unsigned int Cr = GetColor(ColorHandle, ColorHandle, ColorHandle);

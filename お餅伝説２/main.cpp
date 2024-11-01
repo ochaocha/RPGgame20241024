@@ -1,12 +1,10 @@
 #include "DxLib.h"
 #include "player.h"
 #include "map.h"
-#include "collision.h"
-#include "mobchara.h"
-#include "fight.h"
 #include "fps.h"
 #include"MainScreen.h"
 #include "camera2D.h"
+#include <Windows.h>
 
 
 int displaywidhtX = 0;
@@ -20,7 +18,7 @@ int displayhigthY = 0;
  
 
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 {
 	CharacterManager::Create();
 
@@ -53,8 +51,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);
 
 	//MapDataOll変数を初期化
-	MapDataOllPtr->MapEngine();//マップの読み込み
-	MapDataOllPtr->mapInit();//マップの初期化
+	MapDataOllPtr->Engine();//マップの読み込み
+	MapDataOllPtr->Init();//マップの初期化
 	
 
 	int nowCount, prevCount;
@@ -72,14 +70,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		nowCount = GetNowCount();
 		deltaTime = (nowCount - prevCount) / 1000.0f;
 
-		PlayeAttackType Playerchoicetern(); //プレイヤーの攻撃パターン構造体
 		
 
 		switch (Exchange)
 		{
 		case 0://メインスクリーン
 			
-			Mein.MeinDrawScreen(&Exchange);
+			Mein.Draw(&Exchange);
 				
 			break;
 			
@@ -87,7 +84,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			
 			ClearDrawScreen();		//マップの描画
 			//MapEngine();		//マップの動き
-			MapDataOllPtr->mapaupdate();			//マップの動き
+			MapDataOllPtr->Update();			//マップの動き
 
 			//プレイヤーの入力処理
 			{
@@ -118,7 +115,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			CharacterManager::Instance()->Update();		//プレイヤーの更新
 
-			MapDataOllPtr->mapDraw();
+			MapDataOllPtr->Draw();
 			//画面更新処理
 			CharacterManager::Instance()->Draw();			//プレイヤー描画
 
