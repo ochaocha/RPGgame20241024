@@ -1,5 +1,5 @@
 #include "DxLib.h"
-#include "Data/camera2D.h"
+#include "camera2D.h"
 
 void ScreenCamera::Screen(int displaywidthX, int displayhightY, int displaywidth2X, int displayhight2Y)
 {

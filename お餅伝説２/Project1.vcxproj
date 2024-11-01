@@ -19,21 +19,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="camera2D.cpp" />
-    <ClCompile Include="fps.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MainScreen.cpp" />
-    <ClCompile Include="map.cpp" />
-    <ClCompile Include="player.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="camera2D.h" />
-    <ClInclude Include="fps.h" />
-    <ClInclude Include="MainScreen.h" />
-    <ClInclude Include="map.h" />
-    <ClInclude Include="player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Source\Algorithm\Vector2D.h" />
+    <ClInclude Include="Source\camera2D.h" />
+    <ClInclude Include="Source\fps.h" />
+    <ClInclude Include="Source\MainScreen.h" />
+    <ClInclude Include="Source\map.h" />
+    <ClInclude Include="Source\player.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\camera2D.cpp" />
+    <ClCompile Include="Source\fps.cpp" />
+    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\MainScreen.cpp" />
+    <ClCompile Include="Source\map.cpp" />
+    <ClCompile Include="Source\player.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

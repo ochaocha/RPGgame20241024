@@ -7,7 +7,7 @@
 #include <vector>
 #include "map.h"
 
-#include "Source/Algorithm/Vector2D.h"
+#include "Algorithm/Vector2D.h"
 
 static const int mapChipSize = 40;  // マップチップ１個の大きさ
 

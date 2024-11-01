@@ -1,5 +1,5 @@
 #include "Dxlib.h"
-#include "Data/MainScreen.h"
+#include "MainScreen.h"
 
 int graphX = 600, graphY = 600, graph2X = 1320, graph2Y = 1000;
 
