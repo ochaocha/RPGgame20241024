@@ -39,10 +39,10 @@
     <ClInclude Include="DXLib_ref_00_Util.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="DXLib_ref_01_Vector.hpp">
+    <ClInclude Include="DXLib_ref_01_Algorithm.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="DXLib_ref_02_SoundHandle.hpp">
+    <ClInclude Include="DXLib_ref_02_Sound.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DXLib_ref_09_KeyControl.hpp">
@@ -80,7 +80,7 @@
     <ClCompile Include="DXLib_ref_100_PostPass.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="DXLib_ref_02_SoundHandle.cpp">
+    <ClCompile Include="DXLib_ref_02_Sound.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="DXLib_ref_09_KeyControl.cpp">

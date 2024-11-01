@@ -54,9 +54,9 @@ namespace FPS_n2 {
 				Obj2DParts->AddObject(Obj);
 				Obj->SetShootPlayer(shootID);
 				Vector2DX Vec; Vec.Set(std::sin(Radian), std::cos(Radian));
-				Obj->SetPos(Pos + Vec * Offset);
+				Obj->SetPosition(Pos + Vec * Offset);
 				Obj->SetVec(Vec * Speed);
-				Obj->SetSize(Get2DSize(Size));
+				Obj->SetSize(Size);
 				return Obj;
 			}
 

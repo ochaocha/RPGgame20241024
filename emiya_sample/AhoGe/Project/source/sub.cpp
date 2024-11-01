@@ -43,35 +43,46 @@ namespace FPS_n2 {
 			}
 		}
 
-		const Vector2DX Cam2DControl::GetCamPos(void) const noexcept {
-			Vector2DX Shake = CameraShake::Instance()->GetCamShake();
-			return this->m_Pos + Shake;
+		// 
+		void Cam2DControl::Update(void) noexcept {
+			auto* DrawParts = DXDraw::Instance();
+			if (this->m_ShakeTotalTime > 0.f) {
+				//この範囲でランダムな地点を取得し、その方向に毎フレームm_CamShakeを動かす
+				auto RandRange = this->m_ShakeTime / this->m_ShakeTotalTime * this->m_ShakePower;
+				//2回補完を行うことで自然な揺れを演出
+				Easing(&this->m_CamShake1, Vector2DX::vget(GetRandf(RandRange), GetRandf(RandRange)), 0.8f, EasingType::OutExpo);
+				Easing(&this->m_CamShake2, this->m_CamShake1, 0.8f, EasingType::OutExpo);
+				//時間経過で弱まるようにするため時間を計測して減らします
+				this->m_ShakeTime = GetMax(this->m_ShakeTime - DrawParts->GetDeltaTime(), 0.f);
+			}
 		}
 		// 
-		void Convert2DtoDisp(const Vector2DX& Pos2D, Vector2DX* pRet) noexcept {
+		void Cam2DControl::Convert2DtoDisp(const Vector2DX& Pos2D, Vector2DX* pRet) noexcept {
 			auto* DrawParts = DXDraw::Instance();
-			auto& CamPos = Cam2DControl::Instance()->GetCamPos();
-			pRet->x = static_cast<float>(DrawParts->GetScreenY(static_cast<int>(1920.f / 2 + (1080.f / 2.f) * (Pos2D.x - CamPos.x) * Cam2DControl::Instance()->GetCamHeight() / Base_CamScale)));
-			pRet->y = static_cast<float>(DrawParts->GetScreenY(static_cast<int>(1080.f / 2 - (1080.f / 2.f) * (Pos2D.y - CamPos.y) * Cam2DControl::Instance()->GetCamHeight() / Base_CamScale)));
+			auto CamPos = Cam2DControl::GetTileTo2DSize(Cam2DControl::Instance()->GetCamPos());
+			auto Pos = Cam2DControl::GetTileTo2DSize(Pos2D);
+			pRet->x = static_cast<float>(DrawParts->GetScreenY(static_cast<int>(1920.f / 2 + (1080.f / 2.f) * (Pos.x - CamPos.x) * Cam2DControl::Instance()->GetCamHeight() / Base_CamScale)));
+			pRet->y = static_cast<float>(DrawParts->GetScreenY(static_cast<int>(1080.f / 2 - (1080.f / 2.f) * (Pos.y - CamPos.y) * Cam2DControl::Instance()->GetCamHeight() / Base_CamScale)));
 		}
 
-		bool Is2DPositionInDisp(const Vector2DX& Pos2D, int Radius) noexcept {
+		bool Cam2DControl::Is2DPositionInDisp(const Vector2DX& Pos2D, float Radius) noexcept {
 			auto* DrawParts = DXDraw::Instance();
-			Radius = Radius * 100 / DrawParts->GetScreenY(100);
-			auto& CamPos = Cam2DControl::Instance()->GetCamPos();
-			int x = 1920 / 2 + static_cast<int>((1080.f / 2.f) * (Pos2D.x - CamPos.x) * Cam2DControl::Instance()->GetCamHeight() / Base_CamScale);
-			int y = 1080 / 2 - static_cast<int>((1080.f / 2.f) * (Pos2D.y - CamPos.y) * Cam2DControl::Instance()->GetCamHeight() / Base_CamScale);
-			return HitPointToRectangle(x, y, -Radius, -Radius, 1920 + Radius, 1080 + Radius);
+			int R = Cam2DControl::GetTileToDispSize(Radius) * 100 / DrawParts->GetScreenY(100);
+			auto CamPos = Cam2DControl::GetTileTo2DSize(Cam2DControl::Instance()->GetCamPos());
+			auto Pos = Cam2DControl::GetTileTo2DSize(Pos2D);
+			int x = 1920 / 2 + static_cast<int>((1080.f / 2.f) * (Pos.x - CamPos.x) * Cam2DControl::Instance()->GetCamHeight() / Base_CamScale);
+			int y = 1080 / 2 - static_cast<int>((1080.f / 2.f) * (Pos.y - CamPos.y) * Cam2DControl::Instance()->GetCamHeight() / Base_CamScale);
+			return HitPointToRectangle(x, y, -R, -R, 1920 + R, 1080 + R);
 		}
 
 		float GetRadVec2Vec(const Vector2DX& vec1, const Vector2DX& vec2) noexcept { return std::atan2f(vec1.x - vec2.x, vec1.y - vec2.y); }
 
 		// 空間上のタイルごとのサイズを取得(タイルvalue個ぶん)
-		float Get2DSize(float value) noexcept { return (value * Tile_DispSize) * Base_CamScale / (1080.f / 2.f); }
+		float Cam2DControl::GetTileTo2DSize(float value) noexcept { return (value * Tile_DispSize) * Base_CamScale / (1080.f / 2.f); }
 		// 空間上のサイズからタイル枚数を取得
-		float Get2DSizetoTile(float value) noexcept { return (value * (1080.f / 2.f) / Base_CamScale) / Tile_DispSize; }
+		float Cam2DControl::Get2DSizetoTile(float value) noexcept { return (value * (1080.f / 2.f) / Base_CamScale) / Tile_DispSize; }
 		// 画面上のタイルごとのサイズを取得(タイルvalue個ぶん)
-		int GetDispSize(float value) noexcept {
+		int Cam2DControl::GetTileToDispSize(float value) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			return DrawParts->GetScreenY(static_cast<int>(value * Tile_DispSize * Cam2DControl::Instance()->GetCamHeight()));
 		}
@@ -88,11 +99,11 @@ namespace FPS_n2 {
 			}
 		}
 		void Effect2DControl::Draw() noexcept {
-			float Radius = static_cast<float>(GetDispSize(5.f));
+			float Radius = static_cast<float>(Cam2DControl::GetTileToDispSize(5.f));
 			Vector2DX DispPos;
 			for (auto& g : m_GuardPos) {
 				if (g.m_Per <= 0.f) { continue; }
-				Convert2DtoDisp(g.m_Pos, &DispPos);
+				Cam2DControl::Convert2DtoDisp(g.m_Pos, &DispPos);
 				switch (g.m_EffectType) {
 				case EffectType::Damage:
 					SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * (g.m_Per / g.m_PerMax)), 0, 255));

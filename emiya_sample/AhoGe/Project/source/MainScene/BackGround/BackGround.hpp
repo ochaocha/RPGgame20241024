@@ -51,7 +51,7 @@ namespace FPS_n2 {
 				std::array<int, 8>			m_LinkIndex{};// CPUが斜め方向も探索するようにしたいなら8に指定
 			public:
 				const auto& GetIndex(void) const noexcept { return this->m_Index; }
-				const auto& GetPos(void) const noexcept { return this->m_Pos; }
+				const auto& GetTileCenterPos(void) const noexcept { return this->m_Pos; }
 				const auto& GetIsWall(void) const noexcept { return this->m_IsWall; }
 				const auto& GetIsCheckWall(void) const noexcept { return this->m_IsCheckWall; }
 				const auto& GetPalette(void) const noexcept { return this->m_Palette; }
@@ -59,13 +59,13 @@ namespace FPS_n2 {
 				const auto& GetLinkIndex(void) const noexcept { return this->m_LinkIndex; }
 			public:// コンストラクタ
 				Blick(int x, int y, int index) noexcept {
-					this->m_Pos.x = Get2DSize(static_cast<float>(x));
-					this->m_Pos.y = Get2DSize(static_cast<float>(y));
+					this->m_Pos.x = static_cast<float>(x);
+					this->m_Pos.y = static_cast<float>(y);
 					this->m_Index = index;
 					for (auto& Lindex : this->m_LinkIndex) {
 						Lindex = InvalidID;
 					}
-					float HalfLen = Get2DSize(0.5f);
+					float HalfLen = 0.5f;
 					this->m_BoxSide.at(0).Set(this->m_Pos.x - HalfLen, this->m_Pos.y - HalfLen);
 					this->m_BoxSide.at(1).Set(this->m_Pos.x + HalfLen, this->m_Pos.y - HalfLen);
 					this->m_BoxSide.at(2).Set(this->m_Pos.x + HalfLen, this->m_Pos.y + HalfLen);
@@ -257,8 +257,8 @@ namespace FPS_n2 {
 			const auto&		GetFloorData(int x, int y) const noexcept { return GetFloorData(GetXYToNum(x, y)); }
 			auto			GetNearestFloors(const Vector2DX& Pos) const noexcept {
 				// 軽量版
-				int x = static_cast<int>(Get2DSizetoTile(Pos.x) + 0.5f);
-				int y = static_cast<int>(Get2DSizetoTile(Pos.y) + 0.5f);
+				int x = static_cast<int>(Pos.x + 0.5f);
+				int y = static_cast<int>(Pos.y + 0.5f);
 				return GetXYToNum(x, y);
 				/*
 				for (auto& B : this->m_FloorBlick) {
@@ -267,16 +267,6 @@ namespace FPS_n2 {
 				}
 				return InvalidID;
 				//*/
-			}
-			auto			GetNearFloorsList(const Vector2DX& Pos) const noexcept {
-				std::vector<int> SelList;
-				float ViewLimit = Get2DSize(5.f);
-				for (auto& B : this->m_FloorBlick) {
-					if ((B->GetPos() - Pos).sqrMagnitude() < ViewLimit * ViewLimit) {
-						SelList.emplace_back(B->GetIndex());
-					}
-				}
-				return SelList;
 			}
 			float			CheckHideShadow(const Vector2DX& PosA, const Vector2DX& PosB, float Radius) noexcept;
 			bool			CheckLinetoMap(const Vector2DX& StartPos, Vector2DX* EndPos, float Radius, bool IsPhysical) const noexcept;
@@ -289,7 +279,7 @@ namespace FPS_n2 {
 				this->m_AmbientLightVec.Set(std::sin(this->m_AmbientLightRad) * Radius, std::cos(this->m_AmbientLightRad) * Radius);
 			}
 			void			SetPointLight(const Vector2DX& Pos) noexcept {
-				Convert2DtoDisp(Pos,&this->m_PointLightPos);
+				Cam2DControl::Convert2DtoDisp(Pos,&this->m_PointLightPos);
 			}
 		private:
 			BackGroundClassBase(void) {}

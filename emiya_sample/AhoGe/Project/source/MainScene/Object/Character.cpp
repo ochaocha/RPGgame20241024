@@ -9,7 +9,7 @@ namespace FPS_n2 {
 		CharacterObject::CharacterObject(void) noexcept {
 			this->m_InputVec.Set(0.f, 0.f);
 			SetObjType(Object2DType::Human);
-			SetSize(Get2DSize(1.f));
+			SetSize(1.f);
 		}
 		CharacterObject::~CharacterObject(void) noexcept {}
 		void CharacterObject::UpdateInputVector(const InputControl& MyInput) noexcept {
@@ -49,7 +49,7 @@ namespace FPS_n2 {
 				}
 			}
 			//上記の結果をまとめ、Vectorに渡す
-			SetVec(this->m_InputVec.normalized() * this->m_Speed);
+			SetVec(this->m_InputVec.normalized() * this->m_Speed * 5.f);
 		}
 		// 
 		void		CharacterObject::UpdateInput(const InputControl& MyInput) noexcept {
@@ -60,10 +60,10 @@ namespace FPS_n2 {
 			UpdateInputVector(MyInput);
 			// ブラー
 			if (this->m_DodgeCoolTime > 0.75f) {
-				m_Blur.AddBlur(0.3f, this->GetPos(), this->GetVec());
+				m_Blur.AddBlur(0.3f, GetPosition(), this->GetVec());
 			}
 			else if (MyInput.GetPADSPress(PADS::RUN)) {
-				m_Blur.AddBlur(0.1f, this->GetPos(), this->GetVec());
+				m_Blur.AddBlur(0.1f, GetPosition(), this->GetVec());
 			}
 			// 狙い
 			{
@@ -88,24 +88,24 @@ namespace FPS_n2 {
 					case GunType::Handgun:
 						this->m_ShotCoolTime = 1.f;
 						SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Shot1))->Play(DX_PLAYTYPE_BACK, TRUE);
-						Obj->SetPos(GetPos() + Vec * Get2DSize(1.2f));
-						Obj->SetVec(Vec * 3.f);
-						Obj->SetSize(Get2DSize(0.5f));
+						Obj->SetPosition(GetPosition() + Vec * 1.2f);
+						Obj->SetVec(Vec * 3.f * 5.f);
+						Obj->SetSize(0.5f);
 						break;
 					case GunType::Rifle:
 						this->m_ShotCoolTime = 0.1f;
 						SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Shot2))->Play(DX_PLAYTYPE_BACK, TRUE);
-						Obj->SetPos(GetPos() + Vec * Get2DSize(1.2f));
-						Obj->SetVec(Vec * 3.f);
-						Obj->SetSize(Get2DSize(0.5f));
+						Obj->SetPosition(GetPosition() + Vec * 1.2f);
+						Obj->SetVec(Vec * 3.f * 5.f);
+						Obj->SetSize(0.5f);
 						break;
 					case GunType::Rocket:
 						this->m_ShotCoolTime = 5.f;
 						SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Shot3))->Play(DX_PLAYTYPE_BACK, TRUE);
 						Obj->SetObjType(Object2DType::Rocket);// 特別にロケットとして登録
-						Obj->SetPos(GetPos() + Vec * Get2DSize(2.5f));
-						Obj->SetVec(Vec * 0.5f);
-						Obj->SetSize(Get2DSize(3.f));
+						Obj->SetPosition(GetPosition() + Vec * 2.5f);
+						Obj->SetVec(Vec * 0.5f * 5.f);
+						Obj->SetSize(3.f);
 						break;
 					default:
 						break;
@@ -119,7 +119,7 @@ namespace FPS_n2 {
 		void CharacterObject::DrawHPBer() noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			Vector2DX DispPos;
-			Convert2DtoDisp(this->GetPos(), &DispPos);
+			Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
 			int xmin = DrawParts->GetScreenY(-50);
 			int ymin = DrawParts->GetScreenY(-50);
 			int xmax = DrawParts->GetScreenY(50);
@@ -136,7 +136,7 @@ namespace FPS_n2 {
 				// 弾以外が当たった時は以下は通さない
 				if (o->GetObjType() != Object2DType::Rocket && o->GetObjType() != Object2DType::Bullet) { return; }
 
-				Effect2DControl::Instance()->Set(o->GetPos(), EffectType::Damage, 0.25f);
+				Effect2DControl::Instance()->SetEffect(o->GetPosition(), EffectType::Damage, 0.25f);
 				this->m_HitPoint--;
 				if (this->m_HitPoint == 0) {
 					SetDelete();
@@ -161,9 +161,9 @@ namespace FPS_n2 {
 			if (!m_IsPlayableCharacter) {
 				auto& Chara = PlayerMngr->GetPlayer(0)->GetChara();
 				if (Chara) {
-					float ViewLimit = Get2DSize(40.f);
-					if ((Chara->GetPos() - GetPos()).sqrMagnitude() < ViewLimit * ViewLimit) {
-						Easing(&this->m_Alpha, BackGround->CheckHideShadow(Chara->GetPos(), GetPos(), GetSize() / 2.f), 0.5f, EasingType::OutExpo);
+					float ViewLimit = 40.f;
+					if ((Chara->GetPosition() - GetPosition()).sqrMagnitude() < ViewLimit * ViewLimit) {
+						Easing(&this->m_Alpha, BackGround->CheckHideShadow(Chara->GetPosition(), GetPosition(), GetSize() / 2.f / Cam2DControl::GetTileToDispSize(1.f)), 0.5f, EasingType::OutExpo);
 					}
 					else {
 						Easing(&this->m_Alpha, 0.f, 0.5f, EasingType::OutExpo);
@@ -179,8 +179,8 @@ namespace FPS_n2 {
 				this->m_RunFootPer += this->m_Speed * 4.f * DrawParts->GetDeltaTime();
 				if (this->m_RunFootPer > 1.f) {
 					this->m_RunFootPer -= 1.f;
-					float Len = Get2DSize(30.f);
-					if ((Cam2D->GetCamPos() - GetPos()).sqrMagnitude() < Len * Len) {
+					float Len = 30.f;
+					if ((Cam2D->GetCamPos() - GetPosition()).sqrMagnitude() < Len * Len) {
 						SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::RunFoot))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				}
@@ -191,34 +191,34 @@ namespace FPS_n2 {
 			m_Blur.Update();
 		}
 		void CharacterObject::DrawShadow_Sub(void) noexcept {
-			float Radius = static_cast<float>(GetDispSize(Get2DSizetoTile(GetSize() / 2.f)));
-			if (!Is2DPositionInDisp(GetPos(), static_cast<int>(Radius))) { return; }
+			float Radius = static_cast<float>(GetSize() / 2.f);
+			if (!Cam2DControl::Is2DPositionInDisp(GetPosition(), Radius)) { return; }
 			auto* BackGround = BackGroundClassBase::Instance();
 			if (this->m_Alpha > 1.f / 255.f) {
 				Vector2DX DispPos;
-				Convert2DtoDisp(GetPos(), &DispPos);
+				Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
 
 				DispPos += BackGround->GetAmbientLightVec() * 0.25f * Cam2DControl::Instance()->GetCamHeight();
-				DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Radius), Black);
+				DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Cam2DControl::GetTileToDispSize(Radius)), Black);
 			}
 		}
 		void CharacterObject::Draw_Sub(void) noexcept {
-			float Radius = static_cast<float>(GetDispSize(Get2DSizetoTile(GetSize() / 2.f)));
-			if (!Is2DPositionInDisp(GetPos(), static_cast<int>(Radius))) { return; }
+			float Radius = static_cast<float>(GetSize() / 2.f);
+			if (!Cam2DControl::Is2DPositionInDisp(GetPosition(), Radius)) { return; }
 			// ブラー
 			for (auto& b : m_Blur.GetBlur()) {
 				if (b.IsActive()) {
 					SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(16.f * this->m_Alpha * b.GetPer()), 0, 255));
 					Vector2DX DispPos;
-					Convert2DtoDisp(b.GetPos(), &DispPos);
-					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Radius * std::pow(b.GetPer(), 0.5f)), (m_IsPlayableCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50));
+					Cam2DControl::Convert2DtoDisp(b.GetPos(), &DispPos);
+					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Cam2DControl::GetTileToDispSize(Radius) * std::pow(b.GetPer(), 0.5f)), (m_IsPlayableCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50));
 				}
 			}
 			// 本体
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_Alpha), 0, 255));
 			Vector2DX DispPos;
-			Convert2DtoDisp(GetPos(), &DispPos);
-			DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Radius), (m_IsPlayableCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50));
+			Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
+			DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Cam2DControl::GetTileToDispSize(Radius)), (m_IsPlayableCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50));
 
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}

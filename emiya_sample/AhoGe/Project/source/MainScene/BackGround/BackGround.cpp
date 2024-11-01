@@ -94,8 +94,8 @@ namespace FPS_n2 {
 			for (int i = 0; i < 4; i++) {
 				if (GetLinkIndex().at(static_cast<size_t>((i + 1) % 4)) == InvalidID) { continue; }
 				Vector2DX postmp1, postmp2;
-				Convert2DtoDisp(this->GetBoxSide(i),&postmp1);
-				Convert2DtoDisp(this->GetBoxSide((i + 1) % 4),&postmp2);
+				Cam2DControl::Convert2DtoDisp(this->GetBoxSide(i),&postmp1);
+				Cam2DControl::Convert2DtoDisp(this->GetBoxSide((i + 1) % 4),&postmp2);
 				float radsub = deg2rad(90 * i);
 				if (std::cos(AmbientLightRad - radsub) > 0.f) {
 					Position.at(0).Set(postmp1.x + AmbientLightVec.x, postmp1.y + AmbientLightVec.y);
@@ -111,8 +111,8 @@ namespace FPS_n2 {
 			for (int i = 0; i < 4; i++) {
 				if (GetLinkIndex().at(static_cast<size_t>((i + 1) % 4)) == InvalidID) { continue; }
 				Vector2DX postmp1, postmp2;
-				Convert2DtoDisp(this->GetBoxSide(i), &postmp1);
-				Convert2DtoDisp(this->GetBoxSide((i + 1) % 4), &postmp2);
+				Cam2DControl::Convert2DtoDisp(this->GetBoxSide(i), &postmp1);
+				Cam2DControl::Convert2DtoDisp(this->GetBoxSide((i + 1) % 4), &postmp2);
 				float radsub = deg2rad(90 * i);
 				if (std::cos(GetRadVec2Vec((postmp1 + postmp2) / 2.f, PointLightPos) - radsub) > 0.f) {
 					auto length = 1920.f;
@@ -133,7 +133,7 @@ namespace FPS_n2 {
 			float Ret = 1.f;
 			for (auto& B : this->m_CheckWallBlick) {
 				// 範囲外
-				if (!Is2DPositionInDisp(B->GetPos(), static_cast<int>(Radius))) { continue; }
+				if (!Cam2DControl::Is2DPositionInDisp(B->GetTileCenterPos(), Radius)) { continue; }
 				// ヒットするかとヒットした場合の透明度を指定
 				float tmp = 1.f;
 				if (B->CheckLineHit(PosA, PosB)) {
@@ -532,66 +532,73 @@ namespace FPS_n2 {
 			// 
 			this->m_PointShadowHandle.Make(DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), true);
 			this->m_AmbientShadowHandle.Make(DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), true);
+			this->m_AmbientShadowHandle.SetDraw_Screen(false);
+			{
+				DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
+			}
 		}
 		// 
 		void BackGroundClassBase::SetupShadow(std::function<void()> AddAmbShadow) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			auto* OptionParts = OPTION::Instance();
-			if (OptionParts->GetParamInt(EnumSaveParam::shadow) > 0 || (GetUseDirect3DVersion() == DX_DIRECT3D_11)) {
+			if (OptionParts->GetParamBoolean(EnumSaveParam::shadow)) {
 				this->m_AmbientShadowHandle.SetDraw_Screen(false);
 				{
 					DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
 					AddAmbShadow();
-					int Radius = GetDispSize(0.5f) + DrawParts->GetScreenY(static_cast<int>(this->m_AmbientShadowLength));
+					float Radius = 0.5f + (float)(DrawParts->GetScreenY(static_cast<int>(this->m_AmbientShadowLength))) / Cam2DControl::GetTileToDispSize(1.f);
 					for (auto& B : this->m_CheckWallBlick) {
-						if (!Is2DPositionInDisp(B->GetPos(), Radius)) { continue; }
+						if (!Cam2DControl::Is2DPositionInDisp(B->GetTileCenterPos(), Radius)) { continue; }
 						B->DrawAmbientShadow(this->m_AmbientLightVec, this->m_AmbientLightRad, this->m_MapChip.at(0));
 					}
 				}
-				if (OptionParts->GetParamInt(EnumSaveParam::shadow) > 1 || (GetUseDirect3DVersion() == DX_DIRECT3D_11)) {
-					GraphFilter(this->m_AmbientShadowHandle.get(), DX_GRAPH_FILTER_GAUSS, 8, 200);
-				}
+				GraphFilter(this->m_AmbientShadowHandle.get(), DX_GRAPH_FILTER_GAUSS, 8, 200);
 			}
 			this->m_PointShadowHandle.SetDraw_Screen(false);
 			{
 				DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
-				int Radius = GetDispSize(0.5f) + DrawParts->GetScreenY(255);
+				float Radius = 0.5f + (float)(DrawParts->GetScreenY(255)) / Cam2DControl::GetTileToDispSize(1.f);
 				for (auto& B : this->m_CheckWallBlick) {
-					if (!Is2DPositionInDisp(B->GetPos(), Radius)) { continue; }
+					if (!Cam2DControl::Is2DPositionInDisp(B->GetTileCenterPos(), Radius)) { continue; }
 					B->DrawPointShadow(this->m_PointLightPos, this->m_MapChip.at(0));
 				}
 			}
-			GraphFilter(this->m_PointShadowHandle.get(), DX_GRAPH_FILTER_GAUSS, 8, 200);
+			if (OptionParts->GetParamBoolean(EnumSaveParam::shadow)) {
+				GraphFilter(this->m_PointShadowHandle.get(), DX_GRAPH_FILTER_GAUSS, 8, 200);
+			}
 		}
 		// 
 		void BackGroundClassBase::Draw(void) noexcept {
 			auto* DrawParts = DXDraw::Instance();
-			int Radius = GetDispSize(0.5f);
-			float Size = static_cast<float>(Radius * 2) / (32 - 1);
+			float Radius = 0.5f;
+			float Size = static_cast<float>(Cam2DControl::GetTileToDispSize(0.5f) * 2) / (32 - 1);
 			// 床
 			for (auto& B : this->m_FloorBlick) {
-				if (!Is2DPositionInDisp(B->GetPos(), Radius)) { continue; }
+				if (!Cam2DControl::Is2DPositionInDisp(B->GetTileCenterPos(), Radius)) { continue; }
 				Vector2DX DispPos;
-				Convert2DtoDisp(B->GetPos(), &DispPos);
+				Cam2DControl::Convert2DtoDisp(B->GetTileCenterPos(), &DispPos);
 				this->m_MapChip.at(static_cast<size_t>(B->GetPalette().at(0).GetpaletteNum())).DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Size, B->GetPalette().at(0).GetZRad(), FALSE);
 			}
 			// 影
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 64);
 			auto* OptionParts = OPTION::Instance();
-			if (OptionParts->GetParamInt(EnumSaveParam::shadow) > 0 || (GetUseDirect3DVersion() == DX_DIRECT3D_11)) {
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, 64);
+			if (OptionParts->GetParamBoolean(EnumSaveParam::shadow)) {
 				this->m_AmbientShadowHandle.DrawExtendGraph(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), false);
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 			}
+			else {
+				DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, TRUE);
+			}
+			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}
 		void BackGroundClassBase::DrawFront(void) noexcept {
 			auto* DrawParts = DXDraw::Instance();
-			int Radius = GetDispSize(0.5f);
-			float Size = static_cast<float>(Radius * 2) / (32 - 1);
+			float Radius = 0.5f;
+			float Size = static_cast<float>(Cam2DControl::GetTileToDispSize(Radius) * 2) / (32 - 1);
 			// 
 			{
 				Vector2DX MinPos, MaxPos;
-				Convert2DtoDisp(GetFloorData(0, 0)->GetPos(), &MinPos);
-				Convert2DtoDisp(GetFloorData(this->m_Xsize - 1, this->m_Ysize - 1)->GetPos(), &MaxPos);
+				Cam2DControl::Convert2DtoDisp(GetFloorData(0, 0)->GetTileCenterPos(), &MinPos);
+				Cam2DControl::Convert2DtoDisp(GetFloorData(this->m_Xsize - 1, this->m_Ysize - 1)->GetTileCenterPos(), &MaxPos);
 				int xmin = static_cast<int>(MinPos.x);
 				int ymin = static_cast<int>(MaxPos.y);
 				int xmax = static_cast<int>(MaxPos.x);
@@ -607,9 +614,9 @@ namespace FPS_n2 {
 			}
 			// 壁
 			for (auto& B : this->m_WallBlick) {
-				if (!Is2DPositionInDisp(B->GetPos(), Radius)) { continue; }
+				if (!Cam2DControl::Is2DPositionInDisp(B->GetTileCenterPos(), Radius)) { continue; }
 				Vector2DX DispPos;
-				Convert2DtoDisp(B->GetPos(), &DispPos);
+				Cam2DControl::Convert2DtoDisp(B->GetTileCenterPos(), &DispPos);
 				for (int i = 0; i < 5; i++) {
 					if (B->GetPalette().at(static_cast<size_t>(i)).IsActive()) {
 						this->m_WallChip.at(static_cast<size_t>(B->GetPalette().at(static_cast<size_t>(i)).GetpaletteNum())).DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),Size, B->GetPalette().at(static_cast<size_t>(i)).GetZRad(), i != 0);

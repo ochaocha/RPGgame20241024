@@ -10,7 +10,6 @@ namespace DXLibRef {
 		vsync,
 		FpsLimit,
 		SE,
-		VOICE,
 		BGM,
 		WindowMode,
 		ScreenEffect,
@@ -28,7 +27,6 @@ namespace DXLibRef {
 		"vsync",
 		"FpsLimit",
 		"SE",
-		"VOICE",
 		"BGM",
 		"WindowMode",
 		"ScreenEffect",
@@ -106,9 +104,9 @@ namespace DXLibRef {
 		std::array<SaveParams, static_cast<int>(EnumSaveParam::Max)> m_SaveParams;
 		std::array<SaveParams, static_cast<int>(EnumProjectSettingParam::Max)> m_ProjectSettingParams;
 	public:
-		auto		GetParamBoolean(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetBoolean(); }
-		auto		GetParamInt(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetInt(); }
-		auto		GetParamFloat(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetFloat(); }
+		auto			GetParamBoolean(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetBoolean(); }
+		auto			GetParamInt(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetInt(); }
+		auto			GetParamFloat(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetFloat(); }
 	public:
 		void			SetParamBoolean(EnumSaveParam id, bool use) noexcept { m_SaveParams.at(static_cast<size_t>(id)).SetBoolean(use); }
 		void			ChangeParamBoolean(EnumSaveParam id) noexcept { m_SaveParams.at(static_cast<size_t>(id)).ChangeBoolean(); }
@@ -116,9 +114,9 @@ namespace DXLibRef {
 		void			SetParamInt(EnumSaveParam id, int use) noexcept { m_SaveParams.at(static_cast<size_t>(id)).SetInt(use); }
 		void			SetParamFloat(EnumSaveParam id, float use) noexcept { m_SaveParams.at(static_cast<size_t>(id)).SetFloat(use); }
 	public:
-		auto		GetParamBoolean(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetBoolean(); }
-		auto		GetParamInt(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetInt(); }
-		auto		GetParamFloat(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetFloat(); }
+		auto			GetParamBoolean(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetBoolean(); }
+		auto			GetParamInt(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetInt(); }
+		auto			GetParamFloat(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetFloat(); }
 	public:
 		void			SetParamBoolean(EnumProjectSettingParam id, bool use) noexcept { m_ProjectSettingParams.at(static_cast<size_t>(id)).SetBoolean(use); }
 		void			SetParamInt(EnumProjectSettingParam id, int use) noexcept { m_ProjectSettingParams.at(static_cast<size_t>(id)).SetInt(use); }
@@ -186,7 +184,7 @@ namespace DXLibRef {
 				m_name = name;
 				Init_Sub();
 			}
-			void Execute(int* select, bool CanPress) noexcept;
+			void Update(int* select, bool CanPress) noexcept;
 			void Draw(int xpos, int ypos, bool isActive, int* TabSel, int* select) noexcept;
 
 			void DrawInfo(int xpos, int ypos, int select) noexcept;

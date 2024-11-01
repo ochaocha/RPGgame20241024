@@ -17,7 +17,7 @@ namespace DXLibRef {
 			UniqueID		m_UniqueID{ InvalidID };			// オブジェクトマネージャーにつけてもらうID オブジェクトマネージャーでDeleteAllされない限り各オブジェクトでID被りを起こさない
 			bool			m_IsDelete{ false };				// オブジェクトがマネージャーに削除フラグを伝えるための変数
 			bool			m_IsFirstLoop{ true };				// 初めてUpdate_Subを通る場合TRUEになる変数(継承先でのみ参照できるものとする)
-			Vector2DX		m_PrevPos{};		// SetPosで設定する前の座標
+			Vector2DX		m_PrevPos{};		// SetPositionで設定する前の座標
 			Vector2DX		m_Pos{};			// 座標
 			Vector2DX		m_Vec{};			// 移動ベクトル
 			float			m_Size{ 1.f };		// サイズ
@@ -33,7 +33,7 @@ namespace DXLibRef {
 			// 自分をマネージャーに破棄してもらうフラグ
 			const auto& GetIsDelete(void) const noexcept { return this->m_IsDelete; }
 			// 
-			const auto& GetPos(void) const noexcept { return this->m_Pos; }
+			const auto& GetPosition(void) const noexcept { return this->m_Pos; }
 			const auto& GetPrevPos(void) const noexcept { return this->m_PrevPos; }
 			const auto& GetVec(void) const noexcept { return this->m_Vec; }
 			const auto& GetSize(void) const noexcept { return this->m_Size; }
@@ -43,7 +43,7 @@ namespace DXLibRef {
 		public:
 			// 自分をマネージャーに破棄してもらうフラグを立てる
 			void			SetDelete(void) noexcept { this->m_IsDelete = true; }
-			void			SetPos(const Vector2DX& value) noexcept {
+			void			SetPosition(const Vector2DX& value) noexcept {
 				this->m_Pos = value;
 				this->m_PrevPos = this->m_Pos;
 			}

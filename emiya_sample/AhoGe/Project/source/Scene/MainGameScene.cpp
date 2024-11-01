@@ -68,10 +68,10 @@ namespace FPS_n2 {
 					for (auto& e : BackGround->GetEventChip()) {
 						if (e.m_EventType == EventType::Entry) {
 							if (e.m_EventID == this->m_EntryID) {
-								p->GetChara()->SetPos(BackGround->GetFloorData(e.m_index)->GetPos());
+								p->GetChara()->SetPosition(BackGround->GetFloorData(e.m_index)->GetTileCenterPos());
 							}
 							else {
-								GoalPos = BackGround->GetFloorData(e.m_index)->GetPos();
+								GoalPos = Cam2DControl::GetTileTo2DSize(BackGround->GetFloorData(e.m_index)->GetTileCenterPos());
 							}
 						}
 						if (e.m_EventType == EventType::Boss) {
@@ -79,24 +79,24 @@ namespace FPS_n2 {
 							const auto& Obj = std::make_shared<MetalObject>();
 							Obj2DParts->AddObject(Obj);
 							Obj->SetPlayerID(1);
-							Obj->SetPos(BackGround->GetFloorData(e.m_index)->GetPos());
-							Obj->SetSize(Get2DSize(10.f));
+							Obj->SetPosition(BackGround->GetFloorData(e.m_index)->GetTileCenterPos());
+							Obj->SetSize(10.f);
 							m_BossUniqueID = Obj->GetUniqueID();
 							m_WinCutSceneID = e.m_WinCutSceneID;
 						}
 					}
 				}
 				else {
-					p->GetChara()->SetPos(BackGround->GetFloorData(BackGround->GetPlayerSpawn().at(static_cast<size_t>(i)).m_index)->GetPos());
+					p->GetChara()->SetPosition(BackGround->GetFloorData(BackGround->GetPlayerSpawn().at(static_cast<size_t>(i)).m_index)->GetTileCenterPos());
 					p->GetChara()->SetGunType(GunType::Handgun);
 				}
 			}
 			auto& Chara = PlayerMngr->GetPlayer(this->m_MyPlayerID)->GetChara();
 			// カメラ
-			Cam2D->SetCamPos(Chara->GetPos());
+			Cam2D->SetCamPos(Chara->GetPosition());
 			Cam2D->SetCamRangePos(BackGround->GetCamScale());
 			// 
-			this->m_PrevXY = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPos()));
+			this->m_PrevXY = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPosition()));
 			// 
 			InGameUIControl::SetMap(BackGround->GetMapTextID(), GoalPos);
 			// 
@@ -137,18 +137,19 @@ namespace FPS_n2 {
 		bool			MainGameScene::Update_Sub(void) noexcept {
 			auto* PlayerMngr = PlayerManager::Instance();
 			auto* Pad = PadControl::Instance();
+			auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 			auto* DrawParts = DXDraw::Instance();
 			auto* Obj2DParts = Object2DManager::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
 			auto* Cam2D = Cam2DControl::Instance();
 			auto* SoundParts = SoundPool::Instance();
 			auto* SaveDataParts = SaveDataClass::Instance();
-			auto* DXLib_refParts = DXLib_ref::Instance();
+			auto* SceneParts = SceneControl::Instance();
 
 			auto& Chara = PlayerMngr->GetPlayer(this->m_MyPlayerID)->GetChara();
 
 			PauseMenuControl::UpdatePause();
-			if (DXLib_refParts->IsPause()) {
+			if (SceneParts->IsPause()) {
 				return true;
 			}
 			if ((this->m_IsEnd || this->m_IsGoNext) && FadeControl::IsFadeAll()) {
@@ -156,19 +157,20 @@ namespace FPS_n2 {
 			}
 			if (this->m_IsPlayable) {
 				Pad->SetMouseMoveEnable(false);
-				Pad->ChangeGuide(
+				KeyGuideParts->ChangeGuide(
 					[]() {
+						auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 						auto* Pad = PadControl::Instance();
-						Pad->AddGuide(PADS::MOVE_W, "");
-						Pad->AddGuide(PADS::MOVE_S, "");
-						Pad->AddGuide(PADS::MOVE_A, "");
-						Pad->AddGuide(PADS::MOVE_D, "");
-						Pad->AddGuide(PADS::MOVE_STICK, "移動");
-						Pad->AddGuide(PADS::RUN, "走る");
-						Pad->AddGuide(PADS::WALK, "ゆっくり歩く");
-						Pad->AddGuide(PADS::JUMP, "ドッジロール");
-						Pad->AddGuide(PADS::SHOT, "射撃");
-						Pad->AddGuide(PADS::AIM, "注目");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_W).GetAssign(), Pad->GetControlType()), "");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_S).GetAssign(), Pad->GetControlType()), "");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_A).GetAssign(), Pad->GetControlType()), "");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_D).GetAssign(), Pad->GetControlType()), "");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_STICK).GetAssign(), Pad->GetControlType()), "移動");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::RUN).GetAssign(), Pad->GetControlType()), "走る");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::WALK).GetAssign(), Pad->GetControlType()), "ゆっくり歩く");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::JUMP).GetAssign(), Pad->GetControlType()), "ドッジロール");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::SHOT).GetAssign(), Pad->GetControlType()), "射撃");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::AIM).GetAssign(), Pad->GetControlType()), "注目");
 					});
 			}
 
@@ -307,7 +309,7 @@ namespace FPS_n2 {
 					}
 				}
 				if (Prev != this->m_IsPlayable) {
-					Pad->SetGuideUpdate();
+					KeyGuideParts->SetGuideUpdate();
 					if (this->m_IsPlayable && (m_BossUniqueID != InvalidID) && (m_WinCutSceneID == InvalidID)) {
 						this->m_IsEnd = true;
 						this->m_IsGoodEnd = true;
@@ -346,30 +348,37 @@ namespace FPS_n2 {
 						if (i == this->m_MyPlayerID) {
 							InputControl MyInput;
 							MyInput.ResetAllInput();
-							MyInput.SetInputPADS(PADS::MOVE_W, Pad->GetKey(PADS::MOVE_W).press());
-							MyInput.SetInputPADS(PADS::MOVE_S, Pad->GetKey(PADS::MOVE_S).press());
-							MyInput.SetInputPADS(PADS::MOVE_A, Pad->GetKey(PADS::MOVE_A).press());
-							MyInput.SetInputPADS(PADS::MOVE_D, Pad->GetKey(PADS::MOVE_D).press());
-							MyInput.SetInputPADS(PADS::RUN, Pad->GetKey(PADS::RUN).press());
-							MyInput.SetInputPADS(PADS::WALK, Pad->GetKey(PADS::WALK).press());
-							MyInput.SetInputPADS(PADS::JUMP, Pad->GetKey(PADS::JUMP).press());
-							MyInput.SetInputPADS(PADS::SHOT, Pad->GetKey(PADS::SHOT).press());
+							MyInput.SetInputPADS(PADS::MOVE_W, Pad->GetPadsInfo(PADS::MOVE_W).GetKey().press());
+							MyInput.SetInputPADS(PADS::MOVE_S, Pad->GetPadsInfo(PADS::MOVE_S).GetKey().press());
+							MyInput.SetInputPADS(PADS::MOVE_A, Pad->GetPadsInfo(PADS::MOVE_A).GetKey().press());
+							MyInput.SetInputPADS(PADS::MOVE_D, Pad->GetPadsInfo(PADS::MOVE_D).GetKey().press());
+							MyInput.SetInputPADS(PADS::RUN, Pad->GetPadsInfo(PADS::RUN).GetKey().press());
+							MyInput.SetInputPADS(PADS::WALK, Pad->GetPadsInfo(PADS::WALK).GetKey().press());
+							MyInput.SetInputPADS(PADS::JUMP, Pad->GetPadsInfo(PADS::JUMP).GetKey().press());
+							MyInput.SetInputPADS(PADS::SHOT, Pad->GetPadsInfo(PADS::SHOT).GetKey().press());
 							// 視点操作
-							if (std::abs(Pad->GetLS_X()) > 0.1f || std::abs(Pad->GetLS_Y()) > 0.1f) {
-								MyInput.SetyRad(std::atan2f(Pad->GetLS_X(), Pad->GetLS_Y()));
-							}
-							else if (std::abs(p->GetChara()->GetVec().x) > 0.1f || std::abs(p->GetChara()->GetVec().y) > 0.1f) {
-								MyInput.SetyRad(std::atan2f(p->GetChara()->GetVec().x, p->GetChara()->GetVec().y));
+							MyInput.SetyRad(p->GetChara()->GetViewRad());
+							if (Pad->GetControlType() == ControlType::PC) {
+								float XV = static_cast<float>(Pad->GetMS_X() - DrawParts->GetUIXMax() / 2);
+								float YV = static_cast<float>(Pad->GetMS_Y() - DrawParts->GetUIYMax() / 2);
+								if (std::abs(XV) > 0.1f || std::abs(YV) > 0.1f) {
+									MyInput.SetyRad(std::atan2f(XV, -YV));
+								}
 							}
 							else {
-								MyInput.SetyRad(p->GetChara()->GetViewRad());
+								if (std::abs(Pad->GetLS_X()) > 0.1f || std::abs(Pad->GetLS_Y()) > 0.1f) {
+									MyInput.SetyRad(std::atan2f(Pad->GetLS_X(), Pad->GetLS_Y()));
+								}
+							}
+							if (p->GetChara()->GetSpeed() > 1.f) {
+								MyInput.SetyRad(std::atan2f(p->GetChara()->GetVec().x, p->GetChara()->GetVec().y));
 							}
 							p->GetChara()->UpdateInput(MyInput);
 
 							// カメラ制御
 							Vector2DX CamAddPos;
-							if (Pad->GetKey(PADS::AIM).press()) {
-								float ViewLimit = Get2DSize(10.f);
+							if (Pad->GetPadsInfo(PADS::AIM).GetKey().press()) {
+								float ViewLimit = Cam2DControl::GetTileTo2DSize(10.f);
 								CamAddPos.Set(std::sin(MyInput.GetyRad()) * ViewLimit, std::cos(MyInput.GetyRad()) * ViewLimit);
 							}
 							Easing(&this->m_CamAddPos, CamAddPos, 0.9f, EasingType::OutExpo);
@@ -382,6 +391,7 @@ namespace FPS_n2 {
 					else {
 						InputControl MyInput;
 						MyInput.ResetAllInput();
+						MyInput.SetyRad(p->GetChara()->GetViewRad());
 						p->GetChara()->UpdateInput(MyInput);
 					}
 				}
@@ -400,19 +410,24 @@ namespace FPS_n2 {
 			// オブジェクトのアップデート
 			Obj2DParts->Update();
 			//イベントシーン用 イベントでのカメラオフセット値を制御
-			if (!this->m_IsPlayable && CutSceneControl::IsCutScene()) {
-				auto MyIndex = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPos()));
-				MyIndex.first += CutSceneControl::GetAddViewPointX();
-				MyIndex.second += CutSceneControl::GetAddViewPointY();
-				Vector2DX CamAddPos = BackGround->GetFloorData(BackGround->GetXYToNum(MyIndex.first, MyIndex.second))->GetPos() - Chara->GetPos();
-				Easing(&this->m_CamAddPos, CamAddPos, 0.9f, EasingType::OutExpo);
+			if (Chara) {
+				if (!this->m_IsPlayable && CutSceneControl::IsCutScene()) {
+					auto MyIndex = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPosition()));
+					MyIndex.first += CutSceneControl::GetAddViewPointX();
+					MyIndex.second += CutSceneControl::GetAddViewPointY();
+					Vector2DX CamAddPos = BackGround->GetFloorData(BackGround->GetXYToNum(MyIndex.first, MyIndex.second))->GetTileCenterPos() - Chara->GetPosition();
+					Easing(&this->m_CamAddPos, CamAddPos, 0.9f, EasingType::OutExpo);
+				}
 			}
 			// カメラ制御
-			Cam2D->SetCamAim(Chara->GetPos() + this->m_CamAddPos);
-			Cam2D->SetCamRangeAim(BackGround->GetCamScale());
+			if (Chara) {
+				Cam2D->SetCamAim(Chara->GetPosition() + this->m_CamAddPos);
+				Cam2D->SetCamRangeAim(BackGround->GetCamScale());
+				Cam2DControl::Instance()->Update();
+			}
 			// 
 			if (Chara) {
-				BackGround->SetPointLight(Chara->GetPos());
+				BackGround->SetPointLight(Chara->GetPosition());
 			}
 			BackGround->SetAmbientLight(120.f, deg2rad(30));
 			BackGround->SetupShadow([]() {
@@ -423,7 +438,7 @@ namespace FPS_n2 {
 			InGameUIControl::UpdateUI();
 			if (FadeControl::IsFadeClear() && Chara) {
 				// 範囲に入ったらイベント
-				auto MyIndex = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPos()));
+				auto MyIndex = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPosition()));
 				auto IsNearIndex = [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
 					return  (std::abs(a.first - b.first) <= 3 && std::abs(a.second - b.second) <= 3);
 				};

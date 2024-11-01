@@ -71,7 +71,7 @@ namespace DXLibRef {
 				if (ot == o) { continue; }
 				// Ž©•ª‚ª“–‚½‚Á‚½‚ç‰Ÿ‚µo‚µ(Ž¿—Ê·‚ðŠ·ŽZ)
 				SEGMENT_SEGMENT_RESULT Result;
-				GetSegmenttoSegment(o->GetPrevPos(), o->GetPos(), ot->GetPrevPos(), ot->GetPos(), &Result);// ü•ª‚Ì“–‚½‚è”»’è‚ðŒvŽZ‚µ
+				GetSegmenttoSegment(o->GetPrevPos(), o->GetPosition(), ot->GetPrevPos(), ot->GetPosition(), &Result);// ü•ª‚Ì“–‚½‚è”»’è‚ðŒvŽZ‚µ
 				// Œ‹‰Ê‚ª”¼Œa‚Ì‡Œv‚æ‚è‚à¬‚³‚¢ê‡
 				float Distance = (std::sqrt(Result.SegA_SegB_MinDist_Square)) - (o->GetSize() / 2.f + ot->GetSize() / 2.f);
 				if (Distance < 0.f) {
@@ -83,10 +83,10 @@ namespace DXLibRef {
 						pos += Result.SegB_MinDist_Pos;
 						pos /= 2.f;
 						// ‘ŠŽè‚ð‰Ÿ‚µo‚·ƒxƒNƒgƒ‹‚ðŒvŽZ‚µ
-						Vector2DX vec = (ot->GetPos() - pos).normalized() * Distance;
+						Vector2DX vec = (ot->GetPosition() - pos).normalized() * Distance;
 						// ‘o•û‚É—Í‚ð‚©‚¯‚é(d‚¢‚Ù‚¤‚ª‚»‚Ìê‚É‚Æ‚Ç‚Ü‚é‚æ‚¤‚ÉŒvŽZ)
-						ot->SetPos(ot->GetPos() - vec * (o->GetMass() / (o->GetMass() + ot->GetMass())));
-						o->SetPos(o->GetPos() + vec * (ot->GetMass() / (o->GetMass() + ot->GetMass())));
+						ot->SetPosition(ot->GetPosition() - vec * (o->GetMass() / (o->GetMass() + ot->GetMass())));
+						o->SetPosition(o->GetPosition() + vec * (ot->GetMass() / (o->GetMass() + ot->GetMass())));
 					}
 					// “–‚½‚Á‚½‚à‚Ì‚Æ‚µ‚Ä’Ê’m
 					o->SetHitUniqueID(ot->GetUniqueID());

@@ -12,7 +12,7 @@ namespace FPS_n2 {
 		void MetalObject::DrawHPBer() noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			Vector2DX DispPos;
-			Convert2DtoDisp(this->GetPos(), &DispPos);
+			Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
 			int xmin = DrawParts->GetScreenY(-50);
 			int ymin = DrawParts->GetScreenY(-50);
 			int xmax = DrawParts->GetScreenY(50);
@@ -31,8 +31,8 @@ namespace FPS_n2 {
 				// íeà»äOÇ™ìñÇΩÇ¡ÇΩéûÇÕà»â∫ÇÕí Ç≥Ç»Ç¢
 				if (o->GetObjType() != Object2DType::Rocket && o->GetObjType() != Object2DType::Bullet) { return; }
 
-				Effect2DControl::Instance()->Set(o->GetPos(), EffectType::Guard, 1.f);
-				// Effect2DControl::Instance()->Set(o->GetPos(), EffectType::Damage, 0.25f);
+				Effect2DControl::Instance()->SetEffect(o->GetPosition(), EffectType::Guard, 1.f);
+				// Effect2DControl::Instance()->Set(o->GetPosition(), EffectType::Damage, 0.25f);
 				if (o->GetObjType() == Object2DType::Rocket) {
 					this->m_HitPoint = 0;
 					SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Bomb))->Play(DX_PLAYTYPE_BACK, TRUE);
@@ -42,7 +42,7 @@ namespace FPS_n2 {
 					SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Guard))->Play(DX_PLAYTYPE_BACK, TRUE);
 				}
 				if (this->m_HitPoint == 0) {
-					Effect2DControl::Instance()->Set(GetPos(), EffectType::WallHit, 2.f);
+					Effect2DControl::Instance()->SetEffect(GetPosition(), EffectType::WallHit, 2.f);
 					SetDelete();
 				}
 			}
@@ -60,9 +60,9 @@ namespace FPS_n2 {
 		}
 		void MetalObject::Update_Sub(void) noexcept {
 			if (GetIsFirstLoop()) {
-				m_BasePos = GetPos();
-				m_PosL = GetPos();
-				m_PosR = GetPos();
+				m_BasePos = GetPosition();
+				m_PosL = GetPosition();
+				m_PosR = GetPosition();
 			}
 			if (!m_CanMove) {
 				SetVec(Vector2DX::zero());
@@ -77,9 +77,9 @@ namespace FPS_n2 {
 				SetVec(Vector2DX::zero());
 				return;
 			}
-			float Length = (GetPos() - Chara->GetPos()).magnitude();
+			float Length = (GetPosition() - Chara->GetPosition()).magnitude();
 
-			this->m_Rad = DX_PI_F - GetRadVec2Vec(Chara->GetPos(), GetPos());
+			this->m_Rad = DX_PI_F - GetRadVec2Vec(Chara->GetPosition(), GetPosition());
 			{
 				Vector2DX Vec; Vec.Set(std::sin(this->m_Rad_R), std::cos(this->m_Rad_R));
 				Vector2DX vec_a; vec_a.Set(std::sin(this->m_Rad), std::cos(this->m_Rad));
@@ -100,16 +100,16 @@ namespace FPS_n2 {
 				bool DKey = false;
 
 				{
-					Vector2DX LastFindPos = Chara->GetPos();
-					float Len = Get2DSize(0.1f);
-					Vector2DX Vec = LastFindPos - GetPos();
-					if (Length > Get2DSize(17.5f)) {
+					Vector2DX LastFindPos = Chara->GetPosition();
+					float Len = 0.1f;
+					Vector2DX Vec = LastFindPos - GetPosition();
+					if (Length > 17.5f) {
 						WKey = (Vec.y > Len / 3.f);
 						SKey = (Vec.y < -Len / 3.f);
 						AKey = (Vec.x < -Len / 3.f);
 						DKey = (Vec.x > Len / 3.f);
 					}
-					if (Length < Get2DSize(12.5f)) {
+					if (Length < 12.5f) {
 						WKey = (Vec.y < -Len / 3.f);
 						SKey = (Vec.y > Len / 3.f);
 						AKey = (Vec.x > Len / 3.f);
@@ -117,20 +117,20 @@ namespace FPS_n2 {
 					}
 				}
 				// äOÇ©ÇÁñﬂÇÈ
-				Vector2DX Vec = m_BasePos - GetPos();
-				if (Vec.y < Get2DSize(-20)) {
+				Vector2DX Vec = m_BasePos - GetPosition();
+				if (Vec.y < -20) {
 					WKey = false;
 					SKey = true;
 				}
-				if (Vec.y > Get2DSize(20)) {
+				if (Vec.y > 20) {
 					WKey = true;
 					SKey = false;
 				}
-				if (Vec.x < Get2DSize(-20)) {
+				if (Vec.x < -20) {
 					AKey = true;
 					DKey = false;
 				}
-				if (Vec.x > Get2DSize(20)) {
+				if (Vec.x > 20) {
 					AKey = false;
 					DKey = true;
 				}
@@ -156,7 +156,7 @@ namespace FPS_n2 {
 				}
 				this->m_Speed = std::max(std::abs(this->m_InputVec.x), std::abs(this->m_InputVec.y));
 				// 
-				SetVec(this->m_InputVec.normalized() * this->m_Speed);
+				SetVec(this->m_InputVec.normalized() * this->m_Speed * 5.f);
 			}
 			{
 				m_Foot += DrawParts->GetDeltaTime() / 2.f;
@@ -175,13 +175,13 @@ namespace FPS_n2 {
 						if (this->m_RadL < 0.f) { this->m_RadL += DX_PI_F * 2.f; }
 						if (this->m_RadL > DX_PI_F * 2.f) { this->m_RadL -= DX_PI_F * 2.f; }
 					}
-					Easing(&m_PosR, GetPos() + GetVec() * 50.f, 0.5f, EasingType::OutExpo);
+					Easing(&m_PosR, GetPosition() + GetVec() * 1.f, 0.5f, EasingType::OutExpo);
 					m_FootDown = true;
 				}
 				else {
 					if (m_FootDown) {
-						if (Length < Get2DSize(30.f)) {
-							CameraShake::Instance()->SetCamShake(0.1f, 50.f * Get2DSize(5.f) / std::max(Length, Get2DSize(1.f)));
+						if (Length < 30.f) {
+							Cam2DControl::Instance()->SetCamShake(0.1f, 20.f * 5.f / std::max(Length, 1.f));
 						}
 					}
 					m_FootDown = false;
@@ -197,13 +197,13 @@ namespace FPS_n2 {
 						if (this->m_RadR < 0.f) { this->m_RadR += DX_PI_F * 2.f; }
 						if (this->m_RadR > DX_PI_F * 2.f) { this->m_RadR -= DX_PI_F * 2.f; }
 					}
-					Easing(&m_PosL, GetPos() + GetVec() * 50.f, 0.5f, EasingType::OutExpo);
+					Easing(&m_PosL, GetPosition() + GetVec() * 1.f, 0.5f, EasingType::OutExpo);
 					m_FootDown = true;
 				}
 				else {
 					if (m_FootDown) {
-						if (Length < Get2DSize(30.f)) {
-							CameraShake::Instance()->SetCamShake(0.1f, 50.f * Get2DSize(5.f) / std::max(Length, Get2DSize(1.f)));
+						if (Length < 30.f) {
+							Cam2DControl::Instance()->SetCamShake(0.1f, 20.f * 5.f / std::max(Length, 1.f));
 						}
 					}
 					m_FootDown = false;
@@ -213,22 +213,22 @@ namespace FPS_n2 {
 			{
 				// íe
 				if (this->m_ShotCoolTime == 0.f) {
-					if (Get2DSize(10.f) < Length && Length < Get2DSize(20.f) && (GetRand(10) < 1)) {
+					if (10.f < Length && Length < 20.f && (GetRand(10) < 1)) {
 						const auto Obj = AddBullet(this->m_PlayerID,
-							GetPos(), DX_PI_F - this->m_Rad, (GetSize() / 2.f + 0.75f), 3.f, 0.5f);
+							GetPosition(), DX_PI_F - this->m_Rad, GetSize() /2 + 0.75f, 3.f, 0.5f);
 						this->m_ShotCoolTime = 0.5f;
 					}
-					else if (Get2DSize(20.f) < Length && (GetRand(10) < 1)) {
+					else if (20.f < Length && (GetRand(10) < 1)) {
 						{
 							const auto Obj = AddBullet(this->m_PlayerID,
-								GetPos(), DX_PI_F - this->m_Rad + DX_PI_F / 6, (GetSize() / 2.f + 0.75f), 1.5f, 0.5f);
+								GetPosition(), DX_PI_F - this->m_Rad + DX_PI_F / 6, GetSize() / 2.f + 0.75f, 1.5f * 5.f, 0.5f);
 
 							m_MissileID.at(m_MissileIDNum) = Obj->GetUniqueID();
 							++m_MissileIDNum %= static_cast<int>(m_MissileID.size());
 						}
 						{
 							const auto Obj = AddBullet(this->m_PlayerID,
-								GetPos(), DX_PI_F - this->m_Rad - DX_PI_F / 6, (GetSize() / 2.f + 0.75f), 1.5f, 0.5f);
+								GetPosition(), DX_PI_F - this->m_Rad - DX_PI_F / 6, GetSize() / 2.f + 0.75f, 1.5f * 5.f, 0.5f);
 
 							m_MissileID.at(m_MissileIDNum) = Obj->GetUniqueID();
 							++m_MissileIDNum %= static_cast<int>(m_MissileID.size());
@@ -243,7 +243,7 @@ namespace FPS_n2 {
 					const auto& Obj = Obj2DParts->GetObj(g);
 					if (Obj) {
 						std::shared_ptr<Base2DObjectKai>& o = (std::shared_ptr<Base2DObjectKai>&)(Obj);
-						Vector2DX Vec; Vec = (Chara->GetPos() - o->GetPos()).normalized();
+						Vector2DX Vec; Vec = (Chara->GetPosition() - o->GetPosition()).normalized();
 						Vector2DX Vec_R; Vec_R = o->GetVec().normalized();
 						if (Vector2DX::Dot(Vec, Vec_R) > 0.f) {
 							Easing(&Vec_R, Vec, 0.975f, EasingType::OutExpo);
@@ -254,12 +254,12 @@ namespace FPS_n2 {
 
 			}
 			// ï«è’ìÀââéZî≤Ç´ÇÃà⁄ìÆèàóù
-			Vector2DX Vec = this->GetVec() * ((Tile_DispSize * Cam2DControl::Instance()->GetCamHeight()) * DrawParts->GetDeltaTime());
-			SetPos(this->GetPos() + Vec);
+			Vector2DX Vec = this->GetVec() * DrawParts->GetDeltaTime();
+			SetPosition(this->GetPosition() + Vec);
 		}
 
 		void MetalObject::DrawShadow_Sub(void) noexcept {
-			float Radius = static_cast<float>(GetDispSize(Get2DSizetoTile(GetSize() / 2.f)));
+			float Radius = static_cast<float>(Cam2DControl::GetTileToDispSize(GetSize() / 2.f));
 			// âe
 			auto* BackGround = BackGroundClassBase::Instance();
 			Vector2DX DispPos;
@@ -267,102 +267,104 @@ namespace FPS_n2 {
 			Vector2DX AddPos;
 
 			// ÉAÉtÉBÉìïœä∑Ç…ÇÊÇÈâÒì]
-			auto ConvAddPos = [&](const Vector2DX& PosT, float Rotate) {
+			auto ConvAddPos = [&](Vector2DX PosT, float Rotate) {
 				float Sin = std::sinf(Rotate);
 				float Cos = std::cosf(Rotate);
-				return Vector2DX::vget(PosT.x * Cos - PosT.y * Sin, PosT.x * Sin + PosT.y * Cos);
+				PosT *= Cam2DControl::GetTileTo2DSize(GetSize() / 2.f);
+				return Cam2DControl::Get2DSizetoTile(Vector2DX::vget(PosT.x * Cos - PosT.y * Sin, PosT.x * Sin + PosT.y * Cos));
 				};
 			// ãr
-			AddPos.Set((GetSize() / 2.f * 1.2f), (-GetSize() / 2.f * 1.2f));
-			Convert2DtoDisp(m_PosR + ConvAddPos(AddPos, m_RadR), &DispPos);
+			AddPos.Set((1.2f), (-1.2f));
+			Cam2DControl::Convert2DtoDisp(m_PosR + ConvAddPos(AddPos, m_RadR), &DispPos);
 			DispPos += BackGround->GetAmbientLightVec() * 0.25f * Cam2DControl::Instance()->GetCamHeight();
 			DispPosB = DispPos;
 
-			AddPos.Set((GetSize() / 2.f * 0.8f), (-GetSize() / 2.f * 0.2f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_RadR), &DispPos);
+			AddPos.Set((0.8f), (-0.2f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_RadR), &DispPos);
 			DispPos += BackGround->GetAmbientLightVec() * 0.25f * Cam2DControl::Instance()->GetCamHeight();
 			DrawLine(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), Black, static_cast<int>(Radius * 0.25f) * 2);
 
-			AddPos.Set(-(GetSize() / 2.f * 1.2f), (-GetSize() / 2.f * 1.2f));
-			Convert2DtoDisp(m_PosL + ConvAddPos(AddPos, m_RadL), &DispPos);
+			AddPos.Set(-(1.2f), (-1.2f));
+			Cam2DControl::Convert2DtoDisp(m_PosL + ConvAddPos(AddPos, m_RadL), &DispPos);
 			DispPos += BackGround->GetAmbientLightVec() * 0.25f * Cam2DControl::Instance()->GetCamHeight();
 			DispPosB = DispPos;
 
-			AddPos.Set(-(GetSize() / 2.f * 0.8f), (-GetSize() / 2.f * 0.2f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_RadL), &DispPos);
+			AddPos.Set(-(0.8f), (-0.2f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_RadL), &DispPos);
 			DispPos += BackGround->GetAmbientLightVec() * 0.25f * Cam2DControl::Instance()->GetCamHeight();
 			DrawLine(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), Black, static_cast<int>(Radius * 0.25f) * 2);
 			// êgëÃ
-			Convert2DtoDisp(GetPos(), &DispPos);
+			Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
 			DispPos += BackGround->GetAmbientLightVec() * 0.25f * Cam2DControl::Instance()->GetCamHeight();
 			DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Radius), Black);
 			// âEéË
-			AddPos.Set(-(GetSize() / 2.f * 0.9f), (-GetSize() / 2.f * 2.5f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
+			AddPos.Set(-(0.9f), (-2.5f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
 			DispPos += BackGround->GetAmbientLightVec() * 0.35f * Cam2DControl::Instance()->GetCamHeight();
 			DispPosB = DispPos;
 
-			AddPos.Set(-(GetSize() / 2.f * 0.9f), (GetSize() / 2.f * 0.5f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
+			AddPos.Set(-(0.9f), (0.5f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
 			DispPos += BackGround->GetAmbientLightVec() * 0.35f * Cam2DControl::Instance()->GetCamHeight();
 			DrawLine(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), Black, static_cast<int>(Radius * 0.15f) * 2);
 			// ç∂éË
-			AddPos.Set(-(-GetSize() / 2.f * 1.2f), (GetSize() / 2.f * 0.35f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
+			AddPos.Set(-(-1.2f), (0.35f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
 			DispPos += BackGround->GetAmbientLightVec() * 0.35f * Cam2DControl::Instance()->GetCamHeight();
 			DispPosB = DispPos;
 
-			AddPos.Set(-(-GetSize() / 2.f * 1.2f), (-GetSize() / 2.f * 0.35f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
+			AddPos.Set(-(-1.2f), (-0.35f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
 			DispPos += BackGround->GetAmbientLightVec() * 0.35f * Cam2DControl::Instance()->GetCamHeight();
 			DrawLine(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), Black, static_cast<int>(Radius * 0.25f) * 2);
 		}
 		void MetalObject::Draw_Sub(void) noexcept {
-			float Radius = static_cast<float>(GetDispSize(Get2DSizetoTile(GetSize() / 2.f)));
+			float Radius = static_cast<float>(Cam2DControl::GetTileToDispSize(GetSize() / 2.f));
 			Vector2DX DispPos;
 			Vector2DX DispPosB;
 			Vector2DX AddPos;
 
 			// ÉAÉtÉBÉìïœä∑Ç…ÇÊÇÈâÒì]
-			auto ConvAddPos = [&](const Vector2DX& PosT, float Rotate) {
+			auto ConvAddPos = [&](Vector2DX PosT, float Rotate) {
 				float Sin = std::sinf(Rotate);
 				float Cos = std::cosf(Rotate);
-				return Vector2DX::vget(PosT.x * Cos - PosT.y * Sin, PosT.x * Sin + PosT.y * Cos);
+				PosT *= Cam2DControl::GetTileTo2DSize(GetSize() / 2.f);
+				return Cam2DControl::Get2DSizetoTile(Vector2DX::vget(PosT.x * Cos - PosT.y * Sin, PosT.x * Sin + PosT.y * Cos));
 				};
 			// ãr
-			AddPos.Set((GetSize() / 2.f * 1.2f), (-GetSize() / 2.f * 1.2f));
-			Convert2DtoDisp(m_PosR + ConvAddPos(AddPos, m_RadR), &DispPos);
+			AddPos.Set((1.2f), (-1.2f));
+			Cam2DControl::Convert2DtoDisp(m_PosR + ConvAddPos(AddPos, m_RadR), &DispPos);
 			DispPosB = DispPos;
 
-			AddPos.Set((GetSize() / 2.f * 0.8f), (-GetSize() / 2.f * 0.2f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_RadR), &DispPos);
+			AddPos.Set((0.8f), (-0.2f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_RadR), &DispPos);
 			DrawLine(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), GetColor(128, 0, 0), static_cast<int>(Radius * 0.25f) * 2);
 
-			AddPos.Set(-(GetSize() / 2.f * 1.2f), (-GetSize() / 2.f * 1.2f));
-			Convert2DtoDisp(m_PosL + ConvAddPos(AddPos, m_RadL), &DispPos);
+			AddPos.Set(-(1.2f), (-1.2f));
+			Cam2DControl::Convert2DtoDisp(m_PosL + ConvAddPos(AddPos, m_RadL), &DispPos);
 			DispPosB = DispPos;
 
-			AddPos.Set(-(GetSize() / 2.f * 0.8f), (-GetSize() / 2.f * 0.2f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_RadL), &DispPos);
+			AddPos.Set(-(0.8f), (-0.2f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_RadL), &DispPos);
 			DrawLine(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), GetColor(128, 0, 0), static_cast<int>(Radius * 0.25f) * 2);
 			// êgëÃ
-			Convert2DtoDisp(GetPos(), &DispPos);
+			Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
 			DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Radius), GetColor(192, 0, 0));
 			// âEéË
-			AddPos.Set(-(GetSize() / 2.f * 0.9f), (-GetSize() / 2.f * 2.5f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
+			AddPos.Set(-(0.9f), (-2.5f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
 			DispPosB = DispPos;
 
-			AddPos.Set(-(GetSize() / 2.f * 0.9f), (GetSize() / 2.f * 0.5f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
+			AddPos.Set(-(0.9f), (0.5f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
 			DrawLine(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), GetColor(255, 0, 0), static_cast<int>(Radius * 0.15f) * 2);
 			// ç∂éË
-			AddPos.Set(-(-GetSize() / 2.f * 1.2f), (GetSize() / 2.f * 0.35f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
+			AddPos.Set(-(-1.2f), (0.35f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
 			DispPosB = DispPos;
 
-			AddPos.Set(-(-GetSize() / 2.f * 1.2f), (-GetSize() / 2.f * 0.35f));
-			Convert2DtoDisp(GetPos() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
+			AddPos.Set(-(-1.2f), (-0.35f));
+			Cam2DControl::Convert2DtoDisp(GetPosition() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
 			DrawLine(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), GetColor(255, 0, 0), static_cast<int>(Radius * 0.25f) * 2);
 		}
 		void MetalObject::Dispose_Sub(void) noexcept {}

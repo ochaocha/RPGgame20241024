@@ -7,9 +7,9 @@ namespace FPS_n2 {
 		void PauseMenuControl::LoadPause(void) noexcept {
 			auto* ButtonParts = ButtonControl::Instance();
 			ButtonParts->ResetSel();
-			ButtonParts->AddStringButton("Retire", 48, true, 1920 - 64, 1080 - 84 - 64 * 2, FontSystem::FontXCenter::RIGHT, FontSystem::FontYCenter::BOTTOM);
-			ButtonParts->AddStringButton("Option", 48, true, 1920 - 64, 1080 - 84 - 64 * 1, FontSystem::FontXCenter::RIGHT, FontSystem::FontYCenter::BOTTOM);
-			ButtonParts->AddStringButton("Return Game", 48, true, 1920 - 64, 1080 - 84 - 64 * 0, FontSystem::FontXCenter::RIGHT, FontSystem::FontYCenter::BOTTOM);
+			ButtonParts->AddStringButton("Retire", 48, true, 1920 - 64, 1080 - 84 - 64 * 2, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
+			ButtonParts->AddStringButton("Option", 48, true, 1920 - 64, 1080 - 84 - 64 * 1, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
+			ButtonParts->AddStringButton("Return Game", 48, true, 1920 - 64, 1080 - 84 - 64 * 0, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
 		}
 		void PauseMenuControl::SetPause(void) noexcept {
 			this->m_IsRetire = false;
@@ -18,18 +18,21 @@ namespace FPS_n2 {
 			auto* SoundParts = SoundPool::Instance();
 			auto* Pad = PadControl::Instance();
 			auto* ButtonParts = ButtonControl::Instance();
-			auto* DXLib_refParts = DXLib_ref::Instance();
-			if (DXLib_refParts->IsPause()) {
-				if (!DXLib_refParts->IsExit() && !DXLib_refParts->IsRestart()) {
+			auto* SceneParts = SceneControl::Instance();
+			auto* KeyGuideParts = UISystem::KeyGuide::Instance();
+
+			if (SceneParts->IsPause()) {
+				if (!SceneParts->IsExit() && !SceneParts->IsRestart()) {
 					Pad->SetMouseMoveEnable(false);
-					Pad->ChangeGuide(
+					KeyGuideParts->ChangeGuide(
 						[]() {
+							auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 							auto* Pad = PadControl::Instance();
-							Pad->AddGuide(PADS::INTERACT, "決定");
-							Pad->AddGuide(PADS::RELOAD, "戻る");
-							Pad->AddGuide(PADS::MOVE_W, "");
-							Pad->AddGuide(PADS::MOVE_S, "");
-							Pad->AddGuide(PADS::MOVE_STICK, "選択");
+							KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::INTERACT).GetAssign(), Pad->GetControlType()), "決定");
+							KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::RELOAD).GetAssign(), Pad->GetControlType()), "戻る");
+							KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_W).GetAssign(), Pad->GetControlType()), "");
+							KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_S).GetAssign(), Pad->GetControlType()), "");
+							KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_STICK).GetAssign(), Pad->GetControlType()), "選択");
 						});
 					if (!OptionWindowClass::Instance()->IsActive()) {
 						ButtonParts->UpdateInput();
@@ -38,23 +41,23 @@ namespace FPS_n2 {
 							switch (ButtonParts->GetSelect()) {
 							case 0:
 								this->m_IsRetire = true;
-								DXLib_refParts->ChangePause(false);
+								SceneParts->ChangePause(false);
 								break;
 							case 1:
 								OptionWindowClass::Instance()->SetActive();
 								break;
 							case 2:
-								DXLib_refParts->ChangePause(false);
+								SceneParts->ChangePause(false);
 								break;
 							default:
-								DXLib_refParts->ChangePause(false);
+								SceneParts->ChangePause(false);
 								break;
 							}
 							SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_OK))->Play(DX_PLAYTYPE_BACK, TRUE);
 						}
-						if (Pad->GetKey(PADS::RELOAD).trigger()) {
+						if (Pad->GetPadsInfo(PADS::RELOAD).GetKey().trigger()) {
 							SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_CANCEL))->Play(DX_PLAYTYPE_BACK, TRUE);
-							DXLib_refParts->ChangePause(false);
+							SceneParts->ChangePause(false);
 						}
 						// 
 						ButtonParts->Update();
@@ -67,9 +70,9 @@ namespace FPS_n2 {
 		}
 		void PauseMenuControl::DrawPause(void) const noexcept {
 			auto* ButtonParts = ButtonControl::Instance();
-			auto* DXLib_refParts = DXLib_ref::Instance();
+			auto* SceneParts = SceneControl::Instance();
 			// ポーズ
-			if (DXLib_refParts->IsPause() && (!DXLib_refParts->IsExit() && !DXLib_refParts->IsRestart())) {
+			if (SceneParts->IsPause() && (!SceneParts->IsExit() && !SceneParts->IsRestart())) {
 				ButtonParts->Draw();
 			}
 		}
@@ -82,10 +85,10 @@ namespace FPS_n2 {
 			auto* PlayerMngr = PlayerManager::Instance();
 			auto& p = PlayerMngr->GetPlayer(value);
 			if (p->GetChara()) {
-				int Radius = GetDispSize(10.f);
-				if (!Is2DPositionInDisp(p->GetChara()->GetPos(), Radius)) { return; }
+				float Radius = 10.f;
+				if (!Cam2DControl::Is2DPositionInDisp(p->GetChara()->GetPosition(), Radius)) { return; }
 				Vector2DX DispPos;
-				Convert2DtoDisp(p->GetChara()->GetPos(), &DispPos);
+				Cam2DControl::Convert2DtoDisp(p->GetChara()->GetPosition(), &DispPos);
 				double Deg = (double)p->GetChara()->GetViewRad() / (DX_PI * 2.0) * 100.0;
 				double Watch;
 				if (value == 0) {
@@ -104,7 +107,7 @@ namespace FPS_n2 {
 					}
 					Watch = 45.0 / 360.0 * 100.0;
 				}
-				DrawCircleGauge(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Deg + Watch, this->m_Watch.get(), Deg - Watch, (double)Radius / 64.0);
+				DrawCircleGauge(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Deg + Watch, this->m_Watch.get(), Deg - Watch, (double)Cam2DControl::GetTileToDispSize(Radius) / 64.0);
 			}
 		}
 		void InGameUIControl::DrawCharaUI_Front(PlayerID value) const noexcept {
@@ -113,9 +116,9 @@ namespace FPS_n2 {
 			auto& p = PlayerMngr->GetPlayer(value);
 			if (p->GetChara() && p->GetChara()->CanLookPlayer0()) {
 				if (p->GetAI()->GetGraphAlpha() <= 0.f) { return; }
-				if (!Is2DPositionInDisp(p->GetChara()->GetPos(), GetDispSize(1.f))) { return; }
+				if (!Cam2DControl::Is2DPositionInDisp(p->GetChara()->GetPosition(), 1.f)) { return; }
 				Vector2DX DispPos;
-				Convert2DtoDisp(p->GetChara()->GetPos(), &DispPos);
+				Cam2DControl::Convert2DtoDisp(p->GetChara()->GetPosition(), &DispPos);
 				int ShadowOfset = DrawParts->GetScreenY(3);
 				float Scale = static_cast<float>(DrawParts->GetScreenY(128)) / 128.0f * p->GetAI()->GetGraphAlpha();
 				if (p->GetAI()->IsAlert()) {
@@ -175,7 +178,6 @@ namespace FPS_n2 {
 			auto* DrawParts = DXDraw::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
 			auto* PlayerMngr = PlayerManager::Instance();
-			auto* OptionParts = OPTION::Instance();
 			this->m_ViewHandle.SetDraw_Screen(false);
 			{
 				DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
@@ -210,7 +212,7 @@ namespace FPS_n2 {
 					}
 				}
 				SetDrawBright(255, 255, 255);
-				if (OptionParts->GetParamInt(EnumSaveParam::shadow) > 0 || (GetUseDirect3DVersion() == DX_DIRECT3D_11)) {
+				{
 					SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
 					BackGround->GetShadowGraph().DrawExtendGraph(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), false);
 					SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -230,7 +232,7 @@ namespace FPS_n2 {
 				auto& p = PlayerMngr->GetPlayer((PlayerID)i);
 				if (p->GetChara()) {
 					if (p->GetChara()->CanLookPlayer0()) {
-						if (!Is2DPositionInDisp(p->GetChara()->GetPos(), GetDispSize(1.f))) { continue; }
+						if (!Cam2DControl::Is2DPositionInDisp(p->GetChara()->GetPosition(), 1.f)) { continue; }
 						SetDrawBright(255, 255, 255);
 						p->GetChara()->DrawHPBer();
 					}
@@ -251,8 +253,8 @@ namespace FPS_n2 {
 				int ShadowOfset = DrawParts->GetScreenY(3);
 				auto& p = PlayerMngr->GetPlayer((PlayerID)0);
 				if (p->GetChara()) {
-					float Len = (this->m_GoalPos - p->GetChara()->GetPos()).magnitude() / Get2DSize(1.f);
-					float Rad = GetRadVec2Vec(this->m_GoalPos, p->GetChara()->GetPos());
+					float Len = (Cam2DControl::Get2DSizetoTile(this->m_GoalPos) - p->GetChara()->GetPosition()).magnitude() / 1.f;
+					float Rad = GetRadVec2Vec(Cam2DControl::Get2DSizetoTile(this->m_GoalPos), p->GetChara()->GetPosition());
 					if (Len > 1.f / 255.f) {
 						SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * Len), 0, 255));
 						SetDrawBright(0, 0, 0);
@@ -275,15 +277,15 @@ namespace FPS_n2 {
 						int ShadowOfset = DrawParts->GetScreenY(3);
 						auto& p = PlayerMngr->GetPlayer((PlayerID)0);
 
-						Vector2DX Pos = BackGround->GetFloorData(e.m_index)->GetPos();
+						Vector2DX Pos = BackGround->GetFloorData(e.m_index)->GetTileCenterPos();
 
 						Vector2DX DispPos;
-						Convert2DtoDisp(Pos, &DispPos);
+						Cam2DControl::Convert2DtoDisp(Pos, &DispPos);
 
 						if (!HitPointToRectangle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), 0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080))) {
 							if (p->GetChara()) {
-								float Len = (Pos - p->GetChara()->GetPos()).magnitude() / Get2DSize(1.f);
-								float Rad = GetRadVec2Vec(Pos, p->GetChara()->GetPos());
+								float Len = (Pos - p->GetChara()->GetPosition()).magnitude() / 1.f;
+								float Rad = GetRadVec2Vec(Pos, p->GetChara()->GetPosition());
 								if (Len > 1.f / 255.f) {
 									SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * std::clamp(Len, 0.f, 1.f)), 0, 255));
 									SetDrawBright(0, 0, 0);
@@ -311,10 +313,10 @@ namespace FPS_n2 {
 		void InGameUIControl::DrawUI_MapName(void) const noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			if (this->m_MapDrawPer > 1.f / 255.f) {
-				auto* Fonts = FontSystem::FontPool::Instance();
+				auto* Fonts = UISystem::FontPool::Instance();
 				auto* LocalizeParts = LocalizePool::Instance();
 				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_MapDrawPer), 0, 255));
-				Fonts->Get(FontSystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(64), 0)->DrawString(InvalidID, FontSystem::FontXCenter::LEFT, FontSystem::FontYCenter::TOP,
+				Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(64), 0)->DrawString(InvalidID, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
 					DrawParts->GetUIY(64), DrawParts->GetUIY(128), White, Black, LocalizeParts->Get(this->m_MapTextID));
 				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 			}
@@ -380,14 +382,16 @@ namespace FPS_n2 {
 		}
 		void CutSceneControl::UpdateCut(void) noexcept {
 			auto* Pad = PadControl::Instance();
+			auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 			auto* DrawParts = DXDraw::Instance();
 
 			if (this->m_IsCutScene) {
 				Pad->SetMouseMoveEnable(false);
-				Pad->ChangeGuide(
+				KeyGuideParts->ChangeGuide(
 					[]() {
+						auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 						auto* Pad = PadControl::Instance();
-						Pad->AddGuide(PADS::INTERACT, "読み進める");
+						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::INTERACT).GetAssign(), Pad->GetControlType()), "読み進める");
 					});
 			}
 			// カットシーン全体
@@ -435,7 +439,7 @@ namespace FPS_n2 {
 					default:
 						break;
 					}
-					if (Pad->GetKey(PADS::INTERACT).trigger() || (IsGoNext)) {
+					if (Pad->GetPadsInfo(PADS::INTERACT).GetKey().trigger() || (IsGoNext)) {
 						if (!IsGoNext) {
 							auto* SoundParts = SoundPool::Instance();
 							SoundParts->Get(SoundType::SE, (int)SoundSelectCommon::UI_OK)->Play(DX_PLAYTYPE_BACK, TRUE);
@@ -472,7 +476,7 @@ namespace FPS_n2 {
 						MsgID = Data.m_MsgID;
 					}
 					if (MsgID != 0) {
-						auto* Fonts = FontSystem::FontPool::Instance();
+						auto* Fonts = UISystem::FontPool::Instance();
 						auto* LocalizeParts = LocalizePool::Instance();
 
 						int NowC = static_cast<int>(this->m_MsgBoxSeek);
@@ -496,7 +500,7 @@ namespace FPS_n2 {
 										break;
 									}
 									strncpy2_sDx(Tmp.data(), 512, NowMsg.c_str(), column); Tmp = Tmp.c_str();
-									if (Fonts->Get(FontSystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(32), 0)->GetStringWidth(InvalidID, Tmp) < Limit) {
+									if (Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(32), 0)->GetStringWidth(InvalidID, Tmp) < Limit) {
 										column++;
 									}
 									else {
@@ -563,14 +567,14 @@ namespace FPS_n2 {
 						MsgID = Data.m_MsgID;
 					}
 					if (MsgID != 0) {
-						auto* Fonts = FontSystem::FontPool::Instance();
+						auto* Fonts = UISystem::FontPool::Instance();
 						auto* LocalizeParts = LocalizePool::Instance();
-						Fonts->Get(FontSystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(18), 0)->DrawString(InvalidID, FontSystem::FontXCenter::LEFT, FontSystem::FontYCenter::TOP,
+						Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(18), 0)->DrawString(InvalidID, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
 							x1 + DrawParts->GetUIY(32), y1 + DrawParts->GetUIY(32), White, Black, LocalizeParts->Get(NameID));
 						for (auto& m : this->m_MsgString) {
 							if (m == "") { continue; }
 							int i = static_cast<int>(&m - &this->m_MsgString.front());
-							Fonts->Get(FontSystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(32), 0)->DrawString(InvalidID, FontSystem::FontXCenter::LEFT, FontSystem::FontYCenter::TOP,
+							Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(32), 0)->DrawString(InvalidID, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
 								x1 + DrawParts->GetUIY(64), y1 + DrawParts->GetUIY(64) + DrawParts->GetUIY(32 * i), White, Black, m);
 						}
 					}

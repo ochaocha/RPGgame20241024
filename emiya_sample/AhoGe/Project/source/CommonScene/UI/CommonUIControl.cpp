@@ -6,7 +6,7 @@ namespace FPS_n2 {
 		// 
 		bool ButtonControl::GetTriggerButton(void) const noexcept {
 			auto* Pad = PadControl::Instance();
-			return (select != InvalidID) && (this->m_MouseSelMode ? Pad->GetMouseClick().trigger() : Pad->GetKey(PADS::INTERACT).trigger());
+			return (select != InvalidID) && (this->m_MouseSelMode ? Pad->GetMouseClick().trigger() : Pad->GetPadsInfo(PADS::INTERACT).GetKey().trigger());
 		}
 		ButtonControl::ButtonControl(void) noexcept {
 			this->m_SelectBackImage.Load("data/UI/select.png");
@@ -22,7 +22,7 @@ namespace FPS_n2 {
 
 			int preselect = select;
 			bool preMouseSel = this->m_MouseSelMode;
-			if (Pad->GetKey(PADS::MOVE_W).trigger() || Pad->GetKey(PADS::MOVE_A).trigger()) {
+			if (Pad->GetPadsInfo(PADS::MOVE_W).GetKey().trigger() || Pad->GetPadsInfo(PADS::MOVE_A).GetKey().trigger()) {
 				if (select != InvalidID) {
 					--select;
 					if (select < 0) { select = static_cast<int>(ButtonSel.size()) - 1; }
@@ -32,7 +32,7 @@ namespace FPS_n2 {
 				}
 				this->m_MouseSelMode = false;
 			}
-			if (Pad->GetKey(PADS::MOVE_S).trigger() || Pad->GetKey(PADS::MOVE_D).trigger()) {
+			if (Pad->GetPadsInfo(PADS::MOVE_S).GetKey().trigger() || Pad->GetPadsInfo(PADS::MOVE_D).GetKey().trigger()) {
 				if (select != InvalidID) {
 					++select;
 					if (select > static_cast<int>(ButtonSel.size()) - 1) { select = 0; }
@@ -107,7 +107,7 @@ namespace FPS_n2 {
 		}
 		void CreditControl::Draw(int xmin, int ymin, int xmax) const noexcept {
 			auto* DrawParts = DXDraw::Instance();
-			auto* Fonts = FontSystem::FontPool::Instance();
+			auto* Fonts = UISystem::FontPool::Instance();
 
 			int xp1, yp1;
 
@@ -118,11 +118,11 @@ namespace FPS_n2 {
 				if (this->m_CreditCoulm < static_cast<int>(&c - &this->m_CreditStr.front())) { break; }
 				int xpos = xp1 + DrawParts->GetUIY(6);
 				int ypos = yp1 + Height / 2;
-				Fonts->Get(FontSystem::FontPool::FontType::DIZ_UD_Gothic, Height, 3)->DrawString(InvalidID, FontSystem::FontXCenter::LEFT, FontSystem::FontYCenter::MIDDLE,
+				Fonts->Get(UISystem::FontPool::FontType::DIZ_UD_Gothic, Height, 3)->DrawString(InvalidID, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::MIDDLE,
 					xpos, ypos, White, Black, c.first);
 
 				xpos = xmax - DrawParts->GetUIY(24);
-				Fonts->Get(FontSystem::FontPool::FontType::DIZ_UD_Gothic, Height, 3)->DrawString(InvalidID, FontSystem::FontXCenter::RIGHT, FontSystem::FontYCenter::MIDDLE,
+				Fonts->Get(UISystem::FontPool::FontType::DIZ_UD_Gothic, Height, 3)->DrawString(InvalidID, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::MIDDLE,
 					xpos, ypos, White, Black, c.second);
 				yp1 += Height;
 			}

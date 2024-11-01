@@ -1,4 +1,4 @@
-﻿#include "DXLib_ref_02_SoundHandle.hpp"
+﻿#include "DXLib_ref_02_Sound.hpp"
 
 namespace DXLibRef {
 	// シングルトンの実態定義

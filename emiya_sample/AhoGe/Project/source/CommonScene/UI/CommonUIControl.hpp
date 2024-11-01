@@ -24,8 +24,8 @@ namespace FPS_n2 {
 				int yp1{0};
 				int xsize{0};
 				int ysize{0};
-				FontSystem::FontXCenter LMR{ FontSystem::FontXCenter::LEFT };
-				FontSystem::FontYCenter TMB{ FontSystem::FontYCenter::TOP };
+				UISystem::FontXCenter LMR{ UISystem::FontXCenter::LEFT };
+				UISystem::FontYCenter TMB{ UISystem::FontYCenter::TOP };
 
 				float SelYadd{0.f};
 
@@ -53,14 +53,14 @@ namespace FPS_n2 {
 					this->m_EnableSelect = IsEnableSelect;
 				}
 				void			Load_String(const char* String, int fontsize, bool IsEnableSelect) noexcept {
-					auto* Fonts = FontSystem::FontPool::Instance();
+					auto* Fonts = UISystem::FontPool::Instance();
 					snprintfDx(this->m_String, 64, String);
-					xsize = Fonts->Get(FontSystem::FontPool::FontType::MS_Gothic, fontsize, 0)->GetStringWidth(InvalidID, this->m_String);
+					xsize = Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, fontsize, 0)->GetStringWidth(InvalidID, this->m_String);
 					ysize = fontsize;
 					this->m_ButtonMode = ButtonMode::String;
 					this->m_EnableSelect = IsEnableSelect;
 				}
-				void			Set(int xp, int yp, FontSystem::FontXCenter FontX, FontSystem::FontYCenter FontY) noexcept {
+				void			Set(int xp, int yp, UISystem::FontXCenter FontX, UISystem::FontYCenter FontY) noexcept {
 					xp1 = xp;
 					yp1 = yp;
 					LMR = FontX;
@@ -88,26 +88,26 @@ namespace FPS_n2 {
 					int xp = DrawParts->GetUIY(xp1);
 					int yp = DrawParts->GetUIY(yp1);
 					switch (LMR) {
-						case FontSystem::FontXCenter::LEFT:
+						case UISystem::FontXCenter::LEFT:
 							xp = DrawParts->GetUIY(xp1);
 							break;
-						case FontSystem::FontXCenter::MIDDLE:
+						case UISystem::FontXCenter::MIDDLE:
 							xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize) / 2;
 							break;
-						case FontSystem::FontXCenter::RIGHT:
+						case UISystem::FontXCenter::RIGHT:
 							xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize);
 							break;
 						default:
 							break;
 					}
 					switch (TMB) {
-						case FontSystem::FontYCenter::TOP:
+						case UISystem::FontYCenter::TOP:
 							yp = DrawParts->GetUIY(yp1);
 							break;
-						case FontSystem::FontYCenter::MIDDLE:
+						case UISystem::FontYCenter::MIDDLE:
 							yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize) / 2;
 							break;
-						case FontSystem::FontYCenter::BOTTOM:
+						case UISystem::FontYCenter::BOTTOM:
 							yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize);
 							break;
 						default:
@@ -121,31 +121,31 @@ namespace FPS_n2 {
 					switch (this->m_ButtonMode) {
 						case ButtonMode::String:
 							{
-								auto* Fonts = FontSystem::FontPool::Instance();
+								auto* Fonts = UISystem::FontPool::Instance();
 								if (SelYadd > 0.f) {
 									int xp = DrawParts->GetUIY(xp1);
 									int yp = DrawParts->GetUIY(yp1);
 									switch (LMR) {
-										case FontSystem::FontXCenter::LEFT:
+										case UISystem::FontXCenter::LEFT:
 											xp = DrawParts->GetUIY(xp1);
 											break;
-										case FontSystem::FontXCenter::MIDDLE:
+										case UISystem::FontXCenter::MIDDLE:
 											xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize) / 2;
 											break;
-										case FontSystem::FontXCenter::RIGHT:
+										case UISystem::FontXCenter::RIGHT:
 											xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize);
 											break;
 										default:
 											break;
 									}
 									switch (TMB) {
-										case FontSystem::FontYCenter::TOP:
+										case UISystem::FontYCenter::TOP:
 											yp = DrawParts->GetUIY(yp1);
 											break;
-										case FontSystem::FontYCenter::MIDDLE:
+										case UISystem::FontYCenter::MIDDLE:
 											yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize) / 2;
 											break;
-										case FontSystem::FontYCenter::BOTTOM:
+										case UISystem::FontYCenter::BOTTOM:
 											yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize);
 											break;
 										default:
@@ -201,7 +201,7 @@ namespace FPS_n2 {
 											break;
 									}
 								}
-								Fonts->Get(FontSystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(ysize), 0)->DrawString(InvalidID, LMR, TMB,
+								Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(ysize), 0)->DrawString(InvalidID, LMR, TMB,
 																												   DrawParts->GetUIY(xp1), DrawParts->GetUIY(yp1 + static_cast<int>(SelYadd)), Color, Black, this->m_String);
 							}
 							break;
@@ -267,7 +267,7 @@ namespace FPS_n2 {
 		public:
 			void AddStringButton(
 				const char* String, int fontsize, bool IsEnableSelect,
-				int xp, int yp, FontSystem::FontXCenter FontX, FontSystem::FontYCenter FontY
+				int xp, int yp, UISystem::FontXCenter FontX, UISystem::FontYCenter FontY
 			) noexcept {
 				ButtonSel.emplace_back(std::make_shared<ButtonClass>());
 				ButtonSel.back()->LoadCommon(&this->m_SelectBackImage);
@@ -276,7 +276,7 @@ namespace FPS_n2 {
 			}
 			void AddIconButton(
 				const char* IconPath, bool IsEnableSelect,
-				int xp, int yp, FontSystem::FontXCenter FontX, FontSystem::FontYCenter FontY
+				int xp, int yp, UISystem::FontXCenter FontX, UISystem::FontYCenter FontY
 			) noexcept {
 				ButtonSel.emplace_back(std::make_shared<ButtonClass>());
 				ButtonSel.back()->LoadCommon(&this->m_SelectBackImage);

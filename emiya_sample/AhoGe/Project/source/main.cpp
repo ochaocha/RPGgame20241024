@@ -9,30 +9,32 @@
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	DXLib_ref::Create();
-	auto* DXLib_refParts = DXLib_ref::Instance();
-	if (!DXLib_refParts->StartLogic()) { return 0; }
-	// 追加設定
-	SetMainWindowText("Title");					// タイトル
+	// DXLIBの追加設定
+	DxLib::SetMainWindowText("Title");						// タイトル
 	// 
-	FPS_n2::Sceneclass::PlayerManager::Create();
-	FPS_n2::Sceneclass::Cam2DControl::Create();
-	FPS_n2::Sceneclass::BackGroundClassBase::Create();
-	FPS_n2::Sceneclass::ButtonControl::Create();
-	FPS_n2::Sceneclass::Effect2DControl::Create();
-	// ローカライズ制御クラスの生成
-	FPS_n2::Sceneclass::LocalizePool::Create();
-	// シーン
+	FPS_n2::Sceneclass::PlayerManager::Create();			//プレイヤーマネージャー
+
+	FPS_n2::Sceneclass::Cam2DControl::Create();				//2Dカメラマネージャー
+
+	FPS_n2::Sceneclass::BackGroundClassBase::Create();		//背景マネージャー
+
+	FPS_n2::Sceneclass::ButtonControl::Create();			//UI用ボタンマネージャー
+
+	FPS_n2::Sceneclass::Effect2DControl::Create();			//2Dエフェクトマネージャー
+
+	FPS_n2::Sceneclass::LocalizePool::Create();				//テキストをIDからとってくるクラス
+
+	// シーンを生成
 	auto Titlescene = std::make_shared<FPS_n2::Sceneclass::TitleScene>();
 	auto MainGamescene = std::make_shared<FPS_n2::Sceneclass::MainGameScene>();
-	// 遷移先指定
-	Titlescene->SetNextSceneList(0, MainGamescene);
-	MainGamescene->SetNextSceneList(0, Titlescene);
-	MainGamescene->SetNextSceneList(1, MainGamescene);
-
+	// 各シーンの遷移先指定
+	Titlescene->SetNextSceneList(0, MainGamescene);			//タイトルからメインシーンへの遷移
+	MainGamescene->SetNextSceneList(0, Titlescene);			//メインシーンからタイトルへの遷移
+	MainGamescene->SetNextSceneList(1, MainGamescene);		//メインシーンから次のメインシーンへの遷移
+	// 最初のシーンを設定
 	auto* SceneParts = SceneControl::Instance();
-	SceneParts->AddList(Titlescene);
-	SceneParts->AddList(MainGamescene);
+	SceneParts->SetFirstScene(Titlescene);
 	// メインロジック開始
-	DXLib_refParts->MainLogic();
+	DXLib_ref::Instance()->MainLogic();
 	return 0;
 }

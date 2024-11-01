@@ -17,7 +17,8 @@ namespace DXLibRef {
 		std::array<std::string, PointMax + 1>									m_Str;// 各ポイントに指定した文字を保持します
 		std::vector<std::array<float, PointMax + 1>>							m_Point;// 各ポイントの文字がPointFrameぶん保持されます
 		size_t																	m_PointSel{ 0 };// SetPointを何番目に置いたかが保持されます
-		switchs																	m_Switch;// F1きーで表示非表示を決めることができます
+		switchs																	m_Switch;// F1キーで表示非表示を決めることができます
+		bool																	m_IsActive{ true };
 	private:
 		// コンストラクタ
 		DebugClass(void) noexcept;// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
