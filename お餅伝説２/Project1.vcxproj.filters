@@ -45,9 +45,6 @@
     <ClCompile Include="mobchara.cpp">
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClCompile>
-    <ClCompile Include="mouse.cpp">
-      <Filter>リソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="fps.cpp">
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClCompile>
@@ -77,17 +74,11 @@
     <ClInclude Include="resource.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="fight.h">
-      <Filter>ソース ファイル\戦闘ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="map.h">
       <Filter>ヘッダー ファイル\描画関係</Filter>
     </ClInclude>
     <ClInclude Include="mobchara.h">
       <Filter>ヘッダー ファイル\描画関係</Filter>
-    </ClInclude>
-    <ClInclude Include="mouse.h">
-      <Filter>リソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="fps.h">
       <Filter>ヘッダー ファイル\描画関係</Filter>

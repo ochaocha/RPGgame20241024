@@ -4,6 +4,8 @@
 #include <string>
 #include "Source/Algorithm/Vector2D.h"
 
+
+
 //種族 職業
 enum class GROUP {
 	SOULDER,
@@ -16,24 +18,42 @@ class CharacterStatus {
 public:
 };
 
+
+
 class Input {
+private:
+	static const Input* s_Singleton;
+
 	bool MoveLeft = false;
 	bool MoveRight = false;
 	bool MoveDown = false;
 	bool MoveUp = false;
 public:
+	static void SetInput(void) noexcept { s_Singleton = new Input(); }
+	static Input* Instance(void) noexcept {
+		if (s_Singleton == nullptr) {
+			MessageBox(NULL, "Failed Instance SetInput", "", MB_OK);//エラーメッセージを出しています。
+			exit(-1);
+		}
+		return const_cast<Input*>(s_Singleton);//const抜きのポインタを渡します。
+	}
+private:
+	Input();
+	~Input();
+public:
 	void SetInput(
 		bool moveLeft,
-	bool moveRight,
-	bool moveDown,
-	bool moveUp
+		bool moveRight,
+		bool moveDown,
+		bool moveUp
 	) {
-		MoveLeft = moveLeft;
-		MoveRight = moveRight;
-		MoveDown = moveDown;
-		MoveUp = moveUp;
+		
+			MoveLeft = moveLeft;
+			MoveRight = moveRight;
+			MoveDown = moveDown;
+			MoveUp = moveUp;
+		
 	}
-public:
 	bool IsMoveLeft() { return MoveLeft; }
 	bool IsMoveRight() { return MoveRight; }
 	bool IsMoveDown() { return MoveDown; }
@@ -133,4 +153,5 @@ public:
 		PlayerFunctionOll.clear();
 	}
 };
+
 

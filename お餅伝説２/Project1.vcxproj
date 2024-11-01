@@ -29,7 +29,6 @@
     <ClCompile Include="MainScreen.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="mobchara.cpp" />
-    <ClCompile Include="mouse.cpp" />
     <ClCompile Include="player.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -37,13 +36,11 @@
     <ClInclude Include="collision.h" />
     <ClInclude Include="Declaration.cpp" />
     <ClInclude Include="enemy.h" />
-    <ClInclude Include="fight.h" />
     <ClInclude Include="fps.h" />
     <ClInclude Include="FunctionDeclaration.h" />
     <ClInclude Include="MainScreen.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="mobchara.h" />
-    <ClInclude Include="mouse.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Source\Algorithm\Vector2D.h" />

@@ -4,16 +4,7 @@
 #include "map.h"
 
 
-/*
-キャラクター移動について、現状いい感じなのですが、今後OllPlayerDataを敵キャラクターに対しても使用する事になると思います為以下の形にやってみてください。
-
-・PlayerPosを直接操作している→PlayerVelocityをメンバー変数として作成
-　Playerappdate１回中に動く量をPlayerVelocityに代入してみましょう
-　その後PlayerVelocityをPlayerPosに足します。
-
-・PlayerVelocityからアニメーションを設定する
-　下向きの移動量だったら下向き、そもそも移動量がなかったらアニメーションを停止
-*/
+const Input* Input::s_Singleton = nullptr;
 
 void OllCharacterData::PlayerInit(int displaywidth, int displayhight)
 {
