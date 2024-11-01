@@ -105,6 +105,18 @@ public:
 
 
 class CharacterManager {
+private:
+	static const CharacterManager* s_Singleton;
+public:
+	static void Create(void) noexcept { s_Singleton = new CharacterManager(); }
+	static CharacterManager* Instance(void) noexcept {
+		if (s_Singleton == nullptr) { exit(-1); }
+		return (CharacterManager*)s_Singleton;
+	}
+private:
+	CharacterManager(){}
+	~CharacterManager(){}
+private:
 	std::vector<OllCharacterData> PlayerFunctionOll;
 public:
 	OllCharacterData& GetChara(int ID) { return PlayerFunctionOll.at(ID); }

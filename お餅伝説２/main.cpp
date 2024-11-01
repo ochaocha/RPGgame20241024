@@ -22,7 +22,7 @@ int displayhigthY = 0;
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	CharacterManager charaManager;
+	CharacterManager::Create();
 
 #if SINGLETON
 	MapData::Create();
@@ -48,9 +48,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		return -1;
 	}
 	
-	charaManager.AddCharacter(displaywidth2X, displayhight2Y);
-	charaManager.AddCharacter(displaywidth2X, displayhight2Y);
-	charaManager.AddCharacter(displaywidth2X, displayhight2Y);
+	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);
+	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);
+	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);
 
 	//MapDataOll変数を初期化
 	MapDataOllPtr->MapEngine();//マップの読み込み
@@ -100,7 +100,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					CheckHitKey(KEY_INPUT_W)
 				);
 
-				charaManager.GetChara(0).CalcInput(Player);
+				CharacterManager::Instance()->GetChara(0).CalcInput(Player);
 			}
 
 			//NPCの入力処理
@@ -113,14 +113,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					0,
 					0
 				);
-				charaManager.GetChara(1).CalcInput(Player);
+				CharacterManager::Instance()->GetChara(1).CalcInput(Player);
 			}
 
-			charaManager.Update();		//プレイヤーの更新
+			CharacterManager::Instance()->Update();		//プレイヤーの更新
 
 			MapDataOllPtr->mapDraw();
 			//画面更新処理
-			charaManager.Draw();			//プレイヤー描画
+			CharacterManager::Instance()->Draw();			//プレイヤー描画
 
 			break;
 
@@ -132,7 +132,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		ScreenFlip();		//これまで描画した内容をウィンドウに反映する
 		FPSCtrl.FPSWait();  //処理時間計測を終了し、これまでの時間と目標FPSとで待機する時間を割り出し待機します
 	}
-	charaManager.DeleteChara();
+	CharacterManager::Instance()->DeleteChara();
 	//WaitKey();//終了時に即時に終了できるように一応コメントアウトします
 	DxLib_End();
 

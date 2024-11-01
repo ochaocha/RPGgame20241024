@@ -14,7 +14,7 @@
 ・PlayerVelocityからアニメーションを設定する
 　下向きの移動量だったら下向き、そもそも移動量がなかったらアニメーションを停止
 */
-
+const CharacterManager* CharacterManager::s_Singleton = nullptr;
 void OllCharacterData::PlayerInit(int displaywidth, int displayhight)
 {
 	PlayerPos.x = float(displaywidth / 2);
