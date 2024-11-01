@@ -1,5 +1,6 @@
+#include "map.h"
 #include "DxLib.h"
-#include "Data/map.h"
+
 #include <cmath>
 
 // ’¼ü‚Æ’¼ü‚Ì”»’è

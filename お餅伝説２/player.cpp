@@ -1,7 +1,6 @@
-#include "player.h"
 #include "DxLib.h"
-#include "map.h"
-
+#include "Data/player.h"
+#include "Data/map.h"
 
 /*
 キャラクター移動について、現状いい感じなのですが、今後OllPlayerDataを敵キャラクターに対しても使用する事になると思います為以下の形にやってみてください。
