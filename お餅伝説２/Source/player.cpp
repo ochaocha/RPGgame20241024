@@ -1,6 +1,6 @@
 #include "DxLib.h"
-#include "Source/player.h"
-#include "Source/map.h"
+#include "Data/player.h"
+#include "Data/map.h"
 
 /*
 キャラクター移動について、現状いい感じなのですが、今後OllPlayerDataを敵キャラクターに対しても使用する事になると思います為以下の形にやってみてください。
@@ -22,7 +22,7 @@ void OllCharacterData::PlayerInit(int displaywidth, int displayhight)
 	animDirectionOffset = 0;
 
 	//initRect(playerHit,hitSizeX,hitSize)
-	LoadDivGraph("Data/chara/walk.png", animPatternNum * animTypeNum, animPatternNum, animTypeNum, animSizeX, animSizeY, charaimg);
+	LoadDivGraph("chara/walk.png", animPatternNum * animTypeNum, animPatternNum, animTypeNum, animSizeX, animSizeY, charaimg);
 	drawOffsetX = (hitSizeX - animSizeX);
 	drawOffsetY = (hitSizeY - animSizeY);
 

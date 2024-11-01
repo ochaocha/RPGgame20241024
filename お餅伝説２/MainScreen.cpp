@@ -1,5 +1,5 @@
 #include "Dxlib.h"
-#include "Data/MainScreen.h"
+#include "Source/MainScreen.h"
 
 int graphX = 600, graphY = 600, graph2X = 1320, graph2Y = 1000;
 
@@ -13,12 +13,12 @@ void MeinScreen::Draw(int* change)
 	GetMousePoint(&mauseX, &mauseY);
 	SetFontSize(34);
 	unsigned int Cr = GetColor(ColorHandle, ColorHandle, ColorHandle);
-	int startHandle = LoadGraph("img/pipo-bg004b.png");
+	int startHandle = LoadGraph("Data/img/pipo-bg004b.png");
 	
 
 		DrawExtendGraph(0, 0,1920,1080,startHandle, TRUE);
 
-		int Hnadle = LoadGraph("img/R.png", TRUE);
+		int Hnadle = LoadGraph("Data/img/R.png", TRUE);
 
 		DrawExtendGraph(graphX, graphY, graph2X, graph2Y, Hnadle, TRUE);
 

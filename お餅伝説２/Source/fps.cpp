@@ -1,5 +1,4 @@
-#include "fps.h"
-
+#include "Data/fps.h"
 /// <summary>
 /// メインループ前に行う内容:各メンバ変数の初期化など
 /// </summary>

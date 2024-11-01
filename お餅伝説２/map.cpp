@@ -1,5 +1,5 @@
 #include "DxLib.h"
-#include "Data/map.h"
+#include "Source/map.h"
 #include <cmath>
 
 // 直線と直線の判定
@@ -66,9 +66,9 @@ const MapData* MapData::m_Singleton = nullptr;
 void MapData::Init()
 {
 	// 画像総数  横枚数x縦枚数,横方向個数,縦方向個数,チップ1枚の横サイズ, チップ1毎の縦サイズ, 画像配列先頭ポインタ 
-	LoadDivGraph("map/map.png", mapImgXNum * mapImgYNum, mapImgXNum, mapImgYNum, mapChipSize, mapChipSize, mapChipImg);
+	LoadDivGraph("Data/map/map.png", mapImgXNum * mapImgYNum, mapImgXNum, mapImgYNum, mapChipSize, mapChipSize, mapChipImg);
 
-	LoadDivGraph("map/river.png", riverImgXNum * riverImgYNum, riverImgXNum, riverImgYNum, mapChipSize, mapChipSize, riverChipImg);
+	LoadDivGraph("Data/map/river.png", riverImgXNum * riverImgYNum, riverImgXNum, riverImgYNum, mapChipSize, mapChipSize, riverChipImg);
 
 }
 
@@ -130,7 +130,7 @@ void MapData::Update()
 
 void  MapData::Engine()
 {
-	std::string filePath = "mapTest.csv";      // CSVファイル名
+	std::string filePath = "Data/mapTest.csv";      // CSVファイル名
 
 	if (LoadData(filePath) == false) {
 		std::cout << "ファイルのオープンに失敗" << std::endl;

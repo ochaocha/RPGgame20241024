@@ -1,9 +1,9 @@
 #include "DxLib.h"
-#include "Source/player.h"
-#include "Source/map.h"
-#include "Source/fps.h"
-#include "Source/MainScreen.h"
-#include "Source/camera2D.h"
+#include "Data/player.h"
+#include "Data/map.h"
+#include "Data/fps.h"
+#include "Data/MainScreen.h"
+#include "Data/camera2D.h"
 #include <Windows.h>
 
 
