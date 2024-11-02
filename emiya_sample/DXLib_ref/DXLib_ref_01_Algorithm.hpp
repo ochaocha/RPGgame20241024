@@ -272,4 +272,8 @@ namespace DXLibRef {
 		float sint = sqrtf(std::abs(1.f - cost * cost));
 		return GetRadVec(Vector2DX::vget(cost, sint));
 	}
+
+	static inline Vector2DX GetVecByRad(float Radian) noexcept {
+		return Vector2DX::vget(std::sin(Radian), -std::cos(Radian));
+	}
 }

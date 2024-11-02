@@ -116,7 +116,7 @@ namespace DXLibRef {
 		const auto		IsEndGame(void) const noexcept { return m_IsEndGame; }
 		// ポーズの有効無効を取得
 		const auto		IsPause(void) const noexcept { return m_PauseDrawer.IsPause(); }
-		void			ChangePause(bool value) noexcept { m_PauseDrawer.ChangePause(value); }
+		void			ChangePause(bool value) noexcept;
 		// 終了、再起動フラグが立っているか外から確認できます
 		const auto&		IsExit(void) const noexcept { return m_IsExitSelect; }
 		const auto&		IsRestart(void) const noexcept { return m_IsRestartSelect; }

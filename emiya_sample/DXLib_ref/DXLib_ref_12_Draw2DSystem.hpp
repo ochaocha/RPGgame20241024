@@ -156,6 +156,93 @@ namespace DXLibRef {
 		// ポリゴンを2個描画
 		DrawPolygon2D(Vertex, 2, DX_NONE_GRAPH, FALSE);
 	}
+
+	// 4隅を確定して描画する 
+	static void DrawModiGraph_2D(std::array<Vector2DX, 4>& Position, float AddPixel, const GraphHandle& ShadowChip) noexcept {
+		// 前後左右に太らせる
+		float XMax = -1000000.f;
+		float XMin = 1000000.f;
+		float YMax = -1000000.f;
+		float YMin = 1000000.f;
+		int xmin = InvalidID;
+		int xmax = InvalidID;
+		int ymin = InvalidID;
+		int ymax = InvalidID;
+		for (auto& p : Position) {
+			int i = static_cast<int>(&p - &Position.front());
+			if (XMax <= p.x) {
+				XMax = p.x;
+				xmax = i;
+			}
+			if (XMin >= p.x) {
+				XMin = p.x;
+				xmin = i;
+			}
+
+			if (YMax <= p.y) {
+				YMax = p.y;
+				ymax = i;
+			}
+			if (YMin >= p.y) {
+				YMin = p.y;
+				ymin = i;
+			}
+		}
+		// 
+		XMax = -1000000.f;
+		XMin = 1000000.f;
+		YMax = -1000000.f;
+		YMin = 1000000.f;
+		int x2min = InvalidID;
+		int x2max = InvalidID;
+		int y2min = InvalidID;
+		int y2max = InvalidID;
+		for (auto& p : Position) {
+			int i = static_cast<int>(&p - &Position.front());
+			if (XMax <= p.x) {
+				if (xmax != i) {
+					XMax = p.x;
+					x2max = i;
+				}
+			}
+			if (XMin >= p.x) {
+				if (xmin != i) {
+					XMin = p.x;
+					x2min = i;
+				}
+			}
+
+			if (YMax <= p.y) {
+				if (ymax != i) {
+					YMax = p.y;
+					y2max = i;
+				}
+			}
+			if (YMin >= p.y) {
+				if (ymin != i) {
+					YMin = p.y;
+					y2min = i;
+				}
+			}
+		}
+		Position.at(static_cast<size_t>(xmin)).x -= AddPixel;
+		Position.at(static_cast<size_t>(ymin)).y -= AddPixel;
+		Position.at(static_cast<size_t>(xmax)).x += AddPixel;
+		Position.at(static_cast<size_t>(ymax)).y += AddPixel;
+
+		if (x2min != InvalidID) { Position.at(static_cast<size_t>(x2min)).x -= AddPixel; }
+		if (y2min != InvalidID) { Position.at(static_cast<size_t>(y2min)).y -= AddPixel; }
+		if (x2max != InvalidID) { Position.at(static_cast<size_t>(x2max)).x += AddPixel; }
+		if (y2max != InvalidID) { Position.at(static_cast<size_t>(y2max)).y += AddPixel; }
+
+		DrawModiGraph(
+			static_cast<int>(Position.at(0).x), static_cast<int>(Position.at(0).y),
+			static_cast<int>(Position.at(1).x), static_cast<int>(Position.at(1).y),
+			static_cast<int>(Position.at(2).x), static_cast<int>(Position.at(2).y),
+			static_cast<int>(Position.at(3).x), static_cast<int>(Position.at(3).y),
+			ShadowChip.get(), FALSE);
+	}
+
 	// 	x1,y1 Angleが0の場合の左上座標
 	// 	x2,y2 Angleが0の場合の右下座標
 	// 	xminp,yminp 左上角からの固定長さ

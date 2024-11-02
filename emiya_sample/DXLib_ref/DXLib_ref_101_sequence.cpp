@@ -46,12 +46,6 @@ namespace DXLibRef {
 	}
 	// ポーズ画面
 	void SceneControl::PauseDrawer::UpdatePause(void) noexcept {
-		auto* OptionWindowParts = OptionWindowClass::Instance();
-		auto* Pad = PadControl::Instance();
-		// ポーズ入力によるオンオフ
-		if (!OptionWindowParts->IsActive() && Pad->GetPadsInfo(PADS::INVENTORY).GetKey().trigger()) {
-			ChangePause(!m_IsPauseActive);
-		}
 		// ポーズ画面では点滅の演算を行う
 		if (m_IsPauseActive) {
 			auto* DrawParts = DXDraw::Instance();
@@ -82,6 +76,13 @@ namespace DXLibRef {
 			auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 			KeyGuideParts->SetGuideUpdate();
 		}
+	}
+
+	void SceneControl::ChangePause(bool value) noexcept {
+		auto* PopUpParts = UISystem::PopUp::Instance();
+		m_PauseDrawer.ChangePause(value);
+		//ポップアップをすべて削除とする
+		PopUpParts->EndAll();
 	}
 
 	// シーンのループ開始前に行う処理
@@ -198,6 +199,10 @@ namespace DXLibRef {
 		PopUpParts->Update();
 		// ポーズ画面の更新
 		m_PauseDrawer.UpdatePause();
+		// ポーズ入力によるオンオフ
+		if (Pad->GetPadsInfo(PADS::INVENTORY).GetKey().trigger()) {
+			ChangePause(!m_PauseDrawer.IsPause());
+		}
 		// FPS表示機能の更新
 		m_FPSDrawer.UpdateFPSCounter();
 	}

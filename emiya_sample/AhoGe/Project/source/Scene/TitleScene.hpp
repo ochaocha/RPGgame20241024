@@ -7,12 +7,10 @@ namespace FPS_n2 {
 	namespace Sceneclass {
 		class TitleScene : public TEMPSCENE {
 		private:
-			float						m_GameFadeIn{ 0.f };
-			float						m_GameStart{ 0.f };
+			FadeControl					m_FadeControl;
+			bool						m_IsStartGame{ false };
+
 			GraphHandle					m_TitleImage;
-			bool						m_CloseResetSave{ false };
-			// 
-			std::unique_ptr<CreditControl>	m_CreditControl;
 		public:
 			TitleScene(void) noexcept { }
 			TitleScene(const TitleScene&) = delete;

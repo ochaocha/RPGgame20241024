@@ -67,9 +67,9 @@ namespace FPS_n2 {
 			}
 			// ‘_‚¢
 			{
-				this->m_Rad += GetRadRad2Rad(this->m_Rad, MyInput.GetyRad()) * 10.f * DrawParts->GetDeltaTime();
-				if (this->m_Rad < 0.f) { this->m_Rad += DX_PI_F * 2.f; }
-				if (this->m_Rad > DX_PI_F * 2.f) { this->m_Rad -= DX_PI_F * 2.f; }
+				this->m_Radian += GetRadRad2Rad(this->m_Radian, -MyInput.GetyRad()) * 10.f * DrawParts->GetDeltaTime();
+				if (this->m_Radian < 0.f) { this->m_Radian += DX_PI_F * 2.f; }
+				if (this->m_Radian > DX_PI_F * 2.f) { this->m_Radian -= DX_PI_F * 2.f; }
 			}
 			// ’e
 			if (this->m_ShotCoolTime == 0.f) {
@@ -78,7 +78,7 @@ namespace FPS_n2 {
 					const auto& Obj = std::make_shared<BulletObject>();
 					Obj2DParts->AddObject(Obj);
 					Obj->SetShootPlayer(this->m_PlayerID);
-					Vector2DX Vec; Vec.Set(std::sin(this->m_Rad), std::cos(this->m_Rad));
+					Vector2DX Vec = GetVecByRad(this->m_Radian) * -1.f;
 					switch (m_GunType) {
 					case GunType::Handgun:
 						this->m_ShotCoolTime = 1.f;

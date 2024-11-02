@@ -6,14 +6,14 @@
 
 namespace FPS_n2 {
 	namespace Sceneclass {
-		class MainGameScene : public TEMPSCENE,
-			public PauseMenuControl,
-			public InGameUIControl,
-			public CutSceneControl,
-			public FadeControl
-		{
+		class MainGameScene : public TEMPSCENE {
 			const PlayerID				m_MyPlayerID{ 0 };
 		private:
+			PauseMenuControl			m_PauseMenuControl;
+			InGameUIControl				m_InGameUIControl;
+			CutSceneControl				m_CutSceneControl;
+			FadeControl					m_FadeControl;
+
 			bool						m_IsPrologue{ false };// シーン全体の終了フラグ
 			bool						m_IsGoodEnd{ false };// シーン全体の終了フラグ
 

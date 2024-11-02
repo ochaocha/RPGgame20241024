@@ -54,7 +54,7 @@ namespace FPS_n2 {
 				const auto& Obj = std::make_shared<BulletObject>();
 				Obj2DParts->AddObject(Obj);
 				Obj->SetShootPlayer(shootID);
-				Vector2DX Vec; Vec.Set(std::sin(Radian), std::cos(Radian));
+				Vector2DX Vec = GetVecByRad(DX_PI_F - Radian);
 				Obj->SetPosition(Pos + Vec * Offset);
 				Obj->SetVec(Vec * Speed);
 				Obj->SetSize(Size);

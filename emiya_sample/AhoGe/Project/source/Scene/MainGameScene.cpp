@@ -25,8 +25,8 @@ namespace FPS_n2 {
 			SoundParts->Add(SoundType::BGM, static_cast<int>(FPS_n2::Sceneclass::BGMSelect::Caution), 1, "data/Sound/BGM/Caution.wav");
 			SoundParts->Add(SoundType::BGM, static_cast<int>(FPS_n2::Sceneclass::BGMSelect::Alert), 1, "data/Sound/BGM/Alert.wav");
 
-			InGameUIControl::LoadUI();
-			PauseMenuControl::LoadPause();
+			m_InGameUIControl.LoadUI();
+			m_PauseMenuControl.LoadPause();
 			// 初期マップ
 			this->m_IsPrologue = false;
 			auto* SaveDataParts = SaveDataClass::Instance();
@@ -42,6 +42,7 @@ namespace FPS_n2 {
 		void			MainGameScene::Set_Sub(void) noexcept {
 			auto* PlayerMngr = PlayerManager::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
+			auto* EventParts = EventDataBase::Instance();
 			auto* Cam2D = Cam2DControl::Instance();
 			auto* SoundParts = SoundPool::Instance();
 			SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::RunFoot))->SetLocalVolume(128);
@@ -53,9 +54,9 @@ namespace FPS_n2 {
 			SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Bomb))->SetLocalVolume(64);
 			SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Hit))->SetLocalVolume(64);
 			SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Guard))->SetLocalVolume(64);
-			PauseMenuControl::SetPause();
+			m_PauseMenuControl.SetPause();
 			BackGround->Init(this->m_MapName);
-			PlayerMngr->Init(static_cast<int>(BackGround->GetPlayerSpawn().size()));
+			PlayerMngr->Init(static_cast<int>(EventParts->GetPlayerSpawn().size()));
 			m_BossUniqueID = InvalidID;
 			m_WinCutSceneID = InvalidID;
 			// 全キャラの設定
@@ -65,7 +66,7 @@ namespace FPS_n2 {
 
 				auto& p = PlayerMngr->GetPlayer((PlayerID)i);
 				if ((PlayerID)i == this->m_MyPlayerID) {
-					for (auto& e : BackGround->GetEventChip()) {
+					for (auto& e : EventParts->GetEventChip()) {
 						if (e.m_EventType == EventType::Entry) {
 							if (e.m_EventID == this->m_EntryID) {
 								p->GetChara()->SetPosition(BackGround->GetFloorData(e.m_index)->GetTileCenterPos());
@@ -87,7 +88,7 @@ namespace FPS_n2 {
 					}
 				}
 				else {
-					p->GetChara()->SetPosition(BackGround->GetFloorData(BackGround->GetPlayerSpawn().at(static_cast<size_t>(i)).m_index)->GetTileCenterPos());
+					p->GetChara()->SetPosition(BackGround->GetFloorData(EventParts->GetPlayerSpawn().at(static_cast<size_t>(i)).m_index)->GetTileCenterPos());
 					p->GetChara()->SetGunType(GunType::Handgun);
 				}
 			}
@@ -97,17 +98,17 @@ namespace FPS_n2 {
 			// 
 			this->m_PrevXY = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPosition()));
 			// 
-			InGameUIControl::SetMap(BackGround->GetMapTextID(), GoalPos);
+			m_InGameUIControl.SetMap(BackGround->GetMapTextID(), GoalPos);
 			// 
-			CutSceneControl::SetCut();
-			FadeControl::SetFade();
-			InGameUIControl::SetUI();
+			m_CutSceneControl.SetCut();
+			m_FadeControl.SetFadeIn();
+			m_InGameUIControl.SetUI();
 			Effect2DControl::Instance()->Init();
 			if (m_CutSceneID != InvalidID) {
-				CutSceneControl::StartCutScene(m_CutSceneID);
+				m_CutSceneControl.StartCutScene(m_CutSceneID);
 			}
 			else if (m_IsPrologue) {
-				CutSceneControl::StartCutScene(500);
+				m_CutSceneControl.StartCutScene(500);
 			}
 			// 
 			this->m_IsCautionBGM = false;
@@ -140,6 +141,7 @@ namespace FPS_n2 {
 			auto* DrawParts = DXDraw::Instance();
 			auto* Obj2DParts = Object2DManager::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
+			auto* EventParts = EventDataBase::Instance();
 			auto* Cam2D = Cam2DControl::Instance();
 			auto* SoundParts = SoundPool::Instance();
 			auto* SaveDataParts = SaveDataClass::Instance();
@@ -147,11 +149,11 @@ namespace FPS_n2 {
 
 			auto& Chara = PlayerMngr->GetPlayer(this->m_MyPlayerID)->GetChara();
 
-			PauseMenuControl::UpdatePause();
+			m_PauseMenuControl.UpdatePause();
 			if (SceneParts->IsPause()) {
 				return true;
 			}
-			if ((this->m_IsEnd || this->m_IsGoNext) && FadeControl::IsFadeAll()) {
+			if ((this->m_IsEnd || this->m_IsGoNext) && m_FadeControl.IsFadeAll()) {
 				return false;
 			}
 			if (this->m_IsPlayable) {
@@ -180,14 +182,13 @@ namespace FPS_n2 {
 					P->SetCanMove(this->m_IsPlayable);
 				}
 				else if (m_WinCutSceneID != InvalidID && !m_IsBadEnd) {
-					CutSceneControl::StartCutScene(m_WinCutSceneID);
+					m_CutSceneControl.StartCutScene(m_WinCutSceneID);
 					m_WinCutSceneID = InvalidID;
 				}
 			}
 			// 
-			CutSceneControl::UpdateCut();
-			FadeControl::IsFadeAll();
-			FadeControl::UpdateFade();
+			m_CutSceneControl.UpdateCut();
+			m_FadeControl.UpdateFade();
 			// BGM
 			{
 				bool Prev = this->m_IsCautionBGM || this->m_IsAlertBGM;
@@ -290,8 +291,8 @@ namespace FPS_n2 {
 			// イベント等制御
 			{
 				auto Prev = this->m_IsPlayable;
-				this->m_IsPlayable = FadeControl::IsFadeClear();
-				if (CutSceneControl::IsCutScene()) {
+				this->m_IsPlayable = m_FadeControl.IsFadeClear();
+				if (m_CutSceneControl.IsCutScene()) {
 					this->m_IsPlayable = false;
 					// 射撃能力
 					if (Chara) {
@@ -315,24 +316,24 @@ namespace FPS_n2 {
 						SaveDataParts->Reset();
 					}
 				}
-				if (PauseMenuControl::IsRetire()) {
+				if (m_PauseMenuControl.IsRetire()) {
 					this->m_IsEnd = true;
 				}
 				if (!Chara) {
 					if (!m_IsBadEnd) {
-						CutSceneControl::StartCutScene(999);
+						m_CutSceneControl.StartCutScene(999);
 						this->m_IsBadEnd = true;
 					}
 					else {
-						if (!CutSceneControl::IsCutScene()) {
+						if (!m_CutSceneControl.IsCutScene()) {
 							this->m_IsEnd = true;
 						}
 					}
 				}
-				FadeControl::SetBlackOut(this->m_IsEnd || this->m_IsGoNext);
+				m_FadeControl.SetFade(this->m_IsEnd || this->m_IsGoNext);
 				if (this->m_IsPlayable) {
 					m_StartTime += DrawParts->GetDeltaTime();
-					InGameUIControl::SetStartTime(m_StartTime);
+					m_InGameUIControl.SetStartTime(m_StartTime);
 				}
 			}
 			// 
@@ -378,7 +379,7 @@ namespace FPS_n2 {
 							Vector2DX CamAddPos;
 							if (Pad->GetPadsInfo(PADS::AIM).GetKey().press()) {
 								float ViewLimit = 10.f;
-								CamAddPos.Set(std::sin(MyInput.GetyRad()) * ViewLimit, std::cos(MyInput.GetyRad()) * ViewLimit);
+								CamAddPos = GetVecByRad(DX_PI_F - MyInput.GetyRad()) * ViewLimit;
 							}
 							Easing(&this->m_CamAddPos, CamAddPos, 0.9f, EasingType::OutExpo);
 						}
@@ -410,10 +411,10 @@ namespace FPS_n2 {
 			Obj2DParts->Update();
 			//イベントシーン用 イベントでのカメラオフセット値を制御
 			if (Chara) {
-				if (!this->m_IsPlayable && CutSceneControl::IsCutScene()) {
+				if (!this->m_IsPlayable && m_CutSceneControl.IsCutScene()) {
 					auto MyIndex = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPosition()));
-					MyIndex.first += CutSceneControl::GetAddViewPointX();
-					MyIndex.second += CutSceneControl::GetAddViewPointY();
+					MyIndex.first += m_CutSceneControl.GetAddViewPointX();
+					MyIndex.second += m_CutSceneControl.GetAddViewPointY();
 					Vector2DX CamAddPos = BackGround->GetFloorData(BackGround->GetXYToNum(MyIndex.first, MyIndex.second))->GetTileCenterPos() - Chara->GetPosition();
 					Easing(&this->m_CamAddPos, CamAddPos, 0.9f, EasingType::OutExpo);
 				}
@@ -433,8 +434,8 @@ namespace FPS_n2 {
 				Obj2DParts->DrawShadow();
 				});
 
-			InGameUIControl::UpdateUI();
-			if (FadeControl::IsFadeClear() && Chara) {
+			m_InGameUIControl.UpdateUI();
+			if (m_FadeControl.IsFadeClear() && Chara) {
 				// 範囲に入ったらイベント
 				auto MyIndex = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPosition()));
 				auto IsNearIndex = [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
@@ -443,7 +444,7 @@ namespace FPS_n2 {
 				if (!IsNearIndex(this->m_PrevXY, MyIndex)) {
 					this->m_PrevXY = MyIndex;
 					if (this->m_IsPlayable) {
-						for (auto& e : BackGround->GetEventChip()) {
+						for (auto& e : EventParts->GetEventChip()) {
 							if (IsNearIndex(BackGround->GetNumToXY(e.m_index), MyIndex)) {// 該当のチップに踏み込んだ
 								// 次マップへの遷移
 								if (e.m_EventType == EventType::Entry) {
@@ -461,7 +462,7 @@ namespace FPS_n2 {
 										std::string SaveStr = "Cut_" + std::to_string(e.m_CutSceneID);
 										if (SaveDataParts->GetParam(SaveStr) == -1) {
 											SaveDataParts->SetParam(SaveStr, 0);
-											CutSceneControl::StartCutScene(e.m_CutSceneID);
+											m_CutSceneControl.StartCutScene(e.m_CutSceneID);
 										}
 										break;
 									}
@@ -471,7 +472,7 @@ namespace FPS_n2 {
 					}
 				}
 			}
-			InGameUIControl::SetupWatchScreen();
+			m_InGameUIControl.SetupWatchScreen();
 			return true;
 		}
 		void			MainGameScene::Dispose_Sub(void) noexcept {
@@ -524,19 +525,19 @@ namespace FPS_n2 {
 
 			Obj2DParts->DeleteAll();
 
-			PauseMenuControl::DisposePause();
-			InGameUIControl::Dispose_LoadUI();
+			m_PauseMenuControl.DisposePause();
+			m_InGameUIControl.Dispose_LoadUI();
 		}
 		// 
 		void			MainGameScene::MainDraw_Sub(void) const noexcept {
 			auto* BackGround = BackGroundClassBase::Instance();
 			auto* Obj2DParts = Object2DManager::Instance();
 			BackGround->Draw();
-			InGameUIControl::DrawUI_Back();
+			m_InGameUIControl.DrawUI_Back();
 			Obj2DParts->Draw();
 			Effect2DControl::Instance()->Draw();
 			BackGround->DrawFront();
-			InGameUIControl::DrawUI_Front();
+			m_InGameUIControl.DrawUI_Front();
 
 			if (m_BossUniqueID != InvalidID) {
 				// ボスの頭上に出す体力バー
@@ -548,12 +549,12 @@ namespace FPS_n2 {
 			}
 		}
 		void			MainGameScene::DrawUI_Base_Sub(void) const noexcept {
-			InGameUIControl::DrawUI_MapName();
-			FadeControl::DrawFade();
-			CutSceneControl::DrawCut();
+			m_InGameUIControl.DrawUI_MapName();
+			m_FadeControl.DrawFade();
+			m_CutSceneControl.DrawCut();
 		}
 		void			MainGameScene::DrawUI_In_Sub(void) const noexcept {
-			PauseMenuControl::DrawPause();
+			m_PauseMenuControl.DrawPause();
 		}
 		void			MainGameScene::AddCharacter(PlayerID value) noexcept {
 			auto* PlayerMngr = PlayerManager::Instance();

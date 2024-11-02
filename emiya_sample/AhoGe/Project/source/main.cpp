@@ -17,6 +17,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	FPS_n2::Sceneclass::Cam2DControl::Create();				//2Dカメラマネージャー
 
 	FPS_n2::Sceneclass::BackGroundClassBase::Create();		//背景マネージャー
+	FPS_n2::Sceneclass::EventDataBase::Create();			//背景マネージャー
 
 	FPS_n2::Sceneclass::ButtonControl::Create();			//UI用ボタンマネージャー
 

@@ -12,9 +12,9 @@ namespace DXLibRef {
 	void			OPTION::Load(void) noexcept {
 		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::GraphicsPreset)).SetEnumParamType(EnumParamType::Boolean);
 		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::DirectXVer)).SetEnumParamType(EnumParamType::Else);// DirectXVer
-		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::bloom)).SetEnumParamType(EnumParamType::Boolean);
-		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::shadow)).SetEnumParamType(EnumParamType::Boolean);
-		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::vsync)).SetEnumParamType(EnumParamType::Boolean);
+		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::Bloom)).SetEnumParamType(EnumParamType::Boolean);
+		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::Shadow)).SetEnumParamType(EnumParamType::Boolean);
+		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::VSync)).SetEnumParamType(EnumParamType::Boolean);
 		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::FpsLimit)).SetEnumParamType(EnumParamType::Int);
 		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::SE)).SetEnumParamType(EnumParamType::Float);
 		m_SaveParams.at(static_cast<size_t>(EnumSaveParam::BGM)).SetEnumParamType(EnumParamType::Float);
@@ -43,9 +43,9 @@ namespace DXLibRef {
 				// デフォ値
 				SetParamInt(EnumSaveParam::GraphicsPreset, TRUE);
 				SetParamInt(EnumSaveParam::DirectXVer, 1);
-				SetParamBoolean(EnumSaveParam::bloom, true);
-				SetParamBoolean(EnumSaveParam::shadow, true);
-				SetParamBoolean(EnumSaveParam::vsync, true);
+				SetParamBoolean(EnumSaveParam::Bloom, true);
+				SetParamBoolean(EnumSaveParam::Shadow, true);
+				SetParamBoolean(EnumSaveParam::VSync, true);
 				SetParamInt(EnumSaveParam::FpsLimit, 60);
 				SetParamFloat(EnumSaveParam::SE, 0.5f);
 				SetParamFloat(EnumSaveParam::BGM, 0.5f);
@@ -111,11 +111,11 @@ namespace DXLibRef {
 			}
 		}
 		{
-			if (!IsFileExist("CommonData/ProjectSetting.txt")) {
+			if (!IsFileExist("data/ProjectSetting.txt")) {
 				SetParamBoolean(EnumProjectSettingParam::Distortion, true);
 				return;
 			}
-			FileStreamDX FileStream("CommonData/ProjectSetting.txt");
+			FileStreamDX FileStream("data/ProjectSetting.txt");
 			while (true) {
 				if (FileStream.ComeEof()) { break; }
 				auto ALL = FileStream.SeekLineAndGetStr();
@@ -337,13 +337,13 @@ namespace DXLibRef {
 				OptionParts->ChangeParamBoolean(EnumSaveParam::GraphicsPreset);
 				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 				if (!OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)) {
-					OptionParts->SetParamBoolean(EnumSaveParam::shadow, false);
-					OptionParts->SetParamBoolean(EnumSaveParam::bloom, false);
+					OptionParts->SetParamBoolean(EnumSaveParam::Shadow, false);
+					OptionParts->SetParamBoolean(EnumSaveParam::Bloom, false);
 					OptionParts->SetParamBoolean(EnumSaveParam::ScreenEffect, false);
 				}
 				else {
-					OptionParts->SetParamBoolean(EnumSaveParam::shadow, true);
-					OptionParts->SetParamBoolean(EnumSaveParam::bloom, true);
+					OptionParts->SetParamBoolean(EnumSaveParam::Shadow, true);
+					OptionParts->SetParamBoolean(EnumSaveParam::Bloom, true);
 					OptionParts->SetParamBoolean(EnumSaveParam::ScreenEffect, true);
 				}
 			},
@@ -353,13 +353,13 @@ namespace DXLibRef {
 				OptionParts->ChangeParamBoolean(EnumSaveParam::GraphicsPreset);
 				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 				if (!OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)) {
-					OptionParts->SetParamBoolean(EnumSaveParam::shadow, false);
-					OptionParts->SetParamBoolean(EnumSaveParam::bloom, false);
+					OptionParts->SetParamBoolean(EnumSaveParam::Shadow, false);
+					OptionParts->SetParamBoolean(EnumSaveParam::Bloom, false);
 					OptionParts->SetParamBoolean(EnumSaveParam::ScreenEffect, false);
 				}
 				else {
-					OptionParts->SetParamBoolean(EnumSaveParam::shadow, true);
-					OptionParts->SetParamBoolean(EnumSaveParam::bloom, true);
+					OptionParts->SetParamBoolean(EnumSaveParam::Shadow, true);
+					OptionParts->SetParamBoolean(EnumSaveParam::Bloom, true);
 					OptionParts->SetParamBoolean(EnumSaveParam::ScreenEffect, true);
 				}
 			},
@@ -371,13 +371,13 @@ namespace DXLibRef {
 				OptionParts->SetParamBoolean(EnumSaveParam::GraphicsPreset, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)));
 				if (prev != OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)) {
 					if (!OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)) {
-						OptionParts->SetParamBoolean(EnumSaveParam::shadow, false);
-						OptionParts->SetParamBoolean(EnumSaveParam::bloom, false);
+						OptionParts->SetParamBoolean(EnumSaveParam::Shadow, false);
+						OptionParts->SetParamBoolean(EnumSaveParam::Bloom, false);
 						OptionParts->SetParamBoolean(EnumSaveParam::ScreenEffect, false);
 					}
 					else {
-						OptionParts->SetParamBoolean(EnumSaveParam::shadow, true);
-						OptionParts->SetParamBoolean(EnumSaveParam::bloom, true);
+						OptionParts->SetParamBoolean(EnumSaveParam::Shadow, true);
+						OptionParts->SetParamBoolean(EnumSaveParam::Bloom, true);
 						OptionParts->SetParamBoolean(EnumSaveParam::ScreenEffect, true);
 					}
 				}
@@ -435,37 +435,37 @@ namespace DXLibRef {
 			[this]() {
 				auto* OptionParts = OPTION::Instance();
 				auto* SoundParts = SoundPool::Instance();
-				OptionParts->ChangeParamBoolean(EnumSaveParam::vsync);
-				if (OptionParts->GetParamBoolean(EnumSaveParam::vsync)) {
+				OptionParts->ChangeParamBoolean(EnumSaveParam::VSync);
+				if (OptionParts->GetParamBoolean(EnumSaveParam::VSync)) {
 					OptionParts->SetParamInt(EnumSaveParam::FpsLimit, RefreshRate);
 				}
-				SetWaitVSyncFlag(OptionParts->GetParamBoolean(EnumSaveParam::vsync));									// 垂直同期
+				SetWaitVSyncFlag(OptionParts->GetParamBoolean(EnumSaveParam::VSync));									// 垂直同期
 				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[this]() {
 				auto* OptionParts = OPTION::Instance();
 				auto* SoundParts = SoundPool::Instance();
-				OptionParts->ChangeParamBoolean(EnumSaveParam::vsync);
-				if (OptionParts->GetParamBoolean(EnumSaveParam::vsync)) {
+				OptionParts->ChangeParamBoolean(EnumSaveParam::VSync);
+				if (OptionParts->GetParamBoolean(EnumSaveParam::VSync)) {
 					OptionParts->SetParamInt(EnumSaveParam::FpsLimit, RefreshRate);
 				}
-				SetWaitVSyncFlag(OptionParts->GetParamBoolean(EnumSaveParam::vsync));									// 垂直同期
+				SetWaitVSyncFlag(OptionParts->GetParamBoolean(EnumSaveParam::VSync));									// 垂直同期
 				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[this](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
-				auto prev = OptionParts->GetParamBoolean(EnumSaveParam::vsync);
-				OptionParts->SetParamBoolean(EnumSaveParam::vsync, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::vsync)));
-				if (OptionParts->GetParamBoolean(EnumSaveParam::vsync)) {
+				auto prev = OptionParts->GetParamBoolean(EnumSaveParam::VSync);
+				OptionParts->SetParamBoolean(EnumSaveParam::VSync, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::VSync)));
+				if (OptionParts->GetParamBoolean(EnumSaveParam::VSync)) {
 					OptionParts->SetParamInt(EnumSaveParam::FpsLimit, RefreshRate);
 				}
-				if (prev != OptionParts->GetParamBoolean(EnumSaveParam::vsync)) {
-					if (OptionParts->GetParamBoolean(EnumSaveParam::vsync)) {
+				if (prev != OptionParts->GetParamBoolean(EnumSaveParam::VSync)) {
+					if (OptionParts->GetParamBoolean(EnumSaveParam::VSync)) {
 						OptionParts->SetParamInt(EnumSaveParam::FpsLimit, RefreshRate);
 					}
-					SetWaitVSyncFlag(OptionParts->GetParamBoolean(EnumSaveParam::vsync));									// 垂直同期
+					SetWaitVSyncFlag(OptionParts->GetParamBoolean(EnumSaveParam::VSync));									// 垂直同期
 				}
 			}
 		);
@@ -577,20 +577,20 @@ namespace DXLibRef {
 			[]() {
 				auto* OptionParts = OPTION::Instance();
 				auto* SoundParts = SoundPool::Instance();
-				OptionParts->ChangeParamBoolean(EnumSaveParam::shadow);
+				OptionParts->ChangeParamBoolean(EnumSaveParam::Shadow);
 				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
 				auto* SoundParts = SoundPool::Instance();
-				OptionParts->ChangeParamBoolean(EnumSaveParam::shadow);
+				OptionParts->ChangeParamBoolean(EnumSaveParam::Shadow);
 				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
-				OptionParts->SetParamBoolean(EnumSaveParam::shadow, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::shadow)));
+				OptionParts->SetParamBoolean(EnumSaveParam::Shadow, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::Shadow)));
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
@@ -598,20 +598,20 @@ namespace DXLibRef {
 			[]() {
 				auto* OptionParts = OPTION::Instance();
 				auto* SoundParts = SoundPool::Instance();
-				OptionParts->ChangeParamBoolean(EnumSaveParam::bloom);
+				OptionParts->ChangeParamBoolean(EnumSaveParam::Bloom);
 				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
 				auto* SoundParts = SoundPool::Instance();
-				OptionParts->ChangeParamBoolean(EnumSaveParam::bloom);
+				OptionParts->ChangeParamBoolean(EnumSaveParam::Bloom);
 				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
-				OptionParts->SetParamBoolean(EnumSaveParam::bloom, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::bloom)));
+				OptionParts->SetParamBoolean(EnumSaveParam::Bloom, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::Bloom)));
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);

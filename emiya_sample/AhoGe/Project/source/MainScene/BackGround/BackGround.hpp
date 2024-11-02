@@ -4,6 +4,7 @@
 
 namespace FPS_n2 {
 	namespace Sceneclass {
+
 		enum class EventType {
 			Entry,
 			CutScene,
@@ -16,12 +17,50 @@ namespace FPS_n2 {
 			"Boss",
 		};
 
+		class EventDataBase : public SingletonBase<EventDataBase> {
+		private:
+			friend class SingletonBase<EventDataBase>;
+		private:
+			EventDataBase(void) {}
+			EventDataBase(const EventDataBase&) = delete;
+			EventDataBase(EventDataBase&& o) = delete;
+			EventDataBase& operator=(const EventDataBase&) = delete;
+			EventDataBase& operator=(EventDataBase&& o) = delete;
+		private:
+			// CPUに巡回させるルート
+			struct PlayerPatrol {
+				int					m_index{};
+				std::vector<int>	m_Patrol{};
+			};
+			// イベントチップ
+			struct EventChip {
+				int					m_index{};
+				int					m_EventID{ 0 };
+				EventType			m_EventType{};
+				// 遷移用設定
+				std::string			m_MapName;// 行先マップ
+				int					m_EntryID{};// 行先マップのイベントID
+				// カットシーン用設定
+				int					m_CutSceneID{};// カットシーンID
+				int					m_ActiveDelaySec{};
+				// 
+				int					m_WinCutSceneID{};// カットシーンID
+			};
+		private:
+			std::vector<PlayerPatrol>			m_PlayerSpawn;
+			std::vector<EventChip>				m_EventChip;
+		public:
+			const auto& GetPlayerSpawn(void) const noexcept { return this->m_PlayerSpawn; }
+			const auto& GetEventChip(void) const noexcept { return this->m_EventChip; }
+		public:
+			void			LoadData(const std::string& SoftImagePath) noexcept;
+			void			LoadEventScript(const std::string& LEFT, const std::string& RIGHT) noexcept;
+		};
 
 		class BackGroundClassBase : public SingletonBase<BackGroundClassBase> {
 		private:
 			friend class SingletonBase<BackGroundClassBase>;
 		private:
-			// 
 			class Blick {
 			private:
 				class BlickPalette {
@@ -162,63 +201,12 @@ namespace FPS_n2 {
 					}
 					return false;
 				}
-				bool CheckLineHit(const Vector2DX& Pos1, const Vector2DX& Pos2) const noexcept {
-					return CheckCapsuleHit(Pos1, Pos2, 0.001f);
-				}
+				bool CheckLineHit(const Vector2DX& Pos1, const Vector2DX& Pos2) const noexcept { return CheckCapsuleHit(Pos1, Pos2, 0.001f); }
 			public:
 				// 環境影を描画
 				void			DrawAmbientShadow(float AmbientShadowLength, float AmbientLightRad, const GraphHandle& ShadowChip) const noexcept;
 				// ポイント影を描画
 				void			DrawPointShadow(const Vector2DX& PointLightPos, const GraphHandle& ShadowChip)  const noexcept;
-			};
-			// プレイヤーの周囲にあるステージ壁を取得する( 検出する範囲は移動距離も考慮する )
-			class CheckLines {
-				std::array<Vector2DX, 3>		m_Position{ };
-				Vector2DX					m_Normal{};
-				bool						m_Active{ true };
-			public:
-				void			SetActive(bool value) noexcept { this->m_Active = value; }
-			public:
-				const auto& GetPos(int num) const noexcept { return this->m_Position.at(static_cast<size_t>(num)); }
-				const auto& GetNormal(void) const noexcept { return this->m_Normal; }
-				const auto& IsActive(void) const noexcept { return this->m_Active; }
-			public:
-				void			CalcNormal(void) noexcept {
-					Vector2DX StartP = this->m_Position.at(0);
-					Vector2DX EndP = this->m_Position.at(1);
-					Vector2DX In = this->m_Position.at(2);
-					Vector2DX VecP = EndP - StartP;
-					auto Normal = (Vector2DX::vget(VecP.y, -VecP.x) * Vector2DX::Cross(VecP, In - StartP)).normalized();
-					this->m_Normal.Set(Normal.x, Normal.y);
-				}
-			public:
-				void			SetUp(const Vector2DX& Pos0, const Vector2DX& Pos1, const Vector2DX& Pos2) noexcept {
-					this->m_Active = true;
-					this->m_Position.at(0) = Pos0;
-					this->m_Position.at(1) = Pos1;
-					this->m_Position.at(2) = Pos2;
-					this->CalcNormal();
-				}
-			};
-			// CPUに巡回させるルート
-			struct PlayerPatrol {
-				int					m_index{};
-				std::vector<int>	m_Patrol{};
-			};
-
-			// イベントチップ
-			struct EventChip {
-				int					m_index{};
-				int					m_EventID{ 0 };
-				EventType			m_EventType{};
-				// 遷移用設定
-				std::string			m_MapName;// 行先マップ
-				int					m_EntryID{};// 行先マップのイベントID
-				// カットシーン用設定
-				int					m_CutSceneID{};// カットシーンID
-				int					m_ActiveDelaySec{};
-				// 
-				int					m_WinCutSceneID{};// カットシーンID
 			};
 		private:
 			int									m_Xsize{};
@@ -230,8 +218,6 @@ namespace FPS_n2 {
 			std::vector<std::shared_ptr<Blick>>	m_WallBlick;
 			std::vector<std::shared_ptr<Blick>>	m_CheckWallBlick;
 
-			std::vector<PlayerPatrol>			m_PlayerSpawn;
-			std::vector<EventChip>				m_EventChip;
 			std::vector<GraphHandle>			m_MapChip;
 			std::vector<GraphHandle>			m_WallChip;
 			float								m_AmbientShadowLength{ 36.f };
@@ -241,17 +227,15 @@ namespace FPS_n2 {
 			GraphHandle							m_AmbientShadowHandle;
 			int									m_GetMapTextID{};
 		public:
-			const auto& GetMapTextID(void) const noexcept { return this->m_GetMapTextID; }
-			const auto& GetShadowGraph(void) const noexcept { return this->m_PointShadowHandle; }
-			const auto& GetPlayerSpawn(void) const noexcept { return this->m_PlayerSpawn; }
-			const auto& GetEventChip(void) const noexcept { return this->m_EventChip; }
-			const auto		GetAmbientLightVec(void) const noexcept { return Vector2DX::vget(std::sin(this->m_AmbientLightRad), -std::cos(this->m_AmbientLightRad)) * this->m_AmbientShadowLength; }
+			const auto&		GetMapTextID(void) const noexcept { return this->m_GetMapTextID; }
+			const auto&		GetShadowGraph(void) const noexcept { return this->m_PointShadowHandle; }
+			const auto		GetAmbientLightVec(void) const noexcept { return GetVecByRad(this->m_AmbientLightRad) * this->m_AmbientShadowLength; }
 			auto			GetXSize(void) const noexcept { return this->m_Xsize; }
 			auto			GetYSize(void) const noexcept { return this->m_Ysize; }
 			auto			GetXYToNum(int x, int y) const noexcept { return std::min(x, this->m_Xsize - 1) * this->m_Ysize + std::min(y, this->m_Ysize - 1); }
 			auto			GetNumToXY(int num) const noexcept { return std::make_pair<int, int>(num / this->m_Ysize, num % this->m_Ysize); }
-			const auto& GetFloorData(int num) const noexcept { return this->m_Blick.at(static_cast<size_t>(num)); }
-			const auto& GetFloorData(int x, int y) const noexcept { return GetFloorData(GetXYToNum(x, y)); }
+			const auto&		GetFloorData(int num) const noexcept { return this->m_Blick.at(static_cast<size_t>(num)); }
+			const auto&		GetFloorData(int x, int y) const noexcept { return GetFloorData(GetXYToNum(x, y)); }
 			auto			GetNearestFloors(const Vector2DX& Pos) const noexcept {
 				// 軽量版
 				int x = static_cast<int>(Pos.x + 0.5f);

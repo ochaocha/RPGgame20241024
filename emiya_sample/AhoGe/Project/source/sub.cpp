@@ -14,7 +14,7 @@ namespace FPS_n2 {
 			// あらかじめ一定量目盛を確保しておく
 			this->havehandle.reserve(256);
 			// 1行ずつファイルを解析し、ローカライズIDに合致したテキストを保存する
-			FileStreamDX FileStream("data/Localize/Jpn.txt");
+			FileStreamDX FileStream("data/StoryText.txt");
 			while (true) {
 				if (FileStream.ComeEof()) { break; }
 				auto ALL = FileStream.SeekLineAndGetStr();

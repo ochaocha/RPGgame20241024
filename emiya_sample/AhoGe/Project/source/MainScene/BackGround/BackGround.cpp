@@ -1,99 +1,131 @@
 #include	"BackGround.hpp"
 
+const FPS_n2::Sceneclass::EventDataBase* SingletonBase<FPS_n2::Sceneclass::EventDataBase>::m_Singleton = nullptr;
 const FPS_n2::Sceneclass::BackGroundClassBase* SingletonBase<FPS_n2::Sceneclass::BackGroundClassBase>::m_Singleton = nullptr;
 
 namespace FPS_n2 {
 	namespace Sceneclass {
-		// 影を描画
-		static void DrawModi(std::array<Vector2DX, 4>& Position, float Add, const GraphHandle& ShadowChip) noexcept {
-			// 前後左右に太らせる
-			float XMax = -1000000.f;
-			float XMin = 1000000.f;
-			float YMax = -1000000.f;
-			float YMin = 1000000.f;
-			int xmin = InvalidID;
-			int xmax = InvalidID;
-			int ymin = InvalidID;
-			int ymax = InvalidID;
-			for (auto& p : Position) {
-				int i = static_cast<int>(&p - &Position.front());
-				if (XMax <= p.x) {
-					XMax = p.x;
-					xmax = i;
-				}
-				if (XMin >= p.x) {
-					XMin = p.x;
-					xmin = i;
-				}
+		void EventDataBase::LoadData(const std::string& SoftImagePath) noexcept {
+			auto* BackGround = BackGroundClassBase::Instance();
+			std::array<std::pair<int, int>, 8> Dir;
+			Dir.at(0) = std::make_pair(-1, 0);
+			Dir.at(1) = std::make_pair(0, -1);
+			Dir.at(2) = std::make_pair(1, 0);
+			Dir.at(3) = std::make_pair(0, 1);
 
-				if (YMax <= p.y) {
-					YMax = p.y;
-					ymax = i;
-				}
-				if (YMin >= p.y) {
-					YMin = p.y;
-					ymin = i;
-				}
-			}
-			// 
-			XMax = -1000000.f;
-			XMin = 1000000.f;
-			YMax = -1000000.f;
-			YMin = 1000000.f;
-			int x2min = InvalidID;
-			int x2max = InvalidID;
-			int y2min = InvalidID;
-			int y2max = InvalidID;
-			for (auto& p : Position) {
-				int i = static_cast<int>(&p - &Position.front());
-				if (XMax <= p.x) {
-					if (xmax != i) {
-						XMax = p.x;
-						x2max = i;
-					}
-				}
-				if (XMin >= p.x) {
-					if (xmin != i) {
-						XMin = p.x;
-						x2min = i;
-					}
-				}
+			Dir.at(4) = std::make_pair(-1, -1);
+			Dir.at(5) = std::make_pair(1, -1);
+			Dir.at(6) = std::make_pair(1, 1);
+			Dir.at(7) = std::make_pair(-1, 1);
 
-				if (YMax <= p.y) {
-					if (ymax != i) {
-						YMax = p.y;
-						y2max = i;
+			int EvtImage = LoadSoftImage(SoftImagePath.c_str());
+			int r, g, b;
+
+			this->m_PlayerSpawn.resize(1);// 0はイベントに
+			this->m_EventChip.clear();
+			for (int x = 0; x < BackGround->GetXSize(); x++) {
+				for (int y = 0; y < BackGround->GetYSize(); y++) {
+					GetPixelSoftImage(EvtImage, x, BackGround->GetYSize() - 1 - y, &r, &g, &b, nullptr);
+					if (r == 255 && g == 0 && b == 0) {
+						PlayerPatrol tmp; tmp.m_index = BackGround->GetXYToNum(x, y);
+						this->m_PlayerSpawn.emplace_back(tmp);
 					}
-				}
-				if (YMin >= p.y) {
-					if (ymin != i) {
-						YMin = p.y;
-						y2min = i;
+					else if (r == 192 && g == 168) {// イベント マップ移動とか
+						EventChip tmp;
+						tmp.m_index = BackGround->GetXYToNum(x, y);
+						tmp.m_EventID = b;// 青色部分にイベントIDを埋め込む
+						tmp.m_CutSceneID = InvalidID;
+						tmp.m_ActiveDelaySec = 0;
+						tmp.m_WinCutSceneID = InvalidID;
+						this->m_EventChip.emplace_back(tmp);
 					}
 				}
 			}
-			Position.at(static_cast<size_t>(xmin)).x -= Add;
-			Position.at(static_cast<size_t>(ymin)).y -= Add;
-			Position.at(static_cast<size_t>(xmax)).x += Add;
-			Position.at(static_cast<size_t>(ymax)).y += Add;
+			// 巡回ルート
+			for (auto& s : this->m_PlayerSpawn) {
+				if (static_cast<int>(&s - &this->m_PlayerSpawn.front()) == 0) { continue; }
+				s.m_Patrol.clear();
+				s.m_Patrol.emplace_back(s.m_index);
+				while (true) {
+					auto XY = BackGround->GetNumToXY(s.m_Patrol.back());
+					bool isHitNext = false;
+					for (auto& d : Dir) {
+						int x = XY.first + d.first;
+						int y = XY.second + d.second;
+						if (HitPointToRectangle(x, y, 0, 0, BackGround->GetXSize() - 1, BackGround->GetYSize() - 1)) {
+							int Num = BackGround->GetXYToNum(x, y);
+							GetPixelSoftImage(EvtImage, x, BackGround->GetYSize() - 1 - y, &r, &g, &b, nullptr);
+							if (r == 255 && g == 192 && b == 192) {
+								bool isHit = false;
+								for (auto& p : s.m_Patrol) {
+									if (p == Num) {
+										isHit = true;
+										break;
+									}
+								}
+								if (!isHit) {
+									s.m_Patrol.emplace_back(Num);
+									isHitNext = true;
+									break;
+								}
+							}
+						}
+					}
+					if (!isHitNext) {
+						break;
+					}
+				}
+			}
 
-			if (x2min != InvalidID) { Position.at(static_cast<size_t>(x2min)).x -= Add; }
-			if (y2min != InvalidID) { Position.at(static_cast<size_t>(y2min)).y -= Add; }
-			if (x2max != InvalidID) { Position.at(static_cast<size_t>(x2max)).x += Add; }
-			if (y2max != InvalidID) { Position.at(static_cast<size_t>(y2max)).y += Add; }
-
-			DrawModiGraph(
-				static_cast<int>(Position.at(0).x), static_cast<int>(Position.at(0).y),
-				static_cast<int>(Position.at(1).x), static_cast<int>(Position.at(1).y),
-				static_cast<int>(Position.at(2).x), static_cast<int>(Position.at(2).y),
-				static_cast<int>(Position.at(3).x), static_cast<int>(Position.at(3).y),
-				ShadowChip.get(), FALSE);
+			DeleteSoftImage(EvtImage);
 		}
+		void EventDataBase::LoadEventScript(const std::string& LEFT, const std::string& RIGHT) noexcept {
+			int targetID = std::stoi(LEFT.substr(0, 3));
+			for (auto& e : this->m_EventChip) {
+				if (e.m_EventID == targetID) {
+					// イベントタイプ
+					if (LEFT.find("EvtType") != std::string::npos) {
+						for (int i = 0; i < static_cast<int>(EventType::Max); i++) {
+							if (RIGHT.find(g_EventStr[i]) != std::string::npos) {
+								e.m_EventType = (EventType)i;
+								break;
+							}
+						}
+					}
+					else if (LEFT.find("EntryCutScene") != std::string::npos) {
+						e.m_CutSceneID = std::stoi(RIGHT);
+					}
+					// 遷移用設定
+					else if (LEFT.find("NextStage") != std::string::npos) {
+						if (RIGHT == "None") {
+							e.m_EntryID = InvalidID;
+						}
+						else {
+							e.m_EntryID = std::stoi(RIGHT.substr(0, 3));
+							e.m_MapName = RIGHT.substr(4);
+						}
+					}
+					// カットシーン用設定
+					else if (LEFT.find("CutSelect") != std::string::npos) {
+						e.m_CutSceneID = std::stoi(RIGHT);
+					}
+					else if (LEFT.find("ActiveDelaySec") != std::string::npos) {
+						e.m_ActiveDelaySec = std::stoi(RIGHT);
+					}
+					// 
+					else if (LEFT.find("WinCut") != std::string::npos) {
+						e.m_WinCutSceneID = std::stoi(RIGHT);
+					}
+					break;
+				}
+			}
+		}
+
+		// 影を描画
 		void BackGroundClassBase::Blick::DrawAmbientShadow(float AmbientShadowLength, float AmbientLightRad, const GraphHandle& ShadowChip) const noexcept {
-			float Radius = 0.5f + AmbientShadowLength;
 			{
 				auto* DrawParts = DXDraw::Instance();
-				int R = Cam2DControl::GetTileToDispSize(Radius);
+				int R = Cam2DControl::GetTileToDispSize(0.5f + AmbientShadowLength);
 				Vector2DX Pos;
 				Cam2DControl::ConvertTiletoDisp(GetTileCenterPos(), &Pos);
 				// 範囲外
@@ -113,19 +145,19 @@ namespace FPS_n2 {
 				float radsub = deg2rad(90 * i);
 				if (std::cos(AmbientLightRad - radsub) > 0.f) {
 					float lightrad1 = AmbientLightRad;
-					Cam2DControl::ConvertTiletoDisp(Pos1 + Vector2DX::vget(std::sin(lightrad1), -std::cos(lightrad1)) * Radius, &Position.at(0));
-					Cam2DControl::ConvertTiletoDisp(Pos2 + Vector2DX::vget(std::sin(lightrad1), -std::cos(lightrad1)) * Radius, &Position.at(1));
+					Cam2DControl::ConvertTiletoDisp(Pos1 + GetVecByRad(lightrad1) * AmbientShadowLength, &Position.at(0));
+					Cam2DControl::ConvertTiletoDisp(Pos2 + GetVecByRad(lightrad1) * AmbientShadowLength, &Position.at(1));
 					Cam2DControl::ConvertTiletoDisp(Pos2, &Position.at(2));
 					Cam2DControl::ConvertTiletoDisp(Pos1, &Position.at(3));
-					DrawModi(Position, 3.f, ShadowChip);
+					DrawModiGraph_2D(Position, 3.f, ShadowChip);
 				}
 			}
 		}
 		void BackGroundClassBase::Blick::DrawPointShadow(const Vector2DX& PointLightPos, const GraphHandle& ShadowChip) const noexcept {
-			float Radius = 0.5f + (float)(255);
+			float Radius = 255.f;
 			{
 				auto* DrawParts = DXDraw::Instance();
-				int R = Cam2DControl::GetTileToDispSize(Radius);
+				int R = Cam2DControl::GetTileToDispSize(0.5f + Radius);
 				Vector2DX Pos;
 				Cam2DControl::ConvertTiletoDisp(GetTileCenterPos(), &Pos);
 				// 範囲外
@@ -146,11 +178,11 @@ namespace FPS_n2 {
 				if (std::cos((DX_PI_F - GetRadVec((Pos1 + Pos2) / 2.f - PointLightPos)) - radsub) > 0.f) {
 					float lightrad1 = DX_PI_F - GetRadVec(Pos1 - PointLightPos);
 					float lightrad2 = DX_PI_F - GetRadVec(Pos2 - PointLightPos);
-					Cam2DControl::ConvertTiletoDisp(Pos1 + Vector2DX::vget(std::sin(lightrad1), -std::cos(lightrad1)) * Radius, &Position.at(0));
-					Cam2DControl::ConvertTiletoDisp(Pos2 + Vector2DX::vget(std::sin(lightrad2), -std::cos(lightrad2)) * Radius, &Position.at(1));
+					Cam2DControl::ConvertTiletoDisp(Pos1 + GetVecByRad(lightrad1) * Radius, &Position.at(0));
+					Cam2DControl::ConvertTiletoDisp(Pos2 + GetVecByRad(lightrad2) * Radius, &Position.at(1));
 					Cam2DControl::ConvertTiletoDisp(Pos2, &Position.at(2));
 					Cam2DControl::ConvertTiletoDisp(Pos1, &Position.at(3));
-					DrawModi(Position, 3.f, ShadowChip);
+					DrawModiGraph_2D(Position, 3.f, ShadowChip);
 				}
 			}
 		}
@@ -199,6 +231,35 @@ namespace FPS_n2 {
 		}
 		// 壁判定
 		bool BackGroundClassBase::CheckLinetoMap(const Vector2DX& StartPos, Vector2DX* EndPos, float Radius, bool IsPhysical) const noexcept {
+			// プレイヤーの周囲にあるステージ壁を取得する( 検出する範囲は移動距離も考慮する )
+			class CheckLines {
+				std::array<Vector2DX, 3>		m_Position{ };
+				Vector2DX					m_Normal{};
+				bool						m_Active{ true };
+			public:
+				void			SetActive(bool value) noexcept { this->m_Active = value; }
+			public:
+				const auto& GetPos(int num) const noexcept { return this->m_Position.at(static_cast<size_t>(num)); }
+				const auto& GetNormal(void) const noexcept { return this->m_Normal; }
+				const auto& IsActive(void) const noexcept { return this->m_Active; }
+			public:
+				void			CalcNormal(void) noexcept {
+					Vector2DX StartP = this->m_Position.at(0);
+					Vector2DX EndP = this->m_Position.at(1);
+					Vector2DX In = this->m_Position.at(2);
+					Vector2DX VecP = EndP - StartP;
+					auto Normal = (Vector2DX::vget(VecP.y, -VecP.x) * Vector2DX::Cross(VecP, In - StartP)).normalized();
+					this->m_Normal.Set(Normal.x, Normal.y);
+				}
+			public:
+				void			SetUp(const Vector2DX& Pos0, const Vector2DX& Pos1, const Vector2DX& Pos2) noexcept {
+					this->m_Active = true;
+					this->m_Position.at(0) = Pos0;
+					this->m_Position.at(1) = Pos1;
+					this->m_Position.at(2) = Pos2;
+					this->CalcNormal();
+				}
+			};
 			std::vector<CheckLines>				WallList;
 			WallList.reserve(256);
 			Vector2DX Min, Max;
@@ -360,7 +421,7 @@ namespace FPS_n2 {
 			}
 			return HitFlag;
 		}
-
+		//
 		void BackGroundClassBase::Init(const std::string& MapPath) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 
@@ -378,12 +439,13 @@ namespace FPS_n2 {
 			// 
 			int ChipNum = 12;
 			int r, g, b;
-			// マップ
+			//どのチップを使うかを決めるデータ
 			int MapImage = LoadSoftImage((CommonPath + "col.bmp").c_str());
 			GetSoftImageSize(MapImage, &this->m_Xsize, &this->m_Ysize);
-			int EvtImage = LoadSoftImage((CommonPath + "evt.bmp").c_str());
+			//チップデータ
 			int PalImage = LoadSoftImage((CommonPath + "chp.bmp").c_str());
 			GetSoftImageSize(PalImage, &ChipNum, nullptr);
+
 			GraphHandle::LoadDiv(CommonPath + "img.bmp", ChipNum, ChipNum, 1, 32, 32, &this->m_MapChip);// 床マップチップ
 			GraphHandle::LoadDiv(CommonPath + "wal.bmp", 5 * 2, 5, 2, 32, 32, &this->m_WallChip);// 壁マップチップ
 			// 
@@ -404,8 +466,7 @@ namespace FPS_n2 {
 				}
 			}
 			// 
-			this->m_PlayerSpawn.resize(1);// 0はイベントに
-			this->m_EventChip.clear();
+			EventDataBase::Instance()->LoadData(CommonPath + "evt.bmp");
 			// 
 			this->m_Blick.resize(static_cast<size_t>(this->m_Xsize * this->m_Ysize));
 			for (int x = 0; x < this->m_Xsize; x++) {
@@ -419,57 +480,9 @@ namespace FPS_n2 {
 							break;
 						}
 					}
-					GetPixelSoftImage(EvtImage, x, this->m_Ysize - 1 - y, &r, &g, &b, nullptr);
-					if (r == 255 && g == 0 && b == 0) {
-						PlayerPatrol tmp; tmp.m_index = GetXYToNum(x, y);
-						this->m_PlayerSpawn.emplace_back(tmp);
-					}
-					else if (r == 192 && g == 168) {// イベント マップ移動とか
-						EventChip tmp;
-						tmp.m_index = GetXYToNum(x, y);
-						tmp.m_EventID = b;// 青色部分にイベントIDを埋め込む
-						tmp.m_CutSceneID = InvalidID;
-						tmp.m_ActiveDelaySec = 0;
-						tmp.m_WinCutSceneID = InvalidID;
-						this->m_EventChip.emplace_back(tmp);
-					}
 				}
 			}
-			// 巡回ルート
-			for (auto& s : this->m_PlayerSpawn) {
-				if (static_cast<int>(&s - &this->m_PlayerSpawn.front()) == 0) { continue; }
-				s.m_Patrol.clear();
-				s.m_Patrol.emplace_back(s.m_index);
-				while (true) {
-					auto XY = GetNumToXY(s.m_Patrol.back());
-					bool isHitNext = false;
-					for (auto& d : Dir) {
-						int x = XY.first + d.first;
-						int y = XY.second + d.second;
-						if (HitPointToRectangle(x, y, 0, 0, this->m_Xsize - 1, this->m_Ysize - 1)) {
-							int Num = GetXYToNum(x, y);
-							GetPixelSoftImage(EvtImage, x, this->m_Ysize - 1 - y, &r, &g, &b, nullptr);
-							if (r == 255 && g == 192 && b == 192) {
-								bool isHit = false;
-								for (auto& p : s.m_Patrol) {
-									if (p == Num) {
-										isHit = true;
-										break;
-									}
-								}
-								if (!isHit) {
-									s.m_Patrol.emplace_back(Num);
-									isHitNext = true;
-									break;
-								}
-							}
-						}
-					}
-					if (!isHitNext) {
-						break;
-					}
-				}
-			}
+			// 
 			this->m_FloorBlick.reserve(this->m_Blick.size());
 			this->m_WallBlick.reserve(this->m_Blick.size());
 			this->m_CheckWallBlick.reserve(this->m_Blick.size());
@@ -505,7 +518,6 @@ namespace FPS_n2 {
 			}
 			// 
 			DeleteSoftImage(MapImage);
-			DeleteSoftImage(EvtImage);
 			DeleteSoftImage(PalImage);
 			// 
 			{
@@ -517,48 +529,12 @@ namespace FPS_n2 {
 					auto LEFT = FileStreamDX::getleft(ALL);
 					auto RIGHT = FileStreamDX::getright(ALL);
 					if (LEFT == "Name") {
+						//マップ名
 						this->m_GetMapTextID = std::stoi(RIGHT);
 					}
 					else {
-						int targetID = std::stoi(LEFT.substr(0, 3));
-						for (auto& e : this->m_EventChip) {
-							if (e.m_EventID == targetID) {
-								// イベントタイプ
-								if (LEFT.find("EvtType") != std::string::npos) {
-									for (int i = 0; i < static_cast<int>(EventType::Max); i++) {
-										if (RIGHT.find(g_EventStr[i]) != std::string::npos) {
-											e.m_EventType = (EventType)i;
-											break;
-										}
-									}
-								}
-								else if (LEFT.find("EntryCutScene") != std::string::npos) {
-									e.m_CutSceneID = std::stoi(RIGHT);
-								}
-								// 遷移用設定
-								else if (LEFT.find("NextStage") != std::string::npos) {
-									if (RIGHT == "None") {
-										e.m_EntryID = InvalidID;
-									}
-									else {
-										e.m_EntryID = std::stoi(RIGHT.substr(0, 3));
-										e.m_MapName = RIGHT.substr(4);
-									}
-								}
-								// カットシーン用設定
-								else if (LEFT.find("CutSelect") != std::string::npos) {
-									e.m_CutSceneID = std::stoi(RIGHT);
-								}
-								else if (LEFT.find("ActiveDelaySec") != std::string::npos) {
-									e.m_ActiveDelaySec = std::stoi(RIGHT);
-								}
-								// 
-								else if (LEFT.find("WinCut") != std::string::npos) {
-									e.m_WinCutSceneID = std::stoi(RIGHT);
-								}
-								break;
-							}
-						}
+						//それ以外の記述はイベント関連とする
+						EventDataBase::Instance()->LoadEventScript(LEFT, RIGHT);
 					}
 				}
 			}
@@ -574,7 +550,7 @@ namespace FPS_n2 {
 		void BackGroundClassBase::SetupShadow(std::function<void()> AddAmbShadow) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			auto* OptionParts = OPTION::Instance();
-			if (OptionParts->GetParamBoolean(EnumSaveParam::shadow)) {
+			if (OptionParts->GetParamBoolean(EnumSaveParam::Shadow)) {
 				this->m_AmbientShadowHandle.SetDraw_Screen(false);
 				{
 					DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
@@ -593,7 +569,7 @@ namespace FPS_n2 {
 					B->DrawPointShadow(this->m_PointLightPos, this->m_MapChip.at(0));
 				}
 			}
-			if (OptionParts->GetParamBoolean(EnumSaveParam::shadow)) {
+			if (OptionParts->GetParamBoolean(EnumSaveParam::Shadow)) {
 				GraphFilter(this->m_PointShadowHandle.get(), DX_GRAPH_FILTER_GAUSS, 8, 200);
 			}
 		}
@@ -616,7 +592,7 @@ namespace FPS_n2 {
 			// 影
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 64);
 			auto* OptionParts = OPTION::Instance();
-			if (OptionParts->GetParamBoolean(EnumSaveParam::shadow)) {
+			if (OptionParts->GetParamBoolean(EnumSaveParam::Shadow)) {
 				this->m_AmbientShadowHandle.DrawExtendGraph(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), false);
 			}
 			else {
@@ -690,6 +666,6 @@ namespace FPS_n2 {
 			}
 			this->m_WallChip.clear();
 		}
-	};
-};
+	}
+}
 

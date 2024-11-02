@@ -101,8 +101,8 @@ namespace FPS_n2 {
 						return true;
 					}
 					static void		SetByPatrol(const std::vector<PathplanningUnit>& UnitArray, int StartPoint, PlayerID MyID) noexcept {
-						auto* BackGround = BackGroundClassBase::Instance();
-						auto& PatList = BackGround->GetPlayerSpawn().at(static_cast<size_t>(MyID)).m_Patrol;
+						auto* EventParts = EventDataBase::Instance();
+						auto& PatList = EventParts->GetPlayerSpawn().at(static_cast<size_t>(MyID)).m_Patrol;
 						PathplanningUnit* Now = (PathplanningUnit*)&UnitArray.at(static_cast<size_t>(PatList.at(static_cast<size_t>(StartPoint))));
 						int ListNum = static_cast<int>(PatList.size());
 						for (int i = 0; i < ListNum; i++) {
@@ -188,13 +188,13 @@ namespace FPS_n2 {
 					return true;
 				}
 				void		UpdateByPatrol(int StartPoint, PlayerID MyID) noexcept {
-					auto* BackGround = BackGroundClassBase::Instance();
+					auto* EventParts = EventDataBase::Instance();
 					// Œo˜H’Tõ—p‚Ì’n“_î•ñ‚ðŠi”[‚·‚éƒƒ‚ƒŠ—Ìˆæ‚ðŠm•ÛA‰Šú‰»
 					for (auto& p : this->m_UnitArray) {
 						p.Reset(static_cast<int>(&p - &this->m_UnitArray.front()));
 					}
 					// ƒXƒ^[ƒg’n“_‚ðŒˆ’è
-					this->m_pStartUnit = (PathplanningUnit*)&this->m_UnitArray.at(static_cast<size_t>(BackGround->GetPlayerSpawn().at(static_cast<size_t>(MyID)).m_Patrol.at(static_cast<size_t>(StartPoint))));
+					this->m_pStartUnit = (PathplanningUnit*)&this->m_UnitArray.at(static_cast<size_t>(EventParts->GetPlayerSpawn().at(static_cast<size_t>(MyID)).m_Patrol.at(static_cast<size_t>(StartPoint))));
 					this->m_pGoalUnit = nullptr;
 					// Œo˜H‚ð’Tõ
 					PathplanningUnit::SetByPatrol(this->m_UnitArray, StartPoint, MyID);
@@ -286,8 +286,8 @@ namespace FPS_n2 {
 				if (!this->m_TargetChara) { return false; }
 				if (this->m_MyChara->CanLookPlayer0()) {
 					if (this->m_TargetDistance < 15.f) {
-						Vector2DX Vec; Vec.Set(std::sin(this->m_MyChara->GetViewRad()), std::cos(this->m_MyChara->GetViewRad()));
-						Vector2DX vec_a; vec_a = (this->m_MyChara->GetPosition() - this->m_TargetChara->GetPosition()).normalized();
+						Vector2DX Vec = GetVecByRad(this->m_MyChara->GetViewRad());
+						Vector2DX vec_a; vec_a = (this->m_TargetChara->GetPosition() - this->m_MyChara->GetPosition()).normalized();
 						if (-Vector2DX::Dot(vec_a, Vec) > std::cos(deg2rad(45))) {
 							return true;
 						}
@@ -298,8 +298,9 @@ namespace FPS_n2 {
 			// 
 			void		PatrolPoint(void) noexcept {
 				auto* BackGround = BackGroundClassBase::Instance();
+				auto* EventParts = EventDataBase::Instance();
 				int StartIndex = BackGround->GetNearestFloors(this->m_MyChara->GetPosition());
-				auto& PatList = BackGround->GetPlayerSpawn().at(static_cast<size_t>(this->m_MyChara->GetPlayerID())).m_Patrol;
+				auto& PatList = EventParts->GetPlayerSpawn().at(static_cast<size_t>(this->m_MyChara->GetPlayerID())).m_Patrol;
 				float Length = 1000000.f;
 				int NearestID = InvalidID;
 				for (auto& p : PatList) {

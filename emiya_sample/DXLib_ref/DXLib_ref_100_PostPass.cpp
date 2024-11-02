@@ -33,7 +33,7 @@ namespace DXLibRef {
 		}
 		bool IsActive_Sub(void) noexcept override {
 			auto* OptionParts = OPTION::Instance();
-			return OptionParts->GetParamBoolean(EnumSaveParam::bloom);
+			return OptionParts->GetParamBoolean(EnumSaveParam::Bloom);
 		}
 		void SetEffect_Sub(GraphHandle* TargetGraph, GraphHandle*) noexcept override {
 			auto* DrawParts = DXDraw::Instance();

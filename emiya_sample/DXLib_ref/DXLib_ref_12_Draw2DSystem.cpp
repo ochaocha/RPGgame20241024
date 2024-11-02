@@ -26,10 +26,10 @@ namespace DXLibRef {
 
 			switch (this->m_Type) {
 			case FontType::MS_Gothic:
-				Str = "CommonData/Font/MSG_";
+				Str = "data/Font/MSG_";
 				break;
 			case FontType::DIZ_UD_Gothic:
-				Str = "CommonData/Font/BIZUDG_";
+				Str = "data/Font/BIZUDG_";
 				break;
 			default:
 				break;
@@ -409,10 +409,10 @@ namespace DXLibRef {
 		// --------------------------------------------------------------------------------------------------
 		KeyGuide::KeyGuide(void) noexcept {
 			SetGuideUpdate();
-			m_GuideBaseImage.Load("CommonData/key/OutputFont.png");
+			m_GuideBaseImage.Load("data/key/OutputFont.png");
 			{
 				int count = 0;
-				FileStreamDX FileStream("CommonData/key/OutputFont.psf");
+				FileStreamDX FileStream("data/key/OutputFont.psf");
 				while (true) {
 					if (FileStream.ComeEof()) { break; }
 					auto ALL = FileStream.SeekLineAndGetStr();

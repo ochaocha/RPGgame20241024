@@ -33,10 +33,10 @@ namespace DXLibRef {
 		SoundPool::Create();
 		// UI用の共通SEを読み込み
 		auto* SoundParts = SoundPool::Instance();
-		SoundParts->Add(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select), 2, "CommonData/Sound/UI/cursor.wav");
-		SoundParts->Add(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_CANCEL), 1, "CommonData/Sound/UI/cancel.wav");
-		SoundParts->Add(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_OK), 1, "CommonData/Sound/UI/ok.wav");
-		SoundParts->Add(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_NG), 1, "CommonData/Sound/UI/ng.wav");
+		SoundParts->Add(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select), 2, "data/Sound/UI/cursor.wav");
+		SoundParts->Add(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_CANCEL), 1, "data/Sound/UI/cancel.wav");
+		SoundParts->Add(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_OK), 1, "data/Sound/UI/ok.wav");
+		SoundParts->Add(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_NG), 1, "data/Sound/UI/ng.wav");
 
 
 		// キー、パッド制御クラスの生成

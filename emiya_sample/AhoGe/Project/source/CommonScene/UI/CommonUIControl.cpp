@@ -86,53 +86,24 @@ namespace FPS_n2 {
 			ButtonSel.clear();
 		}
 		// 
-		void CreditControl::Init(void) noexcept {
-			this->m_CreditCoulm = 0;
-			FileStreamDX FileStream("data/Credit.txt");
-			while (true) {
-				if (FileStream.ComeEof()) { break; }
-				auto ALL = FileStream.SeekLineAndGetStr();
-				if (ALL.find('=') != std::string::npos) {
-					auto LEFT = FileStreamDX::getleft(ALL);
-					auto RIGHT = FileStreamDX::getright(ALL);
-					sprintfDx(this->m_CreditStr.at(static_cast<size_t>(this->m_CreditCoulm)).first, LEFT.c_str());
-					sprintfDx(this->m_CreditStr.at(static_cast<size_t>(this->m_CreditCoulm)).second, RIGHT.c_str());
-				}
-				else {
-					sprintfDx(this->m_CreditStr.at(static_cast<size_t>(this->m_CreditCoulm)).first, ALL.c_str());
-					sprintfDx(this->m_CreditStr.at(static_cast<size_t>(this->m_CreditCoulm)).second, "");
-				}
-				this->m_CreditCoulm++;
-			}
+		void FadeControl::SetFadeIn(void) noexcept {
+			this->m_IsBlackOut = false;
+			this->m_BlackOutAlpha = 1.f;
 		}
-		void CreditControl::Draw(int xmin, int ymin, int xmax) const noexcept {
+		void FadeControl::SetFadeOut(void) noexcept {
+			this->m_IsBlackOut = true;
+			this->m_BlackOutAlpha = 0.f;
+		}
+		void FadeControl::UpdateFade(void) noexcept {
 			auto* DrawParts = DXDraw::Instance();
-			auto* Fonts = UISystem::FontPool::Instance();
-
-			int xp1, yp1;
-
-			xp1 = xmin + DrawParts->GetUIY(24);
-			yp1 = ymin + LineHeight;
-			int Height = DrawParts->GetUIY(12);
-			for (auto& c : this->m_CreditStr) {
-				if (this->m_CreditCoulm < static_cast<int>(&c - &this->m_CreditStr.front())) { break; }
-				int xpos = xp1 + DrawParts->GetUIY(6);
-				int ypos = yp1 + Height / 2;
-				Fonts->Get(UISystem::FontPool::FontType::DIZ_UD_Gothic, Height, 3)->DrawString(InvalidID, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::MIDDLE,
-					xpos, ypos, White, Black, c.first);
-
-				xpos = xmax - DrawParts->GetUIY(24);
-				Fonts->Get(UISystem::FontPool::FontType::DIZ_UD_Gothic, Height, 3)->DrawString(InvalidID, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::MIDDLE,
-					xpos, ypos, White, Black, c.second);
-				yp1 += Height;
-			}
+			this->m_BlackOutAlpha = std::clamp(this->m_BlackOutAlpha + (this->m_IsBlackOut ? 1.f : -1.f) * DrawParts->GetDeltaTime() / 0.5f, 0.f, 1.f);
 		}
-		void CreditControl::Dispose(void) noexcept {
-			this->m_CreditCoulm = 0;
-			for (auto& c : this->m_CreditStr) {
-				sprintfDx(c.first, "");
-				sprintfDx(c.second, "");
-			}
+		void FadeControl::DrawFade(void) const noexcept {
+			auto* DrawCtrls = UISystem::DrawControl::Instance();
+			auto* DrawParts = DXDraw::Instance();
+			DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_BlackOutAlpha), 0, 255));
+			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Black, TRUE);
+			DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 		}
 	};
 };

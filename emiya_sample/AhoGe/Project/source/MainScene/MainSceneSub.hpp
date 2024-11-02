@@ -6,18 +6,19 @@
 
 namespace FPS_n2 {
 	namespace Sceneclass {
+		//
 		class PauseMenuControl {
 			bool			m_IsRetire{ false };
-		protected:
+		public:
 			const auto& IsRetire(void) const noexcept { return this->m_IsRetire; }
-		protected:
+		public:
 			void			LoadPause(void) noexcept;
 			void			SetPause(void) noexcept;
 			void			UpdatePause(void) noexcept;
 			void			DrawPause(void) const noexcept;
 			void			DisposePause(void) noexcept;
 		};
-
+		//
 		class InGameUIControl {
 			GraphHandle					m_ViewHandle;
 			GraphHandle					m_Watch;
@@ -34,7 +35,7 @@ namespace FPS_n2 {
 		private:
 			void			DrawCharaUI_Back(PlayerID value) noexcept;
 			void			DrawCharaUI_Front(PlayerID value) const noexcept;
-		protected:
+		public:
 			void			SetMap(int value, const Vector2DX& GoalPos) noexcept {
 				this->m_MapTextID = value;
 				this->m_GoalPos = GoalPos;
@@ -46,7 +47,7 @@ namespace FPS_n2 {
 			InGameUIControl(InGameUIControl&& o) = delete;
 			InGameUIControl& operator=(const InGameUIControl&) = delete;
 			InGameUIControl& operator=(InGameUIControl&& o) = delete;
-		protected:
+		public:
 			void			LoadUI(void) noexcept;
 			void			SetUI(void) noexcept;
 			void			UpdateUI(void) noexcept;
@@ -56,7 +57,7 @@ namespace FPS_n2 {
 			void			DrawUI_Front(void) const noexcept;
 			void			DrawUI_MapName(void) const noexcept;
 		};
-
+		//
 		enum class CutSceneType {
 			MsgBox,
 			ViewPoint,
@@ -72,7 +73,6 @@ namespace FPS_n2 {
 			"CG",
 			"End",
 		};
-
 		class CutSceneControl {
 			struct CutSceneData {
 				CutSceneType m_Type{};
@@ -101,30 +101,16 @@ namespace FPS_n2 {
 			int							m_CGSel{ InvalidID };
 			float						m_CGFade{ 0.f };
 			GraphHandle					m_CGGraph;
-		protected:
+		public:
 			const auto& IsCutScene(void) const noexcept { return this->m_IsCutScene; }
 			const auto& GetAddViewPointX(void) const noexcept { return this->m_PointX; }
 			const auto& GetAddViewPointY(void) const noexcept { return this->m_PointY; }
-		protected:
+		public:
 			void			StartCutScene(int ID) noexcept;
-		protected:
+		public:
 			void			SetCut(void) noexcept;
 			void			UpdateCut(void) noexcept;
 			void			DrawCut(void) const noexcept;
-		};
-
-		class FadeControl {
-			bool						m_IsBlackOut{ false };// カットシーン中フラグ
-			float						m_BlackOutAlpha{ 0.f };
-		protected:
-			auto		IsFadeClear(void) const noexcept { return this->m_BlackOutAlpha == 0.f; }
-			auto		IsFadeAll(void) const noexcept { return this->m_BlackOutAlpha >= 1.f; }
-		protected:
-			void			SetBlackOut(bool value) noexcept { this->m_IsBlackOut = value; }
-		protected:
-			void			SetFade(void) noexcept;
-			void			UpdateFade(void) noexcept;
-			void			DrawFade(void) const noexcept;
 		};
 	};
 };

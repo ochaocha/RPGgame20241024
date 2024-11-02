@@ -96,7 +96,7 @@ namespace FPS_n2 {
 					-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
 					return;
 				}
-				double Deg = (double)p->GetChara()->GetViewRad() / (DX_PI * 2.0) * 100.0;
+				double Deg = (double)-p->GetChara()->GetViewRad() / (DX_PI * 2.0) * 100.0 + 100.0;//ゲージが-100~100の範囲なので+100
 				double Watch;
 				if (value == 0) {
 					SetDrawBright(0, 0, 216);
@@ -233,13 +233,16 @@ namespace FPS_n2 {
 			}
 		}
 		void InGameUIControl::DrawUI_Back(void) const noexcept {
+			auto* DrawCtrls = UISystem::DrawControl::Instance();
 			SetDrawBlendMode(DX_BLENDMODE_MULA, 92);
 			this->m_ViewHandle.DrawGraph(0, 0, false);
-			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+			DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 		}
 		void InGameUIControl::DrawUI_Front(void) const noexcept {
 			auto* DrawParts = DXDraw::Instance();
+			auto* DrawCtrls = UISystem::DrawControl::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
+			auto* EventParts = EventDataBase::Instance();
 			auto* PlayerMngr = PlayerManager::Instance();
 			for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
 				auto& p = PlayerMngr->GetPlayer((PlayerID)i);
@@ -268,16 +271,16 @@ namespace FPS_n2 {
 					float Len = (this->m_GoalPos - p->GetChara()->GetPosition()).magnitude() / 1.f;
 					float Rad = GetRadVec(this->m_GoalPos - p->GetChara()->GetPosition());
 					if (Len > 1.f / 255.f) {
-						SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * Len), 0, 255));
+						DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * Len), 0, 255));
 						SetDrawBright(0, 0, 0);
 						this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2) + ShadowOfset, DrawParts->GetScreenY(1080 / 2) + ShadowOfset, static_cast<float>(DrawParts->GetScreenY(1024)) / 400.f, Rad, true);
 						SetDrawBright(255, 255, 255);
 						this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2), DrawParts->GetScreenY(1080 / 2), static_cast<float>(DrawParts->GetScreenY(1024)) / 400.f, Rad, true);
-						SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+						DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 					}
 				}
 			}
-			for (auto& e : BackGround->GetEventChip()) {
+			for (auto& e : EventParts->GetEventChip()) {
 				// 次マップへの遷移
 				if (e.m_EventType == EventType::CutScene) {
 					if (static_cast<int>(m_StartTime) < e.m_ActiveDelaySec) {
@@ -299,12 +302,12 @@ namespace FPS_n2 {
 								float Len = (Pos - p->GetChara()->GetPosition()).magnitude() / 1.f;
 								float Rad = GetRadVec(Pos - p->GetChara()->GetPosition());
 								if (Len > 1.f / 255.f) {
-									SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * std::clamp(Len, 0.f, 1.f)), 0, 255));
+									DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(128.f * std::clamp(Len, 0.f, 1.f)), 0, 255));
 									SetDrawBright(0, 0, 0);
 									this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2) + ShadowOfset, DrawParts->GetScreenY(1080 / 2) + ShadowOfset, static_cast<float>(DrawParts->GetScreenY(768)) / 400.f, Rad, true);
 									SetDrawBright(255, 255, 255);
 									this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2), DrawParts->GetScreenY(1080 / 2), static_cast<float>(DrawParts->GetScreenY(768)) / 400.f, Rad, true);
-									SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+									DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 								}
 							}
 						}
@@ -324,13 +327,13 @@ namespace FPS_n2 {
 		}
 		void InGameUIControl::DrawUI_MapName(void) const noexcept {
 			auto* DrawParts = DXDraw::Instance();
+			auto* DrawCtrls = UISystem::DrawControl::Instance();
 			if (this->m_MapDrawPer > 1.f / 255.f) {
-				auto* Fonts = UISystem::FontPool::Instance();
 				auto* LocalizeParts = LocalizePool::Instance();
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_MapDrawPer), 0, 255));
-				Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(64), 0)->DrawString(InvalidID, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_MapDrawPer), 0, 255));
+				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(64), UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
 					DrawParts->GetUIY(64), DrawParts->GetUIY(128), White, Black, LocalizeParts->Get(this->m_MapTextID));
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 		}
 		// カットシーン制御
@@ -488,7 +491,6 @@ namespace FPS_n2 {
 						MsgID = Data.m_MsgID;
 					}
 					if (MsgID != 0) {
-						auto* Fonts = UISystem::FontPool::Instance();
 						auto* LocalizeParts = LocalizePool::Instance();
 
 						int NowC = static_cast<int>(this->m_MsgBoxSeek);
@@ -512,7 +514,7 @@ namespace FPS_n2 {
 										break;
 									}
 									strncpy2_sDx(Tmp.data(), 512, NowMsg.c_str(), column); Tmp = Tmp.c_str();
-									if (Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(32), 0)->GetStringWidth(InvalidID, Tmp) < Limit) {
+									if (UISystem::GetMsgLen(DrawParts->GetUIY(32), Tmp) < Limit) {
 										column++;
 									}
 									else {
@@ -548,18 +550,19 @@ namespace FPS_n2 {
 		}
 		void CutSceneControl::DrawCut(void) const noexcept {
 			auto* DrawParts = DXDraw::Instance();
+			auto* DrawCtrls = UISystem::DrawControl::Instance();
 
 			if (this->m_CGFade > 1.f / 255.f) {
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * this->m_CGFade), 0, 255));
-				DrawBox(0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Black, TRUE);
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(128.f * this->m_CGFade), 0, 255));
+				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Black, TRUE);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 			if (this->m_CutSceneAlpha > 1.f / 255.f) {
 				auto Color = GetColor(16, 16, 16);
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_CutSceneAlpha), 0, 255));
-				DrawBox(0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(120), Color, TRUE);
-				DrawBox(0, DrawParts->GetUIY(1080 - 120), DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Color, TRUE);
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_CutSceneAlpha), 0, 255));
+				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(120), Color, TRUE);
+				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, DrawParts->GetUIY(1080 - 120), DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Color, TRUE);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 			if (this->m_MsgBoxAlpha > 1.f / 255.f) {
 				float Per = Lerp(0.5f, 1.f, this->m_MsgBoxAlpha);
@@ -568,8 +571,8 @@ namespace FPS_n2 {
 				int x2 = DrawParts->GetUIY(1920 - 48);
 				int y2 = DrawParts->GetUIY(1080 - 64 - static_cast<int>((320 - 64) * (1.f - Per)));
 
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_MsgBoxAlpha), 0, 255));
-				DrawBox(x1, y1, x2, y2, Gray50, TRUE);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_MsgBoxAlpha), 0, 255));
+				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, x1, y1, x2, y2, Gray50, TRUE);
 				if (this->m_MsgBoxAlpha >= 1.f) {
 					int NameID = 0;
 					int MsgID = 0;
@@ -579,19 +582,18 @@ namespace FPS_n2 {
 						MsgID = Data.m_MsgID;
 					}
 					if (MsgID != 0) {
-						auto* Fonts = UISystem::FontPool::Instance();
 						auto* LocalizeParts = LocalizePool::Instance();
-						Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(18), 0)->DrawString(InvalidID, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+						DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(18), UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
 							x1 + DrawParts->GetUIY(32), y1 + DrawParts->GetUIY(32), White, Black, LocalizeParts->Get(NameID));
 						for (auto& m : this->m_MsgString) {
 							if (m == "") { continue; }
 							int i = static_cast<int>(&m - &this->m_MsgString.front());
-							Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(32), 0)->DrawString(InvalidID, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+							DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(32), UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
 								x1 + DrawParts->GetUIY(64), y1 + DrawParts->GetUIY(64) + DrawParts->GetUIY(32 * i), White, Black, m);
 						}
 					}
 				}
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 
 			if (this->m_CGFade > 1.f / 255.f) {
@@ -599,26 +601,11 @@ namespace FPS_n2 {
 				int y1 = DrawParts->GetUIY(400 - 540 / 2);
 				int x2 = DrawParts->GetUIY(960 + 960 / 2);
 				int y2 = DrawParts->GetUIY(400 + 540 / 2);
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_CGFade), 0, 255));
-				DrawBox(x1, y1, x2, y2, Gray50, TRUE);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_CGFade), 0, 255));
+				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, x1, y1, x2, y2, Gray50, TRUE);
 				m_CGGraph.DrawExtendGraph(x1, y1, x2, y2, false);
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
-		}
-		// 
-		void FadeControl::SetFade(void) noexcept {
-			this->m_IsBlackOut = false;
-			this->m_BlackOutAlpha = 1.f;
-		}
-		void FadeControl::UpdateFade(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			this->m_BlackOutAlpha = std::clamp(this->m_BlackOutAlpha + (this->m_IsBlackOut ? 1.f : -1.f) * DrawParts->GetDeltaTime() / 0.5f, 0.f, 1.f);
-		}
-		void FadeControl::DrawFade(void) const noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_BlackOutAlpha), 0, 255));
-			DrawBox(0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Black, TRUE);
-			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}
 	};
 };

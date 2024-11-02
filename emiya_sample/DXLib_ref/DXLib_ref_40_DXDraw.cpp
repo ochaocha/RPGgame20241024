@@ -33,7 +33,7 @@ namespace DXLibRef {
 			SetGraphMode(DispXSize * DPI / 96, DispYSize * DPI / 96, 32);		// 解像度
 		}
 		SetWindowSizeChangeEnableFlag(FALSE, FALSE);				// ウインドウサイズを手動不可、ウインドウサイズに合わせて拡大もしないようにする
-		SetWaitVSyncFlag((DXVer == DX_DIRECT3D_11) && OptionParts->GetParamBoolean(EnumSaveParam::vsync));		// 垂直同期
+		SetWaitVSyncFlag((DXVer == DX_DIRECT3D_11) && OptionParts->GetParamBoolean(EnumSaveParam::VSync));		// 垂直同期
 		SetZBufferBitDepth(32);										// デフォのZバッファ精度を32bitに
 		DxLib_Init();												// 初期化
 		SetChangeScreenModeGraphicsSystemResetFlag(FALSE);			// 画面モード変更時( とウインドウモード変更時 )にリセットを走らせない
@@ -116,7 +116,7 @@ namespace DXLibRef {
 	bool			DXDraw::Screen_Flip(void) const noexcept {
 		auto* OptionParts = OPTION::Instance();
 		ScreenFlip();
-		if (!OptionParts->GetParamBoolean(EnumSaveParam::vsync)) {
+		if (!OptionParts->GetParamBoolean(EnumSaveParam::VSync)) {
 			// 4msだけスリープ
 			while ((GetNowHiPerformanceCount() - m_StartTime) < static_cast<LONGLONG>(1000 * (1000 / OptionParts->GetParamInt(EnumSaveParam::FpsLimit) - 4))) {
 				if (ProcessMessage() != 0) {

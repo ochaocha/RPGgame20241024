@@ -22,7 +22,7 @@ namespace FPS_n2 {
 
 			float						m_Alpha{ 1.f };
 
-			float						m_Rad{ 0.f };
+			float						m_Radian{ 0.f };
 			float						m_DodgeCoolTime{ 0.f };
 
 			float						m_ShotCoolTime{ 0.f };
@@ -54,7 +54,7 @@ namespace FPS_n2 {
 			void		DrawHPBer() noexcept;
 		public:
 			auto CanLookPlayer0(void) const noexcept { return this->m_Alpha > 0.5f; }
-			const auto& GetViewRad(void) const noexcept { return this->m_Rad; }
+			const auto& GetViewRad(void) const noexcept { return this->m_Radian; }
 			const auto& GetSpeed(void) const noexcept { return this->m_Speed; }
 			const auto& GetPlayerID(void) const noexcept { return this->m_PlayerID; }
 			const auto& GetHitPoint(void) const noexcept { return this->m_HitPoint; }
