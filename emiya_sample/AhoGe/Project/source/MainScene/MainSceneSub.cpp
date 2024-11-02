@@ -2,10 +2,10 @@
 
 #include	"Player/Player.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		void PauseMenuControl::Load(void) noexcept {
-			auto* ButtonParts = ButtonControl::Instance();
+			auto* ButtonParts = UI::ButtonControl::Instance();
 			ButtonParts->ResetSel();
 			ButtonParts->AddStringButton("Retire", 48, true, 1920 - 64, 1080 - 84 - 64 * 2, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
 			ButtonParts->AddStringButton("Option", 48, true, 1920 - 64, 1080 - 84 - 64 * 1, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
@@ -17,7 +17,7 @@ namespace FPS_n2 {
 		void PauseMenuControl::Update(void) noexcept {
 			auto* SoundParts = SoundPool::Instance();
 			auto* Pad = PadControl::Instance();
-			auto* ButtonParts = ButtonControl::Instance();
+			auto* ButtonParts = UI::ButtonControl::Instance();
 			auto* SceneParts = SceneControl::Instance();
 
 			if (SceneParts->IsPause()) {
@@ -57,7 +57,7 @@ namespace FPS_n2 {
 			}
 		}
 		void PauseMenuControl::Draw(void) const noexcept {
-			auto* ButtonParts = ButtonControl::Instance();
+			auto* ButtonParts = UI::ButtonControl::Instance();
 			auto* SceneParts = SceneControl::Instance();
 			// ƒ|[ƒY
 			if (SceneParts->IsPause() && (!SceneParts->IsExit() && !SceneParts->IsRestart())) {
@@ -65,7 +65,7 @@ namespace FPS_n2 {
 			}
 		}
 		void PauseMenuControl::DisposeLoad(void) noexcept {
-			auto* ButtonParts = ButtonControl::Instance();
+			auto* ButtonParts = UI::ButtonControl::Instance();
 			ButtonParts->Dispose();
 		}
 
@@ -77,7 +77,7 @@ namespace FPS_n2 {
 		void MapNameDrawControl::Update(void) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 
-			this->m_MapDrawTime = std::max(this->m_MapDrawTime - DrawParts->GetDeltaTime(), 0.f);
+			this->m_MapDrawTime = GetMax(this->m_MapDrawTime - DrawParts->GetDeltaTime(), 0.f);
 			float Per = 1.f;
 			float StartTimer = 0.5f;
 			if (this->m_MapDrawTime > 5.f - StartTimer) {
@@ -93,7 +93,7 @@ namespace FPS_n2 {
 			auto* DrawParts = DXDraw::Instance();
 			auto* DrawCtrls = UISystem::DrawControl::Instance();
 			if (this->m_MapDrawPer > 1.f / 255.f) {
-				auto* LocalizeParts = LocalizePool::Instance();
+				auto* LocalizeParts = StoryTextDataBase::Instance();
 				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_MapDrawPer), 0, 255));
 				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(64), UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
 					DrawParts->GetUIY(64), DrawParts->GetUIY(128), White, Black, LocalizeParts->Get(this->m_MapTextID));
@@ -244,13 +244,13 @@ namespace FPS_n2 {
 						MsgID = Data.m_MsgID;
 					}
 					if (MsgID != 0) {
-						auto* LocalizeParts = LocalizePool::Instance();
+						auto* LocalizeParts = StoryTextDataBase::Instance();
 
 						int NowC = static_cast<int>(this->m_MsgBoxSeek);
 						if (this->m_PrevMsgBoxSeek != NowC) {
 							this->m_PrevMsgBoxSeek = NowC;
 							std::string NowMsg; NowMsg.reserve(512);
-							strncpy2_sDx(NowMsg.data(), 512, LocalizeParts->Get(MsgID), std::min(512, NowC));
+							strncpy2_sDx(NowMsg.data(), 512, LocalizeParts->Get(MsgID), GetMin(512, NowC));
 							NowMsg = NowMsg.c_str();
 							for (auto& m : this->m_MsgString) {
 								m = "";
@@ -335,7 +335,7 @@ namespace FPS_n2 {
 						MsgID = Data.m_MsgID;
 					}
 					if (MsgID != 0) {
-						auto* LocalizeParts = LocalizePool::Instance();
+						auto* LocalizeParts = StoryTextDataBase::Instance();
 						DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(18), UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
 							x1 + DrawParts->GetUIY(32), y1 + DrawParts->GetUIY(32), White, Black, LocalizeParts->Get(NameID));
 						for (auto& m : this->m_MsgString) {
@@ -360,5 +360,5 @@ namespace FPS_n2 {
 				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 		}
-};
-};
+	}
+}

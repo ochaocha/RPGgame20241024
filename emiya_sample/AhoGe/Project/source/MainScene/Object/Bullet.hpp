@@ -2,7 +2,7 @@
 #include	"../../Header.hpp"
 #include	"../../sub.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		class BulletObject : public Object2DManager::Base2DObject {
 		private:
@@ -28,5 +28,5 @@ namespace FPS_n2 {
 			void Draw_Sub(void) noexcept override;
 			void Dispose_Sub(void) noexcept override;
 		};
-	};
-};
+	}
+}

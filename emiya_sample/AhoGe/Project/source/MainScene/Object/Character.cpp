@@ -1,18 +1,18 @@
 #include	"Character.hpp"
+
+#include	"Bullet.hpp"
 #include	"../BackGround/BackGround.hpp"
 #include	"../Player/Player.hpp"
 
-#include	"Bullet.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		CharacterObject::CharacterObject(void) noexcept {
 			this->m_InputVec.Set(0.f, 0.f);
 			SetObjType(static_cast<int>(Object2DType::Human));
 			SetSize(1.f);
 		}
-		CharacterObject::~CharacterObject(void) noexcept {}
-		void CharacterObject::UpdateInputVector(const InputControl& MyInput) noexcept {
+		void		CharacterObject::UpdateInputVector(const InputControl& MyInput) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			// 移動入力を取得
 			const bool WKey = MyInput.GetPADSPress(PADS::MOVE_W) && !MyInput.GetPADSPress(PADS::MOVE_S);
@@ -32,7 +32,7 @@ namespace FPS_n2 {
 			else if (SKey) { this->m_InputVec.y = std::clamp(this->m_InputVec.y - 4.f * DrawParts->GetDeltaTime(), -SpeedLimit, SpeedLimit); }
 			else { Easing(&this->m_InputVec.y, 0.f, 0.95f, EasingType::OutExpo); }
 			// 速度は入力方向のうち大きいほうを使用
-			this->m_Speed = std::max(std::abs(this->m_InputVec.x), std::abs(this->m_InputVec.y));
+			this->m_Speed = GetMax(std::abs(this->m_InputVec.x), std::abs(this->m_InputVec.y));
 			// ローリング(移動押下中にスペース)
 			if (this->m_DodgeCoolTime == 0.f) {
 				if ((DKey || AKey || WKey || SKey) && MyInput.GetPADSPress(PADS::JUMP)) {
@@ -40,7 +40,7 @@ namespace FPS_n2 {
 				}
 			}
 			else {
-				this->m_DodgeCoolTime = std::max(this->m_DodgeCoolTime - DrawParts->GetDeltaTime(), 0.f);
+				this->m_DodgeCoolTime = GetMax(this->m_DodgeCoolTime - DrawParts->GetDeltaTime(), 0.f);
 				if (this->m_DodgeCoolTime > 0.75f) {
 					this->m_Speed = 2.f;
 				}
@@ -48,7 +48,7 @@ namespace FPS_n2 {
 					this->m_Speed = 0.375f;
 				}
 			}
-			//上記の結果をまとめ、Vectorに渡す
+			// 上記の結果をまとめ、Vectorに渡す
 			SetVec(this->m_InputVec.normalized() * this->m_Speed * 5.f);
 		}
 		// 
@@ -108,18 +108,17 @@ namespace FPS_n2 {
 				}
 			}
 			else {
-				this->m_ShotCoolTime = std::max(this->m_ShotCoolTime - DrawParts->GetDeltaTime(), 0.f);
+				this->m_ShotCoolTime = GetMax(this->m_ShotCoolTime - DrawParts->GetDeltaTime(), 0.f);
 			}
 		}
-		void CharacterObject::Update_OnHitObject(void) noexcept {
+		void		CharacterObject::Update_OnHitObject(void) noexcept {
 			auto* Obj2DParts = Object2DManager::Instance();
 			const auto& Obj = Obj2DParts->GetObj(GetHitUniqueID());
 			if (Obj) {
-				std::shared_ptr<Base2DObject>& o = (std::shared_ptr<Base2DObject>&)(Obj);
 				// 弾以外が当たった時は以下は通さない
-				if (o->GetObjType() != static_cast<int>(Object2DType::Rocket) && o->GetObjType() != static_cast<int>(Object2DType::Bullet)) { return; }
+				if (Obj->GetObjType() != static_cast<int>(Object2DType::Rocket) && Obj->GetObjType() != static_cast<int>(Object2DType::Bullet)) { return; }
 
-				Effect2DControl::Instance()->SetEffect(o->GetPosition(), EffectType::Damage, 0.25f);
+				Effect2DControl::Instance()->SetEffect(Obj->GetPosition(), EffectType::Damage, 0.25f);
 				this->m_HitPoint--;
 				if (this->m_HitPoint == 0) {
 					SetDelete();
@@ -129,12 +128,12 @@ namespace FPS_n2 {
 			}
 		}
 		// 
-		void CharacterObject::Init_Sub(void) noexcept {
+		void		CharacterObject::Init_Sub(void) noexcept {
 			SetIsHitOtherObject(true);
 			this->m_RunFootPer = 0.f;
 			this->m_HitPoint = m_MaxHitPoint;
 		}
-		void CharacterObject::Update_Sub(void) noexcept {
+		void		CharacterObject::Update_Sub(void) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			auto* PlayerMngr = PlayerManager::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
@@ -158,7 +157,7 @@ namespace FPS_n2 {
 			}
 			// サウンド
 			{
-				//速度*4回/秒足音を鳴らすものとしてカウンターを増減速します
+				// 速度*4回/秒足音を鳴らすものとしてカウンターを増減速します
 				this->m_RunFootPer += this->m_Speed * 4.f * DrawParts->GetDeltaTime();
 				if (this->m_RunFootPer > 1.f) {
 					this->m_RunFootPer -= 1.f;
@@ -172,20 +171,20 @@ namespace FPS_n2 {
 			Vector2DX Vec = this->GetVec() * DrawParts->GetDeltaTime();
 			{
 				bool IsHit = false;
-				int Max = static_cast<int>(std::max(1.f, 60.f / std::max(30.f, DrawParts->GetFps())));
+				int Max = static_cast<int>(GetMax(1.f, 60.f / GetMax(30.f, DrawParts->GetFps())));
 				for (int i = 0; i < Max; i++) {
 					Vector2DX PosTmp = this->GetPosition() + Vec * (1.f / static_cast<float>(Max));
 					IsHit |= BackGround->CheckLinetoMap(this->GetPrevPos(), &PosTmp, GetSize() / 2.f, true);
 					SetPosition(PosTmp);
 				}
 				if (IsHit) {
-					//なんかヒットした
+					// なんかヒットした
 				}
 			}
-			//
+			// 
 			m_Blur.Update();
 		}
-		void CharacterObject::DrawShadow_Sub(void) noexcept {
+		void		CharacterObject::DrawShadow_Sub(void) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
 
@@ -203,7 +202,7 @@ namespace FPS_n2 {
 				DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(R), Black);
 			}
 		}
-		void CharacterObject::Draw_Sub(void) noexcept {
+		void		CharacterObject::Draw_Sub(void) noexcept {
 			float Radius = static_cast<float>(GetSize() / 2.f);
 			auto* DrawParts = DXDraw::Instance();
 			int R = Cam2DControl::GetTileToDispSize(Radius);
@@ -231,6 +230,5 @@ namespace FPS_n2 {
 			DrawCircle(static_cast<int>(Pos.x), static_cast<int>(Pos.y), static_cast<int>(R), Color);
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}
-		void CharacterObject::Dispose_Sub(void) noexcept {}
-	};
-};
+	}
+}

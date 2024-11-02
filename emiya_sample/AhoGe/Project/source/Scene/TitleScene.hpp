@@ -3,11 +3,11 @@
 
 #include	"../CommonScene/UI/CommonUIControl.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		class TitleScene : public TEMPSCENE {
 		private:
-			FadeControl					m_FadeControl;
+			UI::FadeControl				m_FadeControl;
 			bool						m_IsStartGame{ false };
 
 			GraphHandle					m_TitleImage;
@@ -29,5 +29,5 @@ namespace FPS_n2 {
 			void			DrawUI_Base_Sub(void) const noexcept override;
 			void			DrawUI_In_Sub(void) const noexcept override {}
 		};
-	};
-};
+	}
+}

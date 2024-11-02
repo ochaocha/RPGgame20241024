@@ -1,12 +1,12 @@
 #include	"Player.hpp"
 #include	"../../sub.hpp"
 
-const FPS_n2::Sceneclass::PlayerManager* SingletonBase<FPS_n2::Sceneclass::PlayerManager>::m_Singleton = nullptr;
-namespace FPS_n2 {
+const DXLIB_Sample::Sceneclass::PlayerManager* SingletonBase<DXLIB_Sample::Sceneclass::PlayerManager>::m_Singleton = nullptr;
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		void PlayerManager::UpdateDelete(void) noexcept {
 			auto* Obj2DParts = Object2DManager::Instance();
-			//特定のプレイヤーを削除
+			// 特定のプレイヤーを削除
 			for (int i = 0; i < GetPlayerNum(); i++) {
 				auto& p = GetPlayer((PlayerID)i);
 				if (p->GetChara()) {
@@ -22,7 +22,7 @@ namespace FPS_n2 {
 		}
 		void PlayerManager::Dispose(void) noexcept {
 			auto* Obj2DParts = Object2DManager::Instance();
-			//全プレイヤーを削除してリストをクリア
+			// 全プレイヤーを削除してリストをクリア
 			for (auto& p : this->m_Player) {
 				if (p->GetChara()) {
 					Obj2DParts->DelObj(p->GetChara());
@@ -35,5 +35,5 @@ namespace FPS_n2 {
 			}
 			this->m_Player.clear();
 		}
-	};
-};
+	}
+}

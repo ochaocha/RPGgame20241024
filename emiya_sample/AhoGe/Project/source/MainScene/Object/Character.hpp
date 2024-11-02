@@ -2,7 +2,7 @@
 #include	"../../Header.hpp"
 #include	"../../sub.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		enum class GunType {
 			None,
@@ -28,7 +28,7 @@ namespace FPS_n2 {
 			float						m_RunFootPer{ 0.f };
 
 			HitPoint					m_HitPoint{ 0 };
-			HitPoint					m_MaxHitPoint{ 3 };
+			const HitPoint				m_MaxHitPoint{ 3 };
 
 			GunType						m_GunType{ GunType::None };
 			Blur2DControl				m_Blur;
@@ -39,7 +39,7 @@ namespace FPS_n2 {
 			CharacterObject& operator=(const CharacterObject&) = delete;
 			CharacterObject& operator=(CharacterObject&& o) = delete;
 
-			virtual ~CharacterObject(void) noexcept;
+			virtual ~CharacterObject(void) noexcept{}
 		private:
 			void		UpdateInputVector(const InputControl& MyInput) noexcept;
 		public:
@@ -60,7 +60,7 @@ namespace FPS_n2 {
 			void Update_Sub(void) noexcept override;
 			void DrawShadow_Sub(void) noexcept override;
 			void Draw_Sub(void) noexcept override;
-			void Dispose_Sub(void) noexcept override;
+			void Dispose_Sub(void) noexcept override{}
 		};
-	};
-};
+	}
+}

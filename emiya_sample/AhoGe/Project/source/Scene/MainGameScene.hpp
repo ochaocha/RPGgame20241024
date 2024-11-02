@@ -4,14 +4,14 @@
 #include	"../MainScene/MainSceneSub.hpp"
 #include	"../MainScene/Player/CPU.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		class MainGameScene : public TEMPSCENE {
 		private:
 			PauseMenuControl			m_PauseMenuControl;
 			MapNameDrawControl			m_MapNameDrawControl;
 			CutSceneControl				m_CutSceneControl;
-			FadeControl					m_FadeControl;
+			UI::FadeControl				m_FadeControl;
 
 			GraphHandle					m_ViewHandle;
 			GraphHandle					m_Watch;
@@ -69,5 +69,5 @@ namespace FPS_n2 {
 			void			DrawCharaUI_Back(PlayerID value) const noexcept;
 			void			SetSceneEnd(void) noexcept;
 		};
-	};
-};
+	}
+}

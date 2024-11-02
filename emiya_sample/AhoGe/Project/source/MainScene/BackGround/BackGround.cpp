@@ -1,9 +1,9 @@
 #include	"BackGround.hpp"
 
-const FPS_n2::Sceneclass::EventDataBase* SingletonBase<FPS_n2::Sceneclass::EventDataBase>::m_Singleton = nullptr;
-const FPS_n2::Sceneclass::BackGroundClassBase* SingletonBase<FPS_n2::Sceneclass::BackGroundClassBase>::m_Singleton = nullptr;
+const DXLIB_Sample::Sceneclass::EventDataBase* SingletonBase<DXLIB_Sample::Sceneclass::EventDataBase>::m_Singleton = nullptr;
+const DXLIB_Sample::Sceneclass::BackGroundClassBase* SingletonBase<DXLIB_Sample::Sceneclass::BackGroundClassBase>::m_Singleton = nullptr;
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		void EventDataBase::LoadData(const std::string& SoftImagePath) noexcept {
 			auto* BackGround = BackGroundClassBase::Instance();
@@ -263,10 +263,10 @@ namespace FPS_n2 {
 			std::vector<CheckLines>				WallList;
 			WallList.reserve(256);
 			Vector2DX Min, Max;
-			Min.x = std::min(EndPos->x, StartPos.x) - (Radius * 4);
-			Min.y = std::min(EndPos->y, StartPos.y) - (Radius * 4);
-			Max.x = std::max(EndPos->x, StartPos.x) + (Radius * 4);
-			Max.y = std::max(EndPos->y, StartPos.y) + (Radius * 4);
+			Min.x = GetMin(EndPos->x, StartPos.x) - (Radius * 4);
+			Min.y = GetMin(EndPos->y, StartPos.y) - (Radius * 4);
+			Max.x = GetMax(EndPos->x, StartPos.x) + (Radius * 4);
+			Max.y = GetMax(EndPos->y, StartPos.y) + (Radius * 4);
 			// 線のリストを出す
 			for (auto& B : this->m_CheckWallBlick) {
 				// 範囲外
@@ -327,8 +327,8 @@ namespace FPS_n2 {
 						// へこみを減らす
 						*(Vector2DX*)pCenter1 = Ct;
 						*(Vector2DX*)pCenter2 = Ct;
-						//*pCenter1 = (*pCenter1 + Ct) / 2.f;
-						//*pCenter2 = (*pCenter2 + Ct) / 2.f;
+						// *pCenter1 = (*pCenter1 + Ct) / 2.f;
+						// *pCenter2 = (*pCenter2 + Ct) / 2.f;
 
 						// ノーマル再演算
 						w.CalcNormal();
@@ -421,7 +421,7 @@ namespace FPS_n2 {
 			}
 			return HitFlag;
 		}
-		//
+		// 
 		void BackGroundClassBase::Init(const std::string& MapPath) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 
@@ -439,10 +439,10 @@ namespace FPS_n2 {
 			// 
 			int ChipNum = 12;
 			int r, g, b;
-			//どのチップを使うかを決めるデータ
+			// どのチップを使うかを決めるデータ
 			int MapImage = LoadSoftImage((CommonPath + "col.bmp").c_str());
 			GetSoftImageSize(MapImage, &this->m_Xsize, &this->m_Ysize);
-			//チップデータ
+			// チップデータ
 			int PalImage = LoadSoftImage((CommonPath + "chp.bmp").c_str());
 			GetSoftImageSize(PalImage, &ChipNum, nullptr);
 
@@ -529,11 +529,11 @@ namespace FPS_n2 {
 					auto LEFT = FileStreamDX::getleft(ALL);
 					auto RIGHT = FileStreamDX::getright(ALL);
 					if (LEFT == "Name") {
-						//マップ名
+						// マップ名
 						this->m_GetMapTextID = std::stoi(RIGHT);
 					}
 					else {
-						//それ以外の記述はイベント関連とする
+						// それ以外の記述はイベント関連とする
 						EventDataBase::Instance()->LoadEventScript(LEFT, RIGHT);
 					}
 				}

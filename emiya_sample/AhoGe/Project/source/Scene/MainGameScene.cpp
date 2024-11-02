@@ -7,7 +7,7 @@
 
 #include	"../MainScene/Object/Metal.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		// ロード
 		void			MainGameScene::Load_Sub(void) noexcept {
@@ -15,7 +15,7 @@ namespace FPS_n2 {
 			auto* DrawParts = DXDraw::Instance();
 			auto* SaveDataParts = SaveDataClass::Instance();
 
-			//各種メインシーン内でずっと保持する必要があるリソースの読み込み
+			// 各種メインシーン内でずっと保持する必要があるリソースの読み込み
 			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::RunFoot), 6, "data/Sound/SE/move/runfoot.wav");
 			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Shot1), 6, "data/Sound/SE/move/shot1.wav");
 			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Shot2), 6, "data/Sound/SE/move/shot2.wav");
@@ -24,9 +24,9 @@ namespace FPS_n2 {
 			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Hit), 6, "data/Sound/SE/move/hit.wav");
 			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Guard), 6, "data/Sound/SE/move/guard.wav");
 			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Normal), 2, "data/Sound/SE/Normal.wav");
-			SoundParts->Add(SoundType::BGM, static_cast<int>(FPS_n2::Sceneclass::BGMSelect::Normal), 1, "data/Sound/BGM/normal.wav");
-			SoundParts->Add(SoundType::BGM, static_cast<int>(FPS_n2::Sceneclass::BGMSelect::Caution), 1, "data/Sound/BGM/Caution.wav");
-			SoundParts->Add(SoundType::BGM, static_cast<int>(FPS_n2::Sceneclass::BGMSelect::Alert), 1, "data/Sound/BGM/Alert.wav");
+			SoundParts->Add(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Normal), 1, "data/Sound/BGM/normal.wav");
+			SoundParts->Add(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Caution), 1, "data/Sound/BGM/Caution.wav");
+			SoundParts->Add(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Alert), 1, "data/Sound/BGM/Alert.wav");
 			this->m_Watch.Load("data/UI/Watch.png");
 			this->m_Caution.Load("data/UI/Caution.png");
 			this->m_Alert.Load("data/UI/Alert.png");
@@ -35,13 +35,13 @@ namespace FPS_n2 {
 			m_PauseMenuControl.Load();
 			// ゲームを始める際のマップを選択
 			if ((SaveDataParts->GetParam("LastMap") == -1)) {// 初期データがない場合はプロローグとする
-				//プロローグなのでデータに新規であることを明記するように追加
+				// プロローグなのでデータに新規であることを明記するように追加
 				SaveDataParts->SetParam("LastMap", 0);
 				SaveDataParts->SetParam("LastEntry", 0);
-				//プロローグとして該当するイベントを指定
+				// プロローグとして該当するイベントを指定
 				m_CutSceneID = 500;
 			}
-			//セーブデータからマップ、どこから入ったかを取得
+			// セーブデータからマップ、どこから入ったかを取得
 			this->m_MapName = "map" + std::to_string(SaveDataParts->GetParam("LastMap"));
 			this->m_EntryID = static_cast<int>(SaveDataParts->GetParam("LastEntry"));
 		}
@@ -56,17 +56,17 @@ namespace FPS_n2 {
 
 			m_PauseMenuControl.Set();
 			BackGround->Init(this->m_MapName);
-			BackGround->SetAmbientLight(3.f, deg2rad(30));//3タイル分として上から30度傾けた
+			BackGround->SetAmbientLight(3.f, deg2rad(30));// 3タイル分として上から30度傾けた
 			PlayerMngr->Init(static_cast<int>(EventParts->GetPlayerSpawn().size()));
 			m_BossUniqueID = InvalidID;
 			m_WinCutSceneID = InvalidID;
-			//
-			//現段階のイベントから必要な処理を実行
-			Vector2DX PlayerSpawnPoint;						//プレイヤーの湧き位置
-			this->m_GoalPos.Set(-1.f, -1.f);				//プレイヤーが到達すべき場所
+			// 
+			// 現段階のイベントから必要な処理を実行
+			Vector2DX PlayerSpawnPoint;						// プレイヤーの湧き位置
+			this->m_GoalPos.Set(-1.f, -1.f);				// プレイヤーが到達すべき場所
 			for (auto& e : EventParts->GetEventChip()) {
 				if (e.m_EventType == EventType::Entry) {
-					//出入口がある場合、それぞれを保持
+					// 出入口がある場合、それぞれを保持
 					if (e.m_EventID == this->m_EntryID) {
 						PlayerSpawnPoint = BackGround->GetFloorData(e.m_index)->GetTileCenterPos();
 					}
@@ -75,14 +75,14 @@ namespace FPS_n2 {
 					}
 				}
 				if (e.m_EventType == EventType::Boss) {
-					//ボスイベントがある場合、それをスポーン
+					// ボスイベントがある場合、それをスポーン
 					const auto& Obj = std::make_shared<MetalObject>();
 					Obj2DParts->AddObject(Obj);
-					Obj->SetPlayerID(1);//PlayerCharacterでない適当な値
+					Obj->SetPlayerID(1);// PlayerCharacterでない適当な値
 					Obj->SetPosition(BackGround->GetFloorData(e.m_index)->GetTileCenterPos());
 					Obj->SetSize(10.f);
 					m_BossUniqueID = Obj->GetUniqueID();
-					m_WinCutSceneID = e.m_WinCutSceneID;	//勝利後に流すカットシーンID
+					m_WinCutSceneID = e.m_WinCutSceneID;	// 勝利後に流すカットシーンID
 				}
 			}
 			// 全キャラの設定
@@ -93,10 +93,10 @@ namespace FPS_n2 {
 				p->SetChara(Obj);
 				Obj->SetPlayerID((PlayerID)i);
 				if ((PlayerID)i == PlayerCharacter) {
-					//自キャラクター
-					//初期位置を指定
+					// 自キャラクター
+					// 初期位置を指定
 					p->GetChara()->SetPosition(PlayerSpawnPoint);
-					//初期武器を指定
+					// 初期武器を指定
 					p->GetChara()->SetGunType(GunType::None);
 					if (SaveDataParts->GetParam("Cut_10") != -1) {
 						p->GetChara()->SetGunType(GunType::Handgun);
@@ -113,31 +113,31 @@ namespace FPS_n2 {
 					p->SetAI(std::make_shared<AIControl>());
 					p->GetAI()->SetCharacter((PlayerID)i, PlayerCharacter);
 					p->GetAI()->Init();
-					//初期位置を指定
+					// 初期位置を指定
 					p->GetChara()->SetPosition(BackGround->GetFloorData(EventParts->GetPlayerSpawn().at(static_cast<size_t>(i)).m_index)->GetTileCenterPos());
-					//初期武器を指定
+					// 初期武器を指定
 					p->GetChara()->SetGunType(GunType::Handgun);
 				}
 			}
 			// カメラ
-			Cam2D->SetCamPos(PlayerSpawnPoint, Tile_DispSize);
+			Cam2D->SetCamPos(PlayerSpawnPoint);
 			m_CutSceneControl.Set();						// カットシーンの初期設定
 			if (m_CutSceneID != InvalidID) {
-				m_CutSceneControl.StartCutScene(m_CutSceneID);			//入りの際に何かカットシーンの設定があったら実行
+				m_CutSceneControl.StartCutScene(m_CutSceneID);			// 入りの際に何かカットシーンの設定があったら実行
 			}
 
-			m_MapNameDrawControl.Set();						//ステージ遷移時にマップ名を表示する機能の初期化
-			Effect2DControl::Instance()->Init();			//エフェクトの初期化
+			m_MapNameDrawControl.Set();						// ステージ遷移時にマップ名を表示する機能の初期化
+			Effect2DControl::Instance()->Init();			// エフェクトの初期化
 			// 各種変数の初期化
-			this->m_PrevXY = BackGround->GetNumToXY(BackGround->GetNearestFloors(PlayerSpawnPoint));//カットシーンが発生する判定用の座標保存用変数
+			this->m_PrevXY = BackGround->GetNumToXY(BackGround->GetNearestFloors(PlayerSpawnPoint));// カットシーンが発生する判定用の座標保存用変数
 			this->m_IsCautionBGM = false;
 			this->m_CautionBGM = 0.f;
 			this->m_IsAlertBGM = false;
 			this->m_AlertBGM = 0.f;
 
-			this->m_IsEndUpdate = false;			//次のシーンに行くフラグの初期化
-			this->m_StartTime = 0.f;			//シーンが開始されてからプレイアブル状態であった時間
-			m_FadeControl.SetFadeIn();			//シーンの切り替わりはフェードでイン
+			this->m_IsEndUpdate = false;			// 次のシーンに行くフラグの初期化
+			this->m_StartTime = 0.f;			// シーンが開始されてからプレイアブル状態であった時間
+			m_FadeControl.SetFadeIn();			// シーンの切り替わりはフェードでイン
 			Pad->SetMouseMoveEnable(false);
 		}
 		bool			MainGameScene::Update_Sub(void) noexcept {
@@ -153,14 +153,14 @@ namespace FPS_n2 {
 			auto* SaveDataParts = SaveDataClass::Instance();
 			auto* SceneParts = SceneControl::Instance();
 
-			m_PauseMenuControl.Update();				//ポーズ処理の更新
-			//キーガイドの更新
+			m_PauseMenuControl.Update();				// ポーズ処理の更新
+			// キーガイドの更新
 			KeyGuideParts->ChangeGuide(
 				[this]() {
 					auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 					auto* Pad = PadControl::Instance();
 					auto* SceneParts = SceneControl::Instance();
-					//ポーズ時の入力ガイド
+					// ポーズ時の入力ガイド
 					if (SceneParts->IsPause()) {
 						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::INTERACT).GetAssign(), Pad->GetControlType()), "決定");
 						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::RELOAD).GetAssign(), Pad->GetControlType()), "戻る");
@@ -169,12 +169,12 @@ namespace FPS_n2 {
 						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_STICK).GetAssign(), Pad->GetControlType()), "選択");
 						return;
 					}
-					//カットシーンガイド
+					// カットシーンガイド
 					if (m_CutSceneControl.IsCutScene()) {
 						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::INTERACT).GetAssign(), Pad->GetControlType()), "読み進める");
 						return;
 					}
-					//それ以外の場合
+					// それ以外の場合
 					if (this->m_IsPlayable) {
 						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_W).GetAssign(), Pad->GetControlType()), "");
 						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_S).GetAssign(), Pad->GetControlType()), "");
@@ -188,7 +188,7 @@ namespace FPS_n2 {
 						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::AIM).GetAssign(), Pad->GetControlType()), "注目");
 					}
 				});
-			if (SceneParts->IsPause()) { return true; }//ポーズならこの段階で以下の処理を打ち切る
+			if (SceneParts->IsPause()) { return true; }// ポーズならこの段階で以下の処理を打ち切る
 
 			// BGM
 			{
@@ -238,7 +238,7 @@ namespace FPS_n2 {
 				}
 				else {
 					bool IsPlay = (this->m_NormalBGM > 0.f);
-					this->m_NormalBGM = std::max(this->m_NormalBGM - DrawParts->GetDeltaTime(), 0.f);
+					this->m_NormalBGM = GetMax(this->m_NormalBGM - DrawParts->GetDeltaTime(), 0.f);
 					if (this->m_NormalBGM > 0.f) {
 						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Normal))->SetLocalVolume(static_cast<int>(255 * this->m_NormalBGM));
 					}
@@ -258,7 +258,7 @@ namespace FPS_n2 {
 				}
 				else {
 					bool IsPlay = (this->m_CautionBGM > 0.f);
-					this->m_CautionBGM = std::max(this->m_CautionBGM - DrawParts->GetDeltaTime(), 0.f);
+					this->m_CautionBGM = GetMax(this->m_CautionBGM - DrawParts->GetDeltaTime(), 0.f);
 					if (this->m_CautionBGM > 0.f) {
 						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Caution))->SetLocalVolume(static_cast<int>(255 * this->m_CautionBGM));
 					}
@@ -278,7 +278,7 @@ namespace FPS_n2 {
 				}
 				else {
 					bool IsPlay = (this->m_AlertBGM > 0.f);
-					this->m_AlertBGM = std::max(this->m_AlertBGM - DrawParts->GetDeltaTime(), 0.f);
+					this->m_AlertBGM = GetMax(this->m_AlertBGM - DrawParts->GetDeltaTime(), 0.f);
 					if (this->m_AlertBGM > 0.f) {
 						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Alert))->SetLocalVolume(static_cast<int>(255 * this->m_AlertBGM));
 					}
@@ -311,28 +311,28 @@ namespace FPS_n2 {
 				auto Prev = this->m_IsPlayable;
 				this->m_IsPlayable = m_FadeControl.IsFadeClear() && !m_CutSceneControl.IsCutScene();
 				if (Prev != this->m_IsPlayable) {
-					//プレイアブルか否かでガイドを変えます
+					// プレイアブルか否かでガイドを変えます
 					KeyGuideParts->SetGuideUpdate();
 				}
 			}
 			if (this->m_IsPlayable) {
-				//ボスキャラがいる場合
+				// ボスキャラがいる場合
 				if (m_BossUniqueID != InvalidID) {
 					if (Obj2DParts->HasObj(m_BossUniqueID)) {
-						//ボスキャラが生きているならボスの入力処理
+						// ボスキャラが生きているならボスの入力処理
 						const auto& Obj = Obj2DParts->GetObj(m_BossUniqueID);
 						auto& P = (std::shared_ptr<MetalObject>&)(Obj);
 						P->SetCanMove();
 					}
 					else {
-						//ボスキャラを倒したら
+						// ボスキャラを倒したら
 						m_CutSceneControl.StartCutScene(m_WinCutSceneID);
-						//ボスのIDを破棄(ここの処理を通らなくなる)
+						// ボスのIDを破棄(ここの処理を通らなくなる)
 						m_BossUniqueID = InvalidID;
 						this->m_IsGoodEnd = true;
 					}
 				}
-				//プレイアブル経過秒数カウント
+				// プレイアブル経過秒数カウント
 				m_StartTime += DrawParts->GetDeltaTime();
 			}
 			// 入力制御
@@ -391,19 +391,19 @@ namespace FPS_n2 {
 					}
 				}
 			}
-			//
+			// 
 			m_FadeControl.Update();					// フェードアウト表示の更新
-			m_MapNameDrawControl.Update();			//マップ名表示の更新
+			m_MapNameDrawControl.Update();			// マップ名表示の更新
 			Effect2DControl::Instance()->Update();	// エフェクトの更新
 			BackGround->Update();					// 背景の更新
 			Obj2DParts->Update();					// オブジェクトのアップデート
 			PlayerMngr->UpdateDelete();				// 死亡確認(死亡フラグが経ったら削除)
-			//
+			// 
 			auto& Chara = PlayerMngr->GetPlayer(PlayerCharacter)->GetChara();
 			if (!Chara) {
-				//自キャラがいない(死んだ)場合の処理
+				// 自キャラがいない(死んだ)場合の処理
 				if (!m_IsBadEnd) {
-					//まだバッドエンドが開始されていない場合はバッドエンドイベントを実施
+					// まだバッドエンドが開始されていない場合はバッドエンドイベントを実施
 					this->m_IsBadEnd = true;
 					m_CutSceneControl.StartCutScene(999);
 				}
@@ -411,10 +411,10 @@ namespace FPS_n2 {
 			else {
 				auto MyIndex = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPosition()));
 				if (this->m_IsPlayable) {
-					//操作できる状態
+					// 操作できる状態
 					auto IsNearIndex = [](const std::pair<int, int>& a, const std::pair<int, int>& b) { return (std::abs(a.first - b.first) <= 3 && std::abs(a.second - b.second) <= 3); };
-					//イベントが発生する場所に侵入したかどうかのチェック
-					if (!IsNearIndex(this->m_PrevXY, MyIndex)) {//以前のポジションから離れた時だけチェック
+					// イベントが発生する場所に侵入したかどうかのチェック
+					if (!IsNearIndex(this->m_PrevXY, MyIndex)) {// 以前のポジションから離れた時だけチェック
 						this->m_PrevXY = MyIndex;
 						for (auto& e : EventParts->GetEventChip()) {
 							if (IsNearIndex(BackGround->GetNumToXY(e.m_index), MyIndex)) {// 該当のチップに踏み込んだ
@@ -444,7 +444,7 @@ namespace FPS_n2 {
 					}
 				}
 				else {
-					//イベント中のカメラオフセット値を制御
+					// イベント中のカメラオフセット値を制御
 					if (m_CutSceneControl.IsCutScene()) {
 						MyIndex.first += m_CutSceneControl.GetAddViewPointX();
 						MyIndex.second += m_CutSceneControl.GetAddViewPointY();
@@ -452,28 +452,27 @@ namespace FPS_n2 {
 						Easing(&this->m_CamAddPos, CamAddPos, 0.9f, EasingType::OutExpo);
 					}
 				}
-				Cam2D->SetCamAim(Chara->GetPosition() + this->m_CamAddPos, Tile_DispSize);		// カメラ制御
-				BackGround->SetPointLight(Chara->GetPosition());								//ポイントライト用の座標更新
+				Cam2D->SetCamAim(Chara->GetPosition() + this->m_CamAddPos);		// カメラ制御
+				BackGround->SetPointLight(Chara->GetPosition());				// ポイントライト用の座標更新
 				Cam2DControl::Instance()->Update();
 			}
-			//リタイアなので終了フラグを立てる
+			// リタイアなので終了フラグを立てる
 			if (m_PauseMenuControl.IsRetire()) {
 				SetSceneEnd();
 				this->m_IsEnd = true;
 			}
-			//グッドorバッドエンドのカットシーンが終わったので終了フラグを立てる
+			// グッドorバッドエンドのカットシーンが終わったので終了フラグを立てる
 			if (this->m_IsGoodEnd || this->m_IsBadEnd) {
 				if (!m_CutSceneControl.IsCutScene()) {
 					SetSceneEnd();
 					this->m_IsEnd = true;
 				}
 			}
-			if (this->m_IsEndUpdate && m_FadeControl.IsFadeAll()) { return false; }//特定のフラグが立ったうえでフェードアウトしきったら次のシーンへ遷移
-			//それ以外はシーン持続
+			if (this->m_IsEndUpdate && m_FadeControl.IsFadeAll()) { return false; }// 特定のフラグが立ったうえでフェードアウトしきったら次のシーンへ遷移
+			// それ以外はシーン持続
 			return true;
 		}
 		void			MainGameScene::Dispose_Sub(void) noexcept {
-			auto* Obj2DParts = Object2DManager::Instance();
 			auto* SaveDataParts = SaveDataClass::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
 			auto* PlayerMngr = PlayerManager::Instance();
@@ -491,7 +490,7 @@ namespace FPS_n2 {
 				SaveDataParts->SetParam("LastEntry", this->m_EntryID);
 			}
 			else {
-				//クリアしたのでリセット
+				// クリアしたのでリセット
 				SaveDataParts->Reset();
 			}
 			SaveDataParts->Save();
@@ -501,7 +500,7 @@ namespace FPS_n2 {
 			else {// 次のシーンへ
 				SetNextSelect(1);
 			}
-			//エンド処理用フラグのリセット
+			// エンド処理用フラグのリセット
 			this->m_IsEnd = false;
 			this->m_IsGoodEnd = false;
 			this->m_IsBadEnd = false;
@@ -519,9 +518,9 @@ namespace FPS_n2 {
 			SoundParts->Delete(SoundType::SE, static_cast<int>(SESelect::Guard));
 			SoundParts->Delete(SoundType::SE, static_cast<int>(SESelect::Normal));
 
-			SoundParts->Delete(SoundType::BGM, static_cast<int>(FPS_n2::Sceneclass::BGMSelect::Normal));
-			SoundParts->Delete(SoundType::BGM, static_cast<int>(FPS_n2::Sceneclass::BGMSelect::Caution));
-			SoundParts->Delete(SoundType::BGM, static_cast<int>(FPS_n2::Sceneclass::BGMSelect::Alert));
+			SoundParts->Delete(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Normal));
+			SoundParts->Delete(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Caution));
+			SoundParts->Delete(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Alert));
 
 			Obj2DParts->DeleteAll();
 
@@ -540,7 +539,7 @@ namespace FPS_n2 {
 			auto* BackGround = BackGroundClassBase::Instance();
 			auto* DrawCtrls = UISystem::DrawControl::Instance();
 
-			//視認判定表示用のバッファーを描画
+			// 視認判定表示用のバッファーを描画
 			{
 				auto Prev = GetDrawScreen();
 				this->m_ViewHandle.SetDraw_Screen(false);
@@ -600,7 +599,7 @@ namespace FPS_n2 {
 						continue;
 					}
 					DispPos = DispPos * (float)DrawParts->GetUIY(100) / (float)DrawParts->GetScreenY(100);
-					//体力バー
+					// 体力バー
 					{
 						DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 255, 255, 255);
 						int xmin = DrawParts->GetUIY(-50);
@@ -749,7 +748,7 @@ namespace FPS_n2 {
 				-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
 				return;
 			}
-			double Deg = (double)-p->GetChara()->GetViewRad() / (DX_PI * 2.0) * 100.0 + 100.0;//ゲージが-100~100の範囲なので+100
+			double Deg = (double)-p->GetChara()->GetViewRad() / (DX_PI * 2.0) * 100.0 + 100.0;// ゲージが-100~100の範囲なので+100
 			double Watch;
 			if (value == PlayerCharacter) {
 				SetDrawBright(0, 0, 216);
@@ -775,5 +774,5 @@ namespace FPS_n2 {
 			}
 			this->m_IsEndUpdate = true;
 		}
-	};
-};
+	}
+}

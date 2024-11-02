@@ -1,8 +1,8 @@
 #pragma once
 #include	"../../Header.hpp"
 
-namespace FPS_n2 {
-	namespace Sceneclass {
+namespace DXLIB_Sample {
+	namespace UI {
 		// 
 		class ButtonControl : public SingletonBase<ButtonControl> {
 		private:
@@ -256,7 +256,7 @@ namespace FPS_n2 {
 			ButtonControl& operator=(const ButtonControl&) = delete;
 			ButtonControl& operator=(ButtonControl&& o) = delete;
 
-			virtual ~ButtonControl(void) noexcept;
+			~ButtonControl(void) noexcept;
 		public:
 			void ResetSel(void) noexcept {
 				select = 0;
@@ -294,7 +294,7 @@ namespace FPS_n2 {
 			auto			IsFadeClear(void) const noexcept { return this->m_BlackOutAlpha == 0.f; }
 			auto			IsFadeAll(void) const noexcept { return this->m_BlackOutAlpha >= 1.f; }
 		public:
-			//true=FadeOut
+			// true=FadeOut
 			void			SetFade(bool value) noexcept { this->m_IsBlackOut = value; }
 			void			SetFadeIn(void) noexcept;
 			void			SetFadeOut(void) noexcept;
@@ -302,5 +302,5 @@ namespace FPS_n2 {
 			void			Update(void) noexcept;
 			void			DrawFade(void) const noexcept;
 		};
-	};
-};
+	}
+}

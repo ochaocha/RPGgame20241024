@@ -4,7 +4,7 @@
 
 #include	"../BackGround/BackGround.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		class AIControl {
 		private:
@@ -27,5 +27,5 @@ namespace FPS_n2 {
 			void			Update(void) noexcept;
 			void			Dispose(void) noexcept;
 		};
-	};
-};
+	}
+}

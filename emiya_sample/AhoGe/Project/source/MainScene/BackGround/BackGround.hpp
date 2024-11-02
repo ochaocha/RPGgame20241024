@@ -2,7 +2,7 @@
 #include	"../../Header.hpp"
 #include	"../../sub.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 
 		enum class EventType {
@@ -227,27 +227,19 @@ namespace FPS_n2 {
 			GraphHandle							m_AmbientShadowHandle;
 			int									m_GetMapTextID{};
 		public:
-			const auto&		GetMapTextID(void) const noexcept { return this->m_GetMapTextID; }
-			const auto&		GetShadowGraph(void) const noexcept { return this->m_PointShadowHandle; }
+			const auto& GetMapTextID(void) const noexcept { return this->m_GetMapTextID; }
+			const auto& GetShadowGraph(void) const noexcept { return this->m_PointShadowHandle; }
 			const auto		GetAmbientLightVec(void) const noexcept { return GetVecByRad(this->m_AmbientLightRad) * this->m_AmbientShadowLength; }
 			auto			GetXSize(void) const noexcept { return this->m_Xsize; }
 			auto			GetYSize(void) const noexcept { return this->m_Ysize; }
-			auto			GetXYToNum(int x, int y) const noexcept { return std::min(x, this->m_Xsize - 1) * this->m_Ysize + std::min(y, this->m_Ysize - 1); }
+			auto			GetXYToNum(int x, int y) const noexcept { return GetMin(x, this->m_Xsize - 1) * this->m_Ysize + GetMin(y, this->m_Ysize - 1); }
 			auto			GetNumToXY(int num) const noexcept { return std::make_pair<int, int>(num / this->m_Ysize, num % this->m_Ysize); }
-			const auto&		GetFloorData(int num) const noexcept { return this->m_Blick.at(static_cast<size_t>(num)); }
-			const auto&		GetFloorData(int x, int y) const noexcept { return GetFloorData(GetXYToNum(x, y)); }
+			const auto& GetFloorData(int num) const noexcept { return this->m_Blick.at(static_cast<size_t>(num)); }
+			const auto& GetFloorData(int x, int y) const noexcept { return GetFloorData(GetXYToNum(x, y)); }
 			auto			GetNearestFloors(const Vector2DX& Pos) const noexcept {
-				// Œy—Ê”Å
 				int x = static_cast<int>(Pos.x + 0.5f);
 				int y = static_cast<int>(Pos.y + 0.5f);
 				return GetXYToNum(x, y);
-				/*
-				for (auto& B : this->m_FloorBlick) {
-					if (!B->CheckPointHit(Pos)) { continue; }
-					return B->GetIndex();
-				}
-				return InvalidID;
-				//*/
 			}
 			float			CheckHideShadow(const Vector2DX& PosA, const Vector2DX& PosB, float Radius) noexcept;
 			bool			CheckLinetoMap(const Vector2DX& StartPos, Vector2DX* EndPos, float Radius, bool IsPhysical) const noexcept;
@@ -270,5 +262,5 @@ namespace FPS_n2 {
 			void			DrawFront(void) noexcept;
 			void			Dispose(void) noexcept;
 		};
-	};
-};
+	}
+}

@@ -3,7 +3,7 @@
 #include	"../Object/Character.hpp"
 #include	"CPU.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		class PlayerManager : public SingletonBase<PlayerManager> {
 		private:
@@ -66,6 +66,5 @@ namespace FPS_n2 {
 			void UpdateDelete(void) noexcept;
 			void Dispose(void) noexcept;
 		};
-
-	};
-};
+	}
+}

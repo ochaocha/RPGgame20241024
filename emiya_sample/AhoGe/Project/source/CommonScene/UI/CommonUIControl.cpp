@@ -1,8 +1,8 @@
 #include	"CommonUIControl.hpp"
 
-const FPS_n2::Sceneclass::ButtonControl* SingletonBase<FPS_n2::Sceneclass::ButtonControl>::m_Singleton = nullptr;
-namespace FPS_n2 {
-	namespace Sceneclass {
+const DXLIB_Sample::UI::ButtonControl* SingletonBase<DXLIB_Sample::UI::ButtonControl>::m_Singleton = nullptr;
+namespace DXLIB_Sample {
+	namespace UI {
 		// 
 		bool ButtonControl::GetTriggerButton(void) const noexcept {
 			auto* Pad = PadControl::Instance();
@@ -105,5 +105,5 @@ namespace FPS_n2 {
 			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Black, TRUE);
 			DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 		}
-	};
-};
+	}
+}

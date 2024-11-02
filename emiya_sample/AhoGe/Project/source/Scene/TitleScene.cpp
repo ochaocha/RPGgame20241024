@@ -5,11 +5,11 @@
 
 #include	"../MainScene/Player/Player.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		void			TitleScene::Set_Sub(void) noexcept {
 			auto* SoundParts = SoundPool::Instance();
-			auto* ButtonParts = ButtonControl::Instance();
+			auto* ButtonParts = UI::ButtonControl::Instance();
 			// 
 			m_FadeControl.SetFadeIn();
 			this->m_TitleImage.Load("data/UI/Title.png");
@@ -19,9 +19,9 @@ namespace FPS_n2 {
 			ButtonParts->AddStringButton("Reset SaveData", 48, true, 1920 - 64, 1080 - 84 - 64 * 1, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
 			ButtonParts->AddIconButton("data/UI/setting.png", true, 1920 - 64, 64, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::MIDDLE);
 			// BGM
-			SoundParts->Add(SoundType::BGM, static_cast<int>(FPS_n2::Sceneclass::BGMSelect::Title), 1, "data/Sound/BGM/title.wav");
+			SoundParts->Add(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Title), 1, "data/Sound/BGM/title.wav");
 			SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Title))->Play(DX_PLAYTYPE_LOOP, TRUE);
-			//
+			// 
 			m_IsStartGame = false;
 		}
 		bool			TitleScene::Update_Sub(void) noexcept {
@@ -30,7 +30,7 @@ namespace FPS_n2 {
 			auto* DrawParts = DXDraw::Instance();
 			auto* SoundParts = SoundPool::Instance();
 			auto* PopUpParts = UISystem::PopUp::Instance();
-			auto* ButtonParts = ButtonControl::Instance();
+			auto* ButtonParts = UI::ButtonControl::Instance();
 			auto* SceneParts = SceneControl::Instance();
 			if (SceneParts->IsPause()) {
 				return true;
@@ -110,10 +110,10 @@ namespace FPS_n2 {
 		}
 		void			TitleScene::Dispose_Sub(void) noexcept {
 			auto* SoundParts = SoundPool::Instance();
-			auto* ButtonParts = ButtonControl::Instance();
+			auto* ButtonParts = UI::ButtonControl::Instance();
 			// 
 			SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Title))->StopAll();
-			SoundParts->Delete(SoundType::BGM, static_cast<int>(FPS_n2::Sceneclass::BGMSelect::Title));
+			SoundParts->Delete(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Title));
 			// 
 			ButtonParts->Dispose();
 			// 
@@ -129,10 +129,10 @@ namespace FPS_n2 {
 		void			TitleScene::DrawUI_Base_Sub(void) const noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			auto* PopUpParts = UISystem::PopUp::Instance();
-			auto* ButtonParts = ButtonControl::Instance();
+			auto* ButtonParts = UI::ButtonControl::Instance();
 			// ƒ^ƒCƒgƒ‹‰æ‘œ
 			auto* DrawCtrls = UISystem::DrawControl::Instance();
-			DrawCtrls->SetDrawExtendGraph(UISystem::DrawLayer::Normal,&this->m_TitleImage,
+			DrawCtrls->SetDrawExtendGraph(UISystem::DrawLayer::Normal, &this->m_TitleImage,
 				DrawParts->GetUIY(64), DrawParts->GetUIY(64), DrawParts->GetUIY(64 + 369), DrawParts->GetUIY(64 + 207), true);
 			// 
 			DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(18), UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::TOP,
@@ -151,8 +151,8 @@ namespace FPS_n2 {
 				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(18), UISystem::FontXCenter::LEFT, UISystem::FontYCenter::BOTTOM,
 					DrawParts->GetUIY(32), DrawParts->GetUIY(1080 - 32 - 32), White, Black, Text.c_str());
 			}
-			//
+			// 
 			m_FadeControl.DrawFade();
 		}
-	};
-};
+	}
+}

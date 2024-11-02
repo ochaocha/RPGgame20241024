@@ -273,7 +273,16 @@ namespace DXLibRef {
 		return GetRadVec(Vector2DX::vget(cost, sint));
 	}
 
+	// GetRadVecの反対
 	static inline Vector2DX GetVecByRad(float Radian) noexcept {
 		return Vector2DX::vget(std::sin(Radian), -std::cos(Radian));
 	}
+
+	// アフィン変換によるベクトルの回転
+	static inline Vector2DX GetVectorRotated(Vector2DX PosT, float Rotate) {
+		float Sin = std::sinf(Rotate);
+		float Cos = std::cosf(Rotate);
+		return Vector2DX::vget(PosT.x * Cos - PosT.y * Sin, PosT.x * Sin + PosT.y * Cos);
+	}
+
 }

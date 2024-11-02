@@ -1,7 +1,7 @@
 #include	"CPU.hpp"
 #include	"Player.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		enum class ENUM_AI_PHASE {
 			Normal,		// 特に気にせず巡回
@@ -142,13 +142,7 @@ namespace FPS_n2 {
 						if (IsGoal) { *IsGoal = false; }
 						if (NowIndex == this->m_TargetPathPlanningIndex) {											// 現在乗っている地点が移動中間地点の地点の場合は次の中間地点を決定する処理を行う
 							PathplanningUnit::GetNextUnit(this->m_UnitArray, &NowIndex);
-							/*
-							// 次の中間地点が決定するまでループし続ける
-							while (true) {
-								if (!PathplanningUnit::GetNextUnit(this->m_UnitArray, &NowIndex)) { break; }			// 次の中間地点が見つからないなら終了
-								if (!this->m_pGoalUnit || NowIndex == this->m_pGoalUnit->GetIndex()) { break; }	// 見つかった地点がゴールだったら終了
-							}
-							//*/
+							// 次の中間地点が決定するまでやり直さないとエラーになるかも
 							this->m_TargetPathPlanningIndex = NowIndex;
 						}
 						// 移動方向を決定する、移動方向は現在の座標から中間地点の地点の中心座標に向かう方向
@@ -395,7 +389,7 @@ namespace FPS_n2 {
 				// 
 				Vector2DX GoingPoint = this->m_LastFindPos;
 				// 
-				this->m_LostTimer = std::min(this->m_LostTimer + DrawParts->GetDeltaTime(), 5.f);
+				this->m_LostTimer = GetMin(this->m_LostTimer + DrawParts->GetDeltaTime(), 5.f);
 				if (this->m_LostTimer == 5.f) {
 					// 探索
 					{
@@ -455,7 +449,7 @@ namespace FPS_n2 {
 					this->m_LostTimer = 10.f;
 				}
 				else {
-					this->m_LostTimer = std::max(this->m_LostTimer - DrawParts->GetDeltaTime(), 0.f);
+					this->m_LostTimer = GetMax(this->m_LostTimer - DrawParts->GetDeltaTime(), 0.f);
 					if (this->m_LostTimer == 0.f) {
 						ChangeNormalPhase();
 					}
@@ -487,7 +481,7 @@ namespace FPS_n2 {
 						this->m_MyInput.SetInputPADS(PADS::SHOT, true);
 					}
 					else {
-						this->m_ShotTimer = std::max(this->m_ShotTimer - DrawParts->GetDeltaTime(), 0.f);
+						this->m_ShotTimer = GetMax(this->m_ShotTimer - DrawParts->GetDeltaTime(), 0.f);
 					}
 				}
 				// 
@@ -499,7 +493,7 @@ namespace FPS_n2 {
 					this->m_LostTimer = 10.f;
 				}
 				else {
-					this->m_LostTimer = std::max(this->m_LostTimer - DrawParts->GetDeltaTime(), 0.f);
+					this->m_LostTimer = GetMax(this->m_LostTimer - DrawParts->GetDeltaTime(), 0.f);
 					if (this->m_LostTimer == 0.f) {
 						ChangeCautionPhase();
 					}
@@ -536,7 +530,7 @@ namespace FPS_n2 {
 					break;
 				}
 				// 
-				this->m_GraphTimer = std::max(this->m_GraphTimer - DrawParts->GetDeltaTime(), 0.f);
+				this->m_GraphTimer = GetMax(this->m_GraphTimer - DrawParts->GetDeltaTime(), 0.f);
 				this->m_MyInput.SetyRad(this->m_InputRad);
 			}
 			void		Dispose(void) noexcept {
@@ -570,5 +564,5 @@ namespace FPS_n2 {
 		void			AIControl::Init(void) noexcept { this->GetParam()->Init(); }
 		void			AIControl::Update(void) noexcept { this->GetParam()->Update(); }
 		void			AIControl::Dispose(void) noexcept { this->GetParam()->Dispose(); }
-	};
-};
+	}
+}

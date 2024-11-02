@@ -2,7 +2,7 @@
 #include	"../BackGround/BackGround.hpp"
 #include	"../Player/Player.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
 		BulletObject::BulletObject(void) noexcept {
 			SetObjType(static_cast<int>(Object2DType::Bullet));
@@ -23,13 +23,13 @@ namespace FPS_n2 {
 			// 移動処理
 			auto* DrawParts = DXDraw::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
-			//移動後の座標を取得
+			// 移動後の座標を取得
 			Vector2DX PosTmp = this->GetPosition() + this->GetVec() * DrawParts->GetDeltaTime();
 			// 壁衝突演算(当たったらその場で消滅とする)
 			if (BackGround->CheckLinetoMap(this->GetPrevPos(), &PosTmp, GetSize() / 2.f, false)) {
-				//自身を消すフラグを立てて
+				// 自身を消すフラグを立てて
 				SetDelete();
-				//ヒット位置にヒットエフェクトを追加
+				// ヒット位置にヒットエフェクトを追加
 				Effect2DControl::Instance()->SetEffect(PosTmp, EffectType::WallHit, 0.5f);
 			}
 			SetPosition(PosTmp);
@@ -79,5 +79,5 @@ namespace FPS_n2 {
 			DrawCircle(static_cast<int>(Pos.x), static_cast<int>(Pos.y), R, (this->m_ShotPlayerID == PlayerCharacter) ? Yellow : Green);
 		}
 		void BulletObject::Dispose_Sub(void) noexcept {}
-	};
-};
+	}
+}

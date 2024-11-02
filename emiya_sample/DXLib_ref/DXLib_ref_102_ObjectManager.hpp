@@ -9,8 +9,8 @@ namespace DXLibRef {
 	private:
 		friend class SingletonBase<Object2DManager>;
 	public:
-		// UniqueIDであると明示するためのtypedef
-		typedef int UniqueID;
+		//UniqueIDであると明示するために基本型に名前を付けて管理
+		using UniqueID = int;
 		// オブジェクトの基底クラス
 		class Base2DObject {
 		private:

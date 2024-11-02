@@ -4,9 +4,9 @@
 
 #include	"../CommonScene/UI/CommonUIControl.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
-		//
+		// 
 		class PauseMenuControl {
 			bool			m_IsRetire{ false };
 		public:
@@ -18,7 +18,7 @@ namespace FPS_n2 {
 			void			Draw(void) const noexcept;
 			void			DisposeLoad(void) noexcept;
 		};
-		//
+		// 
 		class MapNameDrawControl {
 			float						m_MapDrawTime{ 0.f };
 			float						m_MapDrawPer{ 0.f };
@@ -28,7 +28,7 @@ namespace FPS_n2 {
 			void			Update(void) noexcept;
 			void			Draw(void) const noexcept;
 		};
-		//
+		// 
 		enum class CutSceneType {
 			MsgBox,
 			ViewPoint,
@@ -83,5 +83,5 @@ namespace FPS_n2 {
 			void			Update(void) noexcept;
 			void			DrawCut(void) const noexcept;
 		};
-	};
-};
+	}
+}
