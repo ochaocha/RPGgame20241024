@@ -94,7 +94,7 @@ namespace FPS_n2 {
 			this->m_IsBlackOut = true;
 			this->m_BlackOutAlpha = 0.f;
 		}
-		void FadeControl::UpdateFade(void) noexcept {
+		void FadeControl::Update(void) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			this->m_BlackOutAlpha = std::clamp(this->m_BlackOutAlpha + (this->m_IsBlackOut ? 1.f : -1.f) * DrawParts->GetDeltaTime() / 0.5f, 0.f, 1.f);
 		}

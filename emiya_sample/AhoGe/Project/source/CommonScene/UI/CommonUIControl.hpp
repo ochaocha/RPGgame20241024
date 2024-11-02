@@ -299,7 +299,7 @@ namespace FPS_n2 {
 			void			SetFadeIn(void) noexcept;
 			void			SetFadeOut(void) noexcept;
 		public:
-			void			UpdateFade(void) noexcept;
+			void			Update(void) noexcept;
 			void			DrawFade(void) const noexcept;
 		};
 	};

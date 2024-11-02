@@ -13,7 +13,6 @@ namespace FPS_n2 {
 
 		class CharacterObject : public Object2DManager::Base2DObject {
 		private:
-			bool						m_IsPlayableCharacter{ false };
 			PlayerID					m_PlayerID{ 0 };
 			Vector2DX					m_InputVec{};
 
@@ -45,19 +44,15 @@ namespace FPS_n2 {
 			void		UpdateInputVector(const InputControl& MyInput) noexcept;
 		public:
 			void		UpdateInput(const InputControl& MyInput) noexcept;
-			void		SetPlayerID(PlayerID value) noexcept {
-				this->m_IsPlayableCharacter = (value == 0);
-				this->m_PlayerID = value;
-			}
+			void		SetPlayerID(PlayerID value) noexcept { this->m_PlayerID = value; }
 			void		SetGunType(GunType value) noexcept { this->m_GunType = value; }
-			void		DrawHPBer() noexcept;
 		public:
 			auto CanLookPlayer0(void) const noexcept { return this->m_Alpha > 0.5f; }
 			const auto& GetViewRad(void) const noexcept { return this->m_Radian; }
 			const auto& GetSpeed(void) const noexcept { return this->m_Speed; }
 			const auto& GetPlayerID(void) const noexcept { return this->m_PlayerID; }
 			const auto& GetHitPoint(void) const noexcept { return this->m_HitPoint; }
-			auto GetHitPointMax(void) const noexcept { return m_MaxHitPoint; }
+			const auto& GetHitPointMax(void) const noexcept { return m_MaxHitPoint; }
 		public:
 			void Update_OnHitObject(void) noexcept override;
 		public:

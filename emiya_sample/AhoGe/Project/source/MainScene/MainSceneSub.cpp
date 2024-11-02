@@ -4,36 +4,24 @@
 
 namespace FPS_n2 {
 	namespace Sceneclass {
-		void PauseMenuControl::LoadPause(void) noexcept {
+		void PauseMenuControl::Load(void) noexcept {
 			auto* ButtonParts = ButtonControl::Instance();
 			ButtonParts->ResetSel();
 			ButtonParts->AddStringButton("Retire", 48, true, 1920 - 64, 1080 - 84 - 64 * 2, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
 			ButtonParts->AddStringButton("Option", 48, true, 1920 - 64, 1080 - 84 - 64 * 1, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
 			ButtonParts->AddStringButton("Return Game", 48, true, 1920 - 64, 1080 - 84 - 64 * 0, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
 		}
-		void PauseMenuControl::SetPause(void) noexcept {
+		void PauseMenuControl::Set(void) noexcept {
 			this->m_IsRetire = false;
 		}
-		void PauseMenuControl::UpdatePause(void) noexcept {
+		void PauseMenuControl::Update(void) noexcept {
 			auto* SoundParts = SoundPool::Instance();
 			auto* Pad = PadControl::Instance();
 			auto* ButtonParts = ButtonControl::Instance();
 			auto* SceneParts = SceneControl::Instance();
-			auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 
 			if (SceneParts->IsPause()) {
 				if (!SceneParts->IsExit() && !SceneParts->IsRestart()) {
-					Pad->SetMouseMoveEnable(false);
-					KeyGuideParts->ChangeGuide(
-						[]() {
-							auto* KeyGuideParts = UISystem::KeyGuide::Instance();
-							auto* Pad = PadControl::Instance();
-							KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::INTERACT).GetAssign(), Pad->GetControlType()), "決定");
-							KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::RELOAD).GetAssign(), Pad->GetControlType()), "戻る");
-							KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_W).GetAssign(), Pad->GetControlType()), "");
-							KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_S).GetAssign(), Pad->GetControlType()), "");
-							KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::MOVE_STICK).GetAssign(), Pad->GetControlType()), "選択");
-						});
 					if (!OptionWindowClass::Instance()->IsActive()) {
 						ButtonParts->UpdateInput();
 						// 選択時の挙動
@@ -68,7 +56,7 @@ namespace FPS_n2 {
 				ButtonParts->ResetSel();
 			}
 		}
-		void PauseMenuControl::DrawPause(void) const noexcept {
+		void PauseMenuControl::Draw(void) const noexcept {
 			auto* ButtonParts = ButtonControl::Instance();
 			auto* SceneParts = SceneControl::Instance();
 			// ポーズ
@@ -76,97 +64,17 @@ namespace FPS_n2 {
 				ButtonParts->Draw();
 			}
 		}
-		void PauseMenuControl::DisposePause(void) noexcept {
+		void PauseMenuControl::DisposeLoad(void) noexcept {
 			auto* ButtonParts = ButtonControl::Instance();
 			ButtonParts->Dispose();
 		}
-		// UI
-		void InGameUIControl::DrawCharaUI_Back(PlayerID value) noexcept {
-			auto* PlayerMngr = PlayerManager::Instance();
-			auto& p = PlayerMngr->GetPlayer(value);
-			if (p->GetChara()) {
-				float Radius = 10.f;
-				auto* DrawParts = DXDraw::Instance();
-				int R = Cam2DControl::GetTileToDispSize(Radius);
-				Vector2DX DispPos;
-				Cam2DControl::ConvertTiletoDisp(p->GetChara()->GetPosition(), &DispPos);
-				// 範囲外
-				if (!HitPointToRectangle(
-					static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
-					-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
-					return;
-				}
-				double Deg = (double)-p->GetChara()->GetViewRad() / (DX_PI * 2.0) * 100.0 + 100.0;//ゲージが-100~100の範囲なので+100
-				double Watch;
-				if (value == 0) {
-					SetDrawBright(0, 0, 216);
-					Watch = 15.0 / 360.0 * 100.0;
-				}
-				else {
-					if (p->GetAI()->IsAlert()) {
-						SetDrawBright(216, 0, 0);// 
-					}
-					else if (p->GetAI()->IsCaution()) {
-						SetDrawBright(216, 216, 0);// 
-					}
-					else {
-						SetDrawBright(0, 216, 0);// 
-					}
-					Watch = 45.0 / 360.0 * 100.0;
-				}
-				DrawCircleGauge(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Deg + Watch, this->m_Watch.get(), Deg - Watch, (double)R / 64.0);
-			}
-		}
-		void InGameUIControl::DrawCharaUI_Front(PlayerID value) const noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			auto* PlayerMngr = PlayerManager::Instance();
-			auto& p = PlayerMngr->GetPlayer(value);
-			if (p->GetChara() && p->GetChara()->CanLookPlayer0()) {
-				if (p->GetAI()->GetGraphAlpha() <= 0.f) { return; }
-				int R = Cam2DControl::GetTileToDispSize(1.f);
-				Vector2DX DispPos;
-				Cam2DControl::ConvertTiletoDisp(p->GetChara()->GetPosition(), &DispPos);
-				// 範囲外
-				if (!HitPointToRectangle(
-					static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
-					-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
-					return;
-				}
-				int ShadowOfset = DrawParts->GetScreenY(3);
-				float Scale = static_cast<float>(DrawParts->GetScreenY(128)) / 128.0f * p->GetAI()->GetGraphAlpha();
-				if (p->GetAI()->IsAlert()) {
-					SetDrawBright(0, 0, 0);// 
-					this->m_Alert.DrawRotaGraph(static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32) + ShadowOfset, Scale, 0.f, true);
-					SetDrawBright(255, 0, 0);// 
-					this->m_Alert.DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32), Scale, 0.f, true);
-				}
-				else if (p->GetAI()->IsCaution()) {
-					SetDrawBright(0, 0, 0);// 
-					this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32) + ShadowOfset, Scale, 0.f, true);
-					SetDrawBright(255, 255, 0);// 
-					this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32), Scale, 0.f, true);
-				}
-				else {
-					SetDrawBright(0, 0, 0);// 
-					this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32) + ShadowOfset, Scale, 0.f, true);
-					SetDrawBright(0, 255, 0);// 
-					this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32), Scale, 0.f, true);
-				}
-			}
-		}
-		void InGameUIControl::LoadUI(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			this->m_Watch.Load("data/UI/Watch.png");
-			this->m_Caution.Load("data/UI/Caution.png");
-			this->m_Alert.Load("data/UI/Alert.png");
-			this->m_Goal.Load("data/UI/baserad.png");
 
-			this->m_ViewHandle.Make(DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), true);
-		}
-		void InGameUIControl::SetUI(void) noexcept {
+		void MapNameDrawControl::Set(void) noexcept {
+			auto* BackGround = BackGroundClassBase::Instance();
 			this->m_MapDrawTime = 5.f;
+			this->m_MapTextID = BackGround->GetMapTextID();
 		}
-		void InGameUIControl::UpdateUI(void) noexcept {
+		void MapNameDrawControl::Update(void) noexcept {
 			auto* DrawParts = DXDraw::Instance();
 
 			this->m_MapDrawTime = std::max(this->m_MapDrawTime - DrawParts->GetDeltaTime(), 0.f);
@@ -181,151 +89,7 @@ namespace FPS_n2 {
 			}
 			this->m_MapDrawPer = std::clamp(Per, 0.f, 1.f);
 		}
-		void InGameUIControl::Dispose_LoadUI(void) noexcept {
-			this->m_ViewHandle.Dispose();
-			this->m_Watch.Dispose();
-			this->m_Caution.Dispose();
-			this->m_Alert.Dispose();
-		}
-		void InGameUIControl::SetupWatchScreen(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			auto* BackGround = BackGroundClassBase::Instance();
-			auto* PlayerMngr = PlayerManager::Instance();
-			this->m_ViewHandle.SetDraw_Screen(false);
-			{
-				DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
-				// 視界
-				for (int loop = 0; loop < 4; loop++) {
-					for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
-						auto& p = PlayerMngr->GetPlayer((PlayerID)i);
-						if (p->GetChara()) {
-							if (i == 0) {
-								if (loop == 3) {
-									DrawCharaUI_Back((PlayerID)i);
-								}
-							}
-							else {
-								if (p->GetAI()->IsAlert()) {
-									if (loop == 2) {
-										DrawCharaUI_Back((PlayerID)i);
-									}
-								}
-								else if (p->GetAI()->IsCaution()) {
-									if (loop == 1) {
-										DrawCharaUI_Back((PlayerID)i);
-									}
-								}
-								else {
-									if (loop == 0) {
-										DrawCharaUI_Back((PlayerID)i);
-									}
-								}
-							}
-						}
-					}
-				}
-				SetDrawBright(255, 255, 255);
-				{
-					SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
-					BackGround->GetShadowGraph().DrawExtendGraph(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), false);
-					SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-				}
-			}
-		}
-		void InGameUIControl::DrawUI_Back(void) const noexcept {
-			auto* DrawCtrls = UISystem::DrawControl::Instance();
-			SetDrawBlendMode(DX_BLENDMODE_MULA, 92);
-			this->m_ViewHandle.DrawGraph(0, 0, false);
-			DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
-		}
-		void InGameUIControl::DrawUI_Front(void) const noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			auto* DrawCtrls = UISystem::DrawControl::Instance();
-			auto* BackGround = BackGroundClassBase::Instance();
-			auto* EventParts = EventDataBase::Instance();
-			auto* PlayerMngr = PlayerManager::Instance();
-			for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
-				auto& p = PlayerMngr->GetPlayer((PlayerID)i);
-				if (p->GetChara()) {
-					if (p->GetChara()->CanLookPlayer0()) {
-						SetDrawBright(255, 255, 255);
-						p->GetChara()->DrawHPBer();
-					}
-					// !マーク
-					if (i != 0) {
-						DrawCharaUI_Front((PlayerID)i);
-					}
-					// ID用デバッグ描画
-					if (false) {
-						SetDrawBright(255, 255, 255);
-						PlayerMngr->GetPlayer((PlayerID)i)->GetAI()->Draw();
-					}
-				}
-			}
-			SetDrawBright(255, 255, 255);
-			// 
-			if (this->m_GoalPos.x != -1.f && this->m_GoalPos.y != -1.f) {
-				int ShadowOfset = DrawParts->GetScreenY(3);
-				auto& p = PlayerMngr->GetPlayer((PlayerID)0);
-				if (p->GetChara()) {
-					float Len = (this->m_GoalPos - p->GetChara()->GetPosition()).magnitude() / 1.f;
-					float Rad = GetRadVec(this->m_GoalPos - p->GetChara()->GetPosition());
-					if (Len > 1.f / 255.f) {
-						DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * Len), 0, 255));
-						SetDrawBright(0, 0, 0);
-						this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2) + ShadowOfset, DrawParts->GetScreenY(1080 / 2) + ShadowOfset, static_cast<float>(DrawParts->GetScreenY(1024)) / 400.f, Rad, true);
-						SetDrawBright(255, 255, 255);
-						this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2), DrawParts->GetScreenY(1080 / 2), static_cast<float>(DrawParts->GetScreenY(1024)) / 400.f, Rad, true);
-						DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
-					}
-				}
-			}
-			for (auto& e : EventParts->GetEventChip()) {
-				// 次マップへの遷移
-				if (e.m_EventType == EventType::CutScene) {
-					if (static_cast<int>(m_StartTime) < e.m_ActiveDelaySec) {
-						continue;
-					}
-					auto* SaveDataParts = SaveDataClass::Instance();
-					std::string SaveStr = "Cut_" + std::to_string(e.m_CutSceneID);
-					if (SaveDataParts->GetParam(SaveStr) == -1) {
-						int ShadowOfset = DrawParts->GetScreenY(3);
-						auto& p = PlayerMngr->GetPlayer((PlayerID)0);
-
-						Vector2DX Pos = BackGround->GetFloorData(e.m_index)->GetTileCenterPos();
-
-						Vector2DX DispPos;
-						Cam2DControl::ConvertTiletoDisp(Pos, &DispPos);
-
-						if (!HitPointToRectangle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), 0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080))) {
-							if (p->GetChara()) {
-								float Len = (Pos - p->GetChara()->GetPosition()).magnitude() / 1.f;
-								float Rad = GetRadVec(Pos - p->GetChara()->GetPosition());
-								if (Len > 1.f / 255.f) {
-									DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(128.f * std::clamp(Len, 0.f, 1.f)), 0, 255));
-									SetDrawBright(0, 0, 0);
-									this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2) + ShadowOfset, DrawParts->GetScreenY(1080 / 2) + ShadowOfset, static_cast<float>(DrawParts->GetScreenY(768)) / 400.f, Rad, true);
-									SetDrawBright(255, 255, 255);
-									this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2), DrawParts->GetScreenY(1080 / 2), static_cast<float>(DrawParts->GetScreenY(768)) / 400.f, Rad, true);
-									DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
-								}
-							}
-						}
-						else {
-							float Scale = static_cast<float>(DrawParts->GetScreenY(64)) / 128.0f;
-
-							SetDrawBright(0, 0, 0);// 
-							this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32) + ShadowOfset, Scale, 0.f, true);
-							SetDrawBright(255, 128, 0);// 
-							this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32), Scale, 0.f, true);
-							SetDrawBright(255, 255, 255);
-						}
-					}
-				}
-			}
-
-		}
-		void InGameUIControl::DrawUI_MapName(void) const noexcept {
+		void MapNameDrawControl::Draw(void) const noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			auto* DrawCtrls = UISystem::DrawControl::Instance();
 			if (this->m_MapDrawPer > 1.f / 255.f) {
@@ -388,27 +152,16 @@ namespace FPS_n2 {
 			this->m_IsCutScene = true;
 			this->m_CutSceneSeek = 0;
 		}
-		void CutSceneControl::SetCut(void) noexcept {
+		void CutSceneControl::Set(void) noexcept {
 			this->m_IsCutScene = false;
 			this->m_CutSceneAlpha = 0.f;
 			this->m_MsgBoxSeek = 0.f;
 			this->m_WaitMS = 0.f;
 			this->m_CGFade = 0.f;
 		}
-		void CutSceneControl::UpdateCut(void) noexcept {
+		void CutSceneControl::Update(void) noexcept {
 			auto* Pad = PadControl::Instance();
-			auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 			auto* DrawParts = DXDraw::Instance();
-
-			if (this->m_IsCutScene) {
-				Pad->SetMouseMoveEnable(false);
-				KeyGuideParts->ChangeGuide(
-					[]() {
-						auto* KeyGuideParts = UISystem::KeyGuide::Instance();
-						auto* Pad = PadControl::Instance();
-						KeyGuideParts->AddGuide(KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(PADS::INTERACT).GetAssign(), Pad->GetControlType()), "読み進める");
-					});
-			}
 			// カットシーン全体
 			this->m_CutSceneAlpha = std::clamp(this->m_CutSceneAlpha + (this->m_IsCutScene ? 1.f : -1.f) * DrawParts->GetDeltaTime() / 0.5f, 0.f, 1.f);
 			// メッセージシーク
@@ -603,9 +356,9 @@ namespace FPS_n2 {
 				int y2 = DrawParts->GetUIY(400 + 540 / 2);
 				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_CGFade), 0, 255));
 				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, x1, y1, x2, y2, Gray50, TRUE);
-				m_CGGraph.DrawExtendGraph(x1, y1, x2, y2, false);
+				DrawCtrls->SetDrawExtendGraph(UISystem::DrawLayer::Normal, &m_CGGraph, x1, y1, x2, y2, false);
 				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 		}
-	};
+};
 };

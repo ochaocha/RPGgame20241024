@@ -21,7 +21,7 @@ namespace FPS_n2 {
 			const bool DKey = MyInput.GetPADSPress(PADS::MOVE_D) && !MyInput.GetPADSPress(PADS::MOVE_A);
 			// 通常移動速度の最大値(1秒間に進むタイルの枚数)
 			float SpeedLimit = 0.75f;
-			if (!m_IsPlayableCharacter) { SpeedLimit = 0.5f; }
+			if (!(GetPlayerID() == PlayerCharacter)) { SpeedLimit = 0.5f; }
 			if (MyInput.GetPADSPress(PADS::RUN)) { SpeedLimit = 0.95f; }
 			if (MyInput.GetPADSPress(PADS::WALK)) { SpeedLimit = 0.25f; }
 			// 移動演算
@@ -67,7 +67,7 @@ namespace FPS_n2 {
 			}
 			// 狙い
 			{
-				this->m_Radian += GetRadRad2Rad(this->m_Radian, -MyInput.GetyRad()) * 10.f * DrawParts->GetDeltaTime();
+				this->m_Radian += GetRadRad2Rad(this->m_Radian, MyInput.GetyRad()) * 10.f * DrawParts->GetDeltaTime();
 				if (this->m_Radian < 0.f) { this->m_Radian += DX_PI_F * 2.f; }
 				if (this->m_Radian > DX_PI_F * 2.f) { this->m_Radian -= DX_PI_F * 2.f; }
 			}
@@ -77,7 +77,7 @@ namespace FPS_n2 {
 					auto* Obj2DParts = Object2DManager::Instance();
 					const auto& Obj = std::make_shared<BulletObject>();
 					Obj2DParts->AddObject(Obj);
-					Obj->SetShootPlayer(this->m_PlayerID);
+					Obj->SetShootPlayer(GetPlayerID());
 					Vector2DX Vec = GetVecByRad(this->m_Radian) * -1.f;
 					switch (m_GunType) {
 					case GunType::Handgun:
@@ -111,25 +111,6 @@ namespace FPS_n2 {
 				this->m_ShotCoolTime = std::max(this->m_ShotCoolTime - DrawParts->GetDeltaTime(), 0.f);
 			}
 		}
-		void CharacterObject::DrawHPBer() noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			int R = Cam2DControl::GetTileToDispSize(1.f);
-			Vector2DX DispPos;
-			Cam2DControl::ConvertTiletoDisp(GetPosition(), &DispPos);
-			// 範囲外
-			if (!HitPointToRectangle(
-				static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
-				-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
-				return;
-			}
-			int xmin = DrawParts->GetScreenY(-50);
-			int ymin = DrawParts->GetScreenY(-50);
-			int xmax = DrawParts->GetScreenY(50);
-
-			int xper = xmin + (xmax - xmin) * this->GetHitPoint() / this->GetHitPointMax();
-			DrawLine(static_cast<int>(DispPos.x + xmin), static_cast<int>(DispPos.y + ymin), static_cast<int>(DispPos.x + xmax), static_cast<int>(DispPos.y + ymin), Gray75, 10);
-			DrawLine(static_cast<int>(DispPos.x + xmin), static_cast<int>(DispPos.y + ymin), static_cast<int>(DispPos.x + xper), static_cast<int>(DispPos.y + ymin), Green, 10);
-		}
 		void CharacterObject::Update_OnHitObject(void) noexcept {
 			auto* Obj2DParts = Object2DManager::Instance();
 			const auto& Obj = Obj2DParts->GetObj(GetHitUniqueID());
@@ -160,7 +141,7 @@ namespace FPS_n2 {
 			auto* SoundParts = SoundPool::Instance();
 			auto* Cam2D = Cam2DControl::Instance();
 
-			if (!m_IsPlayableCharacter) {
+			if (!(GetPlayerID() == PlayerCharacter)) {
 				auto& Chara = PlayerMngr->GetPlayer(0)->GetChara();
 				if (Chara) {
 					float ViewLimit = 40.f;
@@ -234,19 +215,20 @@ namespace FPS_n2 {
 				-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
 				return;
 			}
+
+			auto Color = (GetPlayerID() == PlayerCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50);
 			// ブラー
 			for (auto& b : m_Blur.GetBlur()) {
 				if (b.IsActive()) {
 					SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(16.f * this->m_Alpha * b.GetPer()), 0, 255));
 					Vector2DX DispPos;
 					Cam2DControl::ConvertTiletoDisp(b.GetPos(), &DispPos);
-					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(R * std::pow(b.GetPer(), 0.5f)), (m_IsPlayableCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50));
+					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(R * std::pow(b.GetPer(), 0.5f)), Color);
 				}
 			}
 			// 本体
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_Alpha), 0, 255));
-			DrawCircle(static_cast<int>(Pos.x), static_cast<int>(Pos.y), static_cast<int>(R), (m_IsPlayableCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50));
-
+			DrawCircle(static_cast<int>(Pos.x), static_cast<int>(Pos.y), static_cast<int>(R), Color);
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}
 		void CharacterObject::Dispose_Sub(void) noexcept {}

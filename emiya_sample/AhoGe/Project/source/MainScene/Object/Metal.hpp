@@ -8,7 +8,6 @@ namespace FPS_n2 {
 		class MetalObject : public Object2DManager::Base2DObject {
 		private:
 			PlayerID					m_PlayerID{ 0 };
-			PlayerID					m_HitPlayerID{ 0 };
 			float						m_Speed{ 1.f };
 			float						m_Rad{ 0.f };
 			float						m_Rad_R{ 0.f };
@@ -24,7 +23,6 @@ namespace FPS_n2 {
 			Vector2DX					m_InputVec{};
 
 			float						m_ShotCoolTime{ 0.f };
-
 			std::array<int, 8>			m_MissileID{};
 			int							m_MissileIDNum{};
 
@@ -39,15 +37,15 @@ namespace FPS_n2 {
 			MetalObject& operator=(const MetalObject&) = delete;
 			MetalObject& operator=(MetalObject&& o) = delete;
 
-			virtual ~MetalObject(void) noexcept;
+			virtual ~MetalObject(void) noexcept {}
 		public:
 			void		SetPlayerID(PlayerID value) noexcept { this->m_PlayerID = value; }
-			void		SetCanMove(bool value) noexcept { this->m_CanMove = value; }
+			void		SetCanMove(void) noexcept { m_CanMove = true; }
 
+			const auto& GetPlayerID(void) const noexcept { return this->m_PlayerID; }
 			const auto& GetHitPoint(void) const noexcept { return this->m_HitPoint; }
-			auto GetHitPointMax(void) const noexcept { return m_MaxHitPoint; }
+			const auto&	GetHitPointMax(void) const noexcept { return m_MaxHitPoint; }
 		public:
-			void DrawHPBer() noexcept;
 			std::shared_ptr<BulletObject>	AddBullet(PlayerID shootID, const Vector2DX& Pos, float Radian, float Offset, float Speed, float Size) noexcept {
 				auto* Obj2DParts = Object2DManager::Instance();
 				const auto& Obj = std::make_shared<BulletObject>();
@@ -59,7 +57,6 @@ namespace FPS_n2 {
 				Obj->SetSize(Size);
 				return Obj;
 			}
-
 		public:
 			void Update_OnHitObject(void) noexcept override;
 		public:
@@ -67,7 +64,7 @@ namespace FPS_n2 {
 			void Update_Sub(void) noexcept override;
 			void DrawShadow_Sub(void) noexcept override;
 			void Draw_Sub(void) noexcept override;
-			void Dispose_Sub(void) noexcept override;
+			void Dispose_Sub(void) noexcept override{}
 		};
 	};
 };

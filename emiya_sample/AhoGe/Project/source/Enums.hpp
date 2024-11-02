@@ -28,8 +28,11 @@ namespace FPS_n2 {
 			Metal,
 		};
 		constexpr float Tile_DispSize{ 48.f };//タイルを何pxで描画するか
+
 	};
 
 	using PlayerID = char;
 	using HitPoint = short;
+
+	constexpr PlayerID PlayerCharacter{ 0 };//操作するプレイヤー
 };

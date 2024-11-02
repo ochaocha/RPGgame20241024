@@ -7,7 +7,6 @@ namespace FPS_n2 {
 		class BulletObject : public Object2DManager::Base2DObject {
 		private:
 			PlayerID					m_ShotPlayerID{ 0 };
-			PlayerID					m_HitPlayerID{ 0 };
 			float						m_Rad{ 0.f };
 			Blur2DControl				m_Blur;
 		public:

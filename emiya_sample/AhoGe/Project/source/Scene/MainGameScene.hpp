@@ -7,19 +7,26 @@
 namespace FPS_n2 {
 	namespace Sceneclass {
 		class MainGameScene : public TEMPSCENE {
-			const PlayerID				m_MyPlayerID{ 0 };
 		private:
 			PauseMenuControl			m_PauseMenuControl;
-			InGameUIControl				m_InGameUIControl;
+			MapNameDrawControl			m_MapNameDrawControl;
 			CutSceneControl				m_CutSceneControl;
 			FadeControl					m_FadeControl;
 
-			bool						m_IsPrologue{ false };// シーン全体の終了フラグ
+			GraphHandle					m_ViewHandle;
+			GraphHandle					m_Watch;
+			GraphHandle					m_Caution;
+			GraphHandle					m_Alert;
+			GraphHandle					m_Goal;
+
+			Vector2DX					m_GoalPos;
+			float						m_StartTime{ 0.f };
+
 			bool						m_IsGoodEnd{ false };// シーン全体の終了フラグ
 
 			bool						m_IsBadEnd{ false };// シーン全体の終了フラグ
 
-			bool						m_IsGoNext{ false };// 次シーンに行くフラグ
+			bool						m_IsEndUpdate{ false };// 次シーンに行くフラグ
 			bool						m_IsEnd{ false };// シーン全体の終了フラグ
 			bool						m_IsPlayable{ false };// 操作可能
 			// 
@@ -27,7 +34,7 @@ namespace FPS_n2 {
 			// 
 			std::string					m_MapName;
 			int							m_EntryID{};
-			int							m_CutSceneID{};// カットシーンID
+			int							m_CutSceneID{ InvalidID };// カットシーンID
 
 			int							m_BossUniqueID{};
 			int							m_WinCutSceneID{};// カットシーンID
@@ -40,8 +47,6 @@ namespace FPS_n2 {
 			float						m_CautionBGM{ 0.f };
 			bool						m_IsAlertBGM{ false };
 			float						m_AlertBGM{ 0.f };
-
-			float						m_StartTime{ 0.f };
 		public:
 			MainGameScene(void) noexcept { }
 			MainGameScene(const MainGameScene&) = delete;
@@ -61,8 +66,8 @@ namespace FPS_n2 {
 			void			DrawUI_Base_Sub(void) const noexcept override;
 			void			DrawUI_In_Sub(void) const noexcept override;
 		private:
-			void			AddCharacter(PlayerID value) noexcept;
-			void			DelCharacter(PlayerID value) noexcept;
+			void			DrawCharaUI_Back(PlayerID value) const noexcept;
+			void			SetSceneEnd(void) noexcept;
 		};
 	};
 };

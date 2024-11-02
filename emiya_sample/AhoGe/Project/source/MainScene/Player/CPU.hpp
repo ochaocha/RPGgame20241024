@@ -17,7 +17,6 @@ namespace FPS_n2 {
 			~AIControl(void) noexcept;
 		public:
 			const InputControl& GetAIInput(void) const noexcept;
-			const float& GetInputRad(void) const noexcept;
 			const float		GetGraphAlpha(void) const noexcept;
 			bool			IsCaution(void) const noexcept;
 			bool			IsAlert(void) const noexcept;
@@ -26,7 +25,6 @@ namespace FPS_n2 {
 		public:
 			void			Init(void) noexcept;
 			void			Update(void) noexcept;
-			void			Draw(void) noexcept;
 			void			Dispose(void) noexcept;
 		};
 	};

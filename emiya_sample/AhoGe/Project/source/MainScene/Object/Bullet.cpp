@@ -71,12 +71,12 @@ namespace FPS_n2 {
 					Cam2DControl::ConvertTiletoDisp(b.GetPos(), &DispPos);
 					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
 						static_cast<int>(static_cast<float>(R) * std::pow(b.GetPer(), 0.5f)),
-						(this->m_ShotPlayerID == 0) ? Yellow : Green);
+						(this->m_ShotPlayerID == PlayerCharacter) ? Yellow : Green);
 				}
 			}
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 			// –{‘Ì
-			DrawCircle(static_cast<int>(Pos.x), static_cast<int>(Pos.y), R, (this->m_ShotPlayerID == 0) ? Yellow : Green);
+			DrawCircle(static_cast<int>(Pos.x), static_cast<int>(Pos.y), R, (this->m_ShotPlayerID == PlayerCharacter) ? Yellow : Green);
 		}
 		void BulletObject::Dispose_Sub(void) noexcept {}
 	};

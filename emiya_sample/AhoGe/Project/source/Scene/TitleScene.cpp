@@ -104,7 +104,7 @@ namespace FPS_n2 {
 			}
 			// 
 			ButtonParts->Update();
-			m_FadeControl.UpdateFade();
+			m_FadeControl.Update();
 			// 
 			return (m_IsStartGame) ? m_FadeControl.IsFadeAll() : true;
 		}

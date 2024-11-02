@@ -8,26 +8,6 @@ namespace FPS_n2 {
 			this->m_InputVec.Set(0.f, 0.f);
 			SetObjType(static_cast<int>(Object2DType::Metal));
 		}
-		MetalObject::~MetalObject(void) noexcept {}
-		void MetalObject::DrawHPBer() noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			int R = Cam2DControl::GetTileToDispSize(1.f);
-			Vector2DX DispPos;
-			Cam2DControl::ConvertTiletoDisp(GetPosition(), &DispPos);
-			// ”ÍˆÍŠO
-			if (!HitPointToRectangle(
-				static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
-				-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
-				return;
-			}
-			int xmin = DrawParts->GetScreenY(-50);
-			int ymin = DrawParts->GetScreenY(-50);
-			int xmax = DrawParts->GetScreenY(50);
-
-			int xper = xmin + (xmax - xmin) * this->GetHitPoint() / this->GetHitPointMax();
-			DrawLine(static_cast<int>(DispPos.x + xmin), static_cast<int>(DispPos.y + ymin), static_cast<int>(DispPos.x + xmax), static_cast<int>(DispPos.y + ymin), Gray75, 10);
-			DrawLine(static_cast<int>(DispPos.x + xmin), static_cast<int>(DispPos.y + ymin), static_cast<int>(DispPos.x + xper), static_cast<int>(DispPos.y + ymin), Green, 10);
-		}
 		// 
 		void MetalObject::Update_OnHitObject(void) noexcept {
 			auto* SoundParts = SoundPool::Instance();
@@ -75,6 +55,7 @@ namespace FPS_n2 {
 				SetVec(Vector2DX::zero());
 				return;
 			}
+			m_CanMove = true;
 			auto* DrawParts = DXDraw::Instance();
 			auto* PlayerMngr = PlayerManager::Instance();
 			auto* Obj2DParts = Object2DManager::Instance();
@@ -206,20 +187,20 @@ namespace FPS_n2 {
 				// ’e
 				if (this->m_ShotCoolTime == 0.f) {
 					if (10.f < Length && Length < 20.f && (GetRand(10) < 1)) {
-						const auto Obj = AddBullet(this->m_PlayerID,
+						const auto Obj = AddBullet(GetPlayerID(),
 							GetPosition(), DX_PI_F - this->m_Rad, GetSize() / 2 + 0.75f, 3.f, 0.5f);
 						this->m_ShotCoolTime = 0.5f;
 					}
 					else if (20.f < Length && (GetRand(10) < 1)) {
 						{
-							const auto Obj = AddBullet(this->m_PlayerID,
+							const auto Obj = AddBullet(GetPlayerID(),
 								GetPosition(), DX_PI_F - this->m_Rad + DX_PI_F / 6, GetSize() / 2.f + 0.75f, 1.5f * 5.f, 0.5f);
 
 							m_MissileID.at(m_MissileIDNum) = Obj->GetUniqueID();
 							++m_MissileIDNum %= static_cast<int>(m_MissileID.size());
 						}
 						{
-							const auto Obj = AddBullet(this->m_PlayerID,
+							const auto Obj = AddBullet(GetPlayerID(),
 								GetPosition(), DX_PI_F - this->m_Rad - DX_PI_F / 6, GetSize() / 2.f + 0.75f, 1.5f * 5.f, 0.5f);
 
 							m_MissileID.at(m_MissileIDNum) = Obj->GetUniqueID();
@@ -350,6 +331,5 @@ namespace FPS_n2 {
 			Cam2DControl::ConvertTiletoDisp(GetPosition() + ConvAddPos(AddPos, m_Rad_R), &DispPos);
 			DrawLine(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), GetColor(255, 0, 0), static_cast<int>(Radius * 0.25f) * 2);
 		}
-		void MetalObject::Dispose_Sub(void) noexcept {}
 	};
 };

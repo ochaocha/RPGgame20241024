@@ -265,8 +265,7 @@ namespace FPS_n2 {
 			BackGroundClassBase& operator=(BackGroundClassBase&& o) = delete;
 		public:
 			void			Init(const std::string& MapPath) noexcept;
-			void			Update(void) noexcept {}
-			void			SetupShadow(std::function<void()> AddAmbShadow) noexcept;
+			void			Update() noexcept;
 			void			Draw(void) noexcept;
 			void			DrawFront(void) noexcept;
 			void			Dispose(void) noexcept;

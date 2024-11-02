@@ -205,26 +205,6 @@ namespace FPS_n2 {
 					auto* BackGround = BackGroundClassBase::Instance();
 					this->m_UnitArray.resize(static_cast<size_t>(BackGround->GetXSize() * BackGround->GetYSize()));
 				}
-				void		Draw(void) noexcept {
-					// Œo˜H‚ðŽ¦‚·
-					int Radius = Cam2DControl::GetTileToDispSize(0.25f);
-					auto* BackGround = BackGroundClassBase::Instance();
-					{
-						auto* PUnit = this->m_pStartUnit;
-						for (int i = 0; i < 100; i++) {
-							if (!PUnit) { break; }
-							Vector2DX DispPos;
-							Cam2DControl::ConvertTiletoDisp(BackGround->GetFloorData(PUnit->GetIndex())->GetTileCenterPos(), &DispPos);
-							DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Radius, Red);
-							PUnit = PUnit->GetNextUnit();
-						}
-					}
-					{
-						Vector2DX DispPos;
-						Cam2DControl::ConvertTiletoDisp(BackGround->GetFloorData(this->m_TargetPathPlanningIndex)->GetTileCenterPos(), &DispPos);
-						DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(static_cast<float>(Radius) * 1.5f), Yellow);
-					}
-				}
 				void		Dispose(void) noexcept {
 					this->m_UnitArray.clear();
 				}
@@ -247,7 +227,6 @@ namespace FPS_n2 {
 			float									m_PathUpdateTimer{ 0.f };
 		public:
 			const InputControl& GetAIInput(void) const noexcept { return this->m_MyInput; }
-			const float& GetInputRad(void) const noexcept { return this->m_InputRad; }
 			inline bool			IsCaution(void) const noexcept { return this->m_Phase == ENUM_AI_PHASE::Check || this->m_Phase == ENUM_AI_PHASE::Caution; }
 			inline bool			IsAlert(void) const noexcept { return this->m_Phase == ENUM_AI_PHASE::Alert; }
 			// 
@@ -408,7 +387,7 @@ namespace FPS_n2 {
 					ChangeCheckPhase();
 				}
 				// 
-				this->m_InputRad = GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
+				this->m_InputRad = -GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
 			}
 			void		Update_Check(void) noexcept {
 				auto* DrawParts = DXDraw::Instance();
@@ -446,7 +425,7 @@ namespace FPS_n2 {
 					this->m_LastFindPos = this->m_TargetChara->GetPosition();
 				}
 				// 
-				this->m_InputRad = GetRadVec(GoingPoint - this->m_MyChara->GetPosition());
+				this->m_InputRad = -GetRadVec(GoingPoint - this->m_MyChara->GetPosition());
 			}
 			void		Update_Caution(void) noexcept {
 				auto* DrawParts = DXDraw::Instance();
@@ -482,7 +461,7 @@ namespace FPS_n2 {
 					}
 				}
 				// 
-				this->m_InputRad = GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
+				this->m_InputRad = -GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
 			}
 			void		Update_Alert(void) noexcept {
 				auto* DrawParts = DXDraw::Instance();
@@ -526,7 +505,7 @@ namespace FPS_n2 {
 					}
 				}
 				// 
-				this->m_InputRad = GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
+				this->m_InputRad = -GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
 			}
 		public:
 			void		Init(void) noexcept {
@@ -558,18 +537,7 @@ namespace FPS_n2 {
 				}
 				// 
 				this->m_GraphTimer = std::max(this->m_GraphTimer - DrawParts->GetDeltaTime(), 0.f);
-				this->m_MyInput.SetyRad(GetInputRad());
-			}
-			void		Draw(void) noexcept {
-				// return;
-				// Œo˜H‚ðŽ¦‚·
-				this->m_PathChecker.Draw();
-				// Ž‹ü‚ðŽ¦‚·
-				{
-					Vector2DX DispPos;
-					Cam2DControl::ConvertTiletoDisp(this->m_LastFindPos, &DispPos);
-					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Cam2DControl::GetTileToDispSize(0.25f), Red);
-				}
+				this->m_MyInput.SetyRad(this->m_InputRad);
 			}
 			void		Dispose(void) noexcept {
 				this->m_PathChecker.Dispose();
@@ -589,7 +557,6 @@ namespace FPS_n2 {
 		}
 		// 
 		const InputControl& AIControl::GetAIInput(void) const noexcept { return this->GetParam()->GetAIInput(); }
-		const float& AIControl::GetInputRad(void) const noexcept { return this->GetParam()->GetInputRad(); }
 		const float			AIControl::GetGraphAlpha(void) const noexcept { return this->GetParam()->GetGraphAlpha(); }
 		bool			AIControl::IsCaution(void) const noexcept { return this->GetParam()->IsCaution(); }
 		bool			AIControl::IsAlert(void) const noexcept { return this->GetParam()->IsAlert(); }
@@ -602,7 +569,6 @@ namespace FPS_n2 {
 		// 
 		void			AIControl::Init(void) noexcept { this->GetParam()->Init(); }
 		void			AIControl::Update(void) noexcept { this->GetParam()->Update(); }
-		void			AIControl::Draw(void) noexcept { this->GetParam()->Draw(); }
 		void			AIControl::Dispose(void) noexcept { this->GetParam()->Dispose(); }
 	};
 };

@@ -63,13 +63,8 @@ namespace FPS_n2 {
 				}
 				this->m_PlayerNum = playerNum;
 			}
-			void Dispose(void) noexcept {
-				for (auto& p : this->m_Player) {
-					p->Dispose();
-					p.reset();
-				}
-				this->m_Player.clear();
-			}
+			void UpdateDelete(void) noexcept;
+			void Dispose(void) noexcept;
 		};
 
 	};

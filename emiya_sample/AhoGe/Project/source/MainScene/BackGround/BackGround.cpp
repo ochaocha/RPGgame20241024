@@ -43,7 +43,7 @@ namespace FPS_n2 {
 			}
 			// „‰ñƒ‹[ƒg
 			for (auto& s : this->m_PlayerSpawn) {
-				if (static_cast<int>(&s - &this->m_PlayerSpawn.front()) == 0) { continue; }
+				if (static_cast<int>(&s - &this->m_PlayerSpawn.front()) == PlayerCharacter) { continue; }
 				s.m_Patrol.clear();
 				s.m_Patrol.emplace_back(s.m_index);
 				while (true) {
@@ -547,14 +547,14 @@ namespace FPS_n2 {
 			}
 		}
 		// 
-		void BackGroundClassBase::SetupShadow(std::function<void()> AddAmbShadow) noexcept {
+		void BackGroundClassBase::Update() noexcept {
 			auto* DrawParts = DXDraw::Instance();
 			auto* OptionParts = OPTION::Instance();
 			if (OptionParts->GetParamBoolean(EnumSaveParam::Shadow)) {
 				this->m_AmbientShadowHandle.SetDraw_Screen(false);
 				{
 					DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
-					AddAmbShadow();
+					Object2DManager::Instance()->DrawShadow();
 
 					for (auto& B : this->m_CheckWallBlick) {
 						B->DrawAmbientShadow(this->m_AmbientShadowLength, this->m_AmbientLightRad, this->m_MapChip.at(0));
