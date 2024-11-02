@@ -3,9 +3,6 @@
 
 namespace FPS_n2 {
 	// ’è”
-	constexpr float Frame_Rate{60.f};
-	constexpr float Scale_Rate{12.5f};
-
 	namespace Sceneclass {
 		enum class SESelect {
 			RunFoot = static_cast<int>(SoundSelectCommon::Num),
@@ -24,22 +21,15 @@ namespace FPS_n2 {
 			Caution,
 			Alert,
 		};
-		enum class CharaTypeID {
-			Team,
-			Enemy,
-		};
-
 		enum class Object2DType {
 			Human,
 			Bullet,
 			Rocket,
 			Metal,
 		};
-		constexpr float Tile_DispSize{ 48.f };
-		constexpr float Base_CamScale{ 64.f };// ‹óŠÔã‚Ì¸“x
+		constexpr float Tile_DispSize{ 48.f };//ƒ^ƒCƒ‹‚ğ‰½px‚Å•`‰æ‚·‚é‚©
 	};
 
 	using PlayerID = char;
 	using HitPoint = short;
-	using ArmerPoint = short;
 };

@@ -1,5 +1,4 @@
 Name=8003
-CamSize=0.75
 000_EvtType=Entry
 000_NextStage=None
 001_EvtType=Boss

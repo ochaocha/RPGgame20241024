@@ -167,21 +167,21 @@ namespace FPS_n2 {
 				}
 			public:
 				// 環境影を描画
-				void			DrawAmbientShadow(const Vector2DX& AmbientLightVec, float AmbientLightRad, const GraphHandle& ShadowChip) const noexcept;
+				void			DrawAmbientShadow(float AmbientShadowLength, float AmbientLightRad, const GraphHandle& ShadowChip) const noexcept;
 				// ポイント影を描画
 				void			DrawPointShadow(const Vector2DX& PointLightPos, const GraphHandle& ShadowChip)  const noexcept;
 			};
 			// プレイヤーの周囲にあるステージ壁を取得する( 検出する範囲は移動距離も考慮する )
 			class CheckLines {
-				std::array<Vector2DX,3>		m_Position{ };
+				std::array<Vector2DX, 3>		m_Position{ };
 				Vector2DX					m_Normal{};
-				bool						m_Active{true};
+				bool						m_Active{ true };
 			public:
 				void			SetActive(bool value) noexcept { this->m_Active = value; }
 			public:
-				const auto&		GetPos(int num) const noexcept { return this->m_Position.at(static_cast<size_t>(num)); }
-				const auto&		GetNormal(void) const noexcept { return this->m_Normal; }
-				const auto&		IsActive(void) const noexcept { return this->m_Active; }
+				const auto& GetPos(int num) const noexcept { return this->m_Position.at(static_cast<size_t>(num)); }
+				const auto& GetNormal(void) const noexcept { return this->m_Normal; }
+				const auto& IsActive(void) const noexcept { return this->m_Active; }
 			public:
 				void			CalcNormal(void) noexcept {
 					Vector2DX StartP = this->m_Position.at(0);
@@ -234,27 +234,24 @@ namespace FPS_n2 {
 			std::vector<EventChip>				m_EventChip;
 			std::vector<GraphHandle>			m_MapChip;
 			std::vector<GraphHandle>			m_WallChip;
-			float								m_AmbientShadowLength{36.f};
+			float								m_AmbientShadowLength{ 36.f };
 			float								m_AmbientLightRad = deg2rad(45);
-			Vector2DX							m_AmbientLightVec;
 			Vector2DX							m_PointLightPos;
 			GraphHandle							m_PointShadowHandle;
 			GraphHandle							m_AmbientShadowHandle;
 			int									m_GetMapTextID{};
-			float								m_CamScale{1.f};
 		public:
-			const auto&		GetMapTextID(void) const noexcept { return this->m_GetMapTextID; }
-			const auto&		GetCamScale(void) const noexcept { return this->m_CamScale; }
-			const auto&		GetShadowGraph(void) const noexcept { return this->m_PointShadowHandle; }
-			const auto&		GetAmbientLightVec(void) const noexcept { return this->m_AmbientLightVec; }
-			const auto&		GetPlayerSpawn(void) const noexcept { return this->m_PlayerSpawn; }
-			const auto&		GetEventChip(void) const noexcept { return this->m_EventChip; }
+			const auto& GetMapTextID(void) const noexcept { return this->m_GetMapTextID; }
+			const auto& GetShadowGraph(void) const noexcept { return this->m_PointShadowHandle; }
+			const auto& GetPlayerSpawn(void) const noexcept { return this->m_PlayerSpawn; }
+			const auto& GetEventChip(void) const noexcept { return this->m_EventChip; }
+			const auto		GetAmbientLightVec(void) const noexcept { return Vector2DX::vget(std::sin(this->m_AmbientLightRad), -std::cos(this->m_AmbientLightRad)) * this->m_AmbientShadowLength; }
 			auto			GetXSize(void) const noexcept { return this->m_Xsize; }
 			auto			GetYSize(void) const noexcept { return this->m_Ysize; }
 			auto			GetXYToNum(int x, int y) const noexcept { return std::min(x, this->m_Xsize - 1) * this->m_Ysize + std::min(y, this->m_Ysize - 1); }
-			auto			GetNumToXY(int num) const noexcept { return std::make_pair<int,int>(num / this->m_Ysize, num % this->m_Ysize); }
-			const auto&		GetFloorData(int num) const noexcept { return this->m_Blick.at(static_cast<size_t>(num)); }
-			const auto&		GetFloorData(int x, int y) const noexcept { return GetFloorData(GetXYToNum(x, y)); }
+			auto			GetNumToXY(int num) const noexcept { return std::make_pair<int, int>(num / this->m_Ysize, num % this->m_Ysize); }
+			const auto& GetFloorData(int num) const noexcept { return this->m_Blick.at(static_cast<size_t>(num)); }
+			const auto& GetFloorData(int x, int y) const noexcept { return GetFloorData(GetXYToNum(x, y)); }
 			auto			GetNearestFloors(const Vector2DX& Pos) const noexcept {
 				// 軽量版
 				int x = static_cast<int>(Pos.x + 0.5f);
@@ -272,15 +269,10 @@ namespace FPS_n2 {
 			bool			CheckLinetoMap(const Vector2DX& StartPos, Vector2DX* EndPos, float Radius, bool IsPhysical) const noexcept;
 		public:
 			void			SetAmbientLight(float ShadowLen, float Rad) noexcept {
-				auto* DrawParts = DXDraw::Instance();
 				this->m_AmbientShadowLength = ShadowLen;
 				this->m_AmbientLightRad = Rad;
-				float Radius = static_cast<float>(DrawParts->GetScreenY(static_cast<int>(this->m_AmbientShadowLength)));
-				this->m_AmbientLightVec.Set(std::sin(this->m_AmbientLightRad) * Radius, std::cos(this->m_AmbientLightRad) * Radius);
 			}
-			void			SetPointLight(const Vector2DX& Pos) noexcept {
-				Cam2DControl::Convert2DtoDisp(Pos,&this->m_PointLightPos);
-			}
+			void			SetPointLight(const Vector2DX& Pos) noexcept { this->m_PointLightPos = Pos; }
 		private:
 			BackGroundClassBase(void) {}
 			BackGroundClassBase(const BackGroundClassBase&) = delete;

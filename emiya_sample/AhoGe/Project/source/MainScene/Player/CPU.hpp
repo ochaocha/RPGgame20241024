@@ -17,7 +17,7 @@ namespace FPS_n2 {
 			~AIControl(void) noexcept;
 		public:
 			const InputControl& GetAIInput(void) const noexcept;
-			const float&	GetInputRad(void) const noexcept;
+			const float& GetInputRad(void) const noexcept;
 			const float		GetGraphAlpha(void) const noexcept;
 			bool			IsCaution(void) const noexcept;
 			bool			IsAlert(void) const noexcept;

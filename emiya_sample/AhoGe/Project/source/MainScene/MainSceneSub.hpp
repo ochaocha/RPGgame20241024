@@ -9,7 +9,7 @@ namespace FPS_n2 {
 		class PauseMenuControl {
 			bool			m_IsRetire{ false };
 		protected:
-			const auto&		IsRetire(void) const noexcept { return this->m_IsRetire; }
+			const auto& IsRetire(void) const noexcept { return this->m_IsRetire; }
 		protected:
 			void			LoadPause(void) noexcept;
 			void			SetPause(void) noexcept;
@@ -30,7 +30,7 @@ namespace FPS_n2 {
 			int							m_MapTextID{ 0 };
 
 			Vector2DX					m_GoalPos;
-			float						m_StartTime{0.f};
+			float						m_StartTime{ 0.f };
 		private:
 			void			DrawCharaUI_Back(PlayerID value) noexcept;
 			void			DrawCharaUI_Front(PlayerID value) const noexcept;
@@ -90,7 +90,7 @@ namespace FPS_n2 {
 			std::vector<CutSceneData>	m_CutSceneData{};
 			int							m_CutSceneSeek{ 0 };
 
-			std::array<std::string,10>	m_MsgString{};
+			std::array<std::string, 10>	m_MsgString{};
 			bool						m_IsMsgBox{ false };// カットシーン中フラグ
 			float						m_MsgBoxAlpha{ 0.f };
 			float						m_MsgBoxSeek{ 0.f };
@@ -98,8 +98,8 @@ namespace FPS_n2 {
 			int							m_PointX{};
 			int							m_PointY{};
 			float						m_WaitMS{ 0.f };
-			int							m_CGSel{InvalidID};
-			float						m_CGFade{0.f};
+			int							m_CGSel{ InvalidID };
+			float						m_CGFade{ 0.f };
 			GraphHandle					m_CGGraph;
 		protected:
 			const auto& IsCutScene(void) const noexcept { return this->m_IsCutScene; }
@@ -118,7 +118,7 @@ namespace FPS_n2 {
 			float						m_BlackOutAlpha{ 0.f };
 		protected:
 			auto		IsFadeClear(void) const noexcept { return this->m_BlackOutAlpha == 0.f; }
-			auto		IsFadeAll(void) const noexcept { return this ->m_BlackOutAlpha >= 1.f; }
+			auto		IsFadeAll(void) const noexcept { return this->m_BlackOutAlpha >= 1.f; }
 		protected:
 			void			SetBlackOut(bool value) noexcept { this->m_IsBlackOut = value; }
 		protected:

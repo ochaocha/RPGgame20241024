@@ -86,9 +86,16 @@ namespace FPS_n2 {
 			auto& p = PlayerMngr->GetPlayer(value);
 			if (p->GetChara()) {
 				float Radius = 10.f;
-				if (!Cam2DControl::Is2DPositionInDisp(p->GetChara()->GetPosition(), Radius)) { return; }
+				auto* DrawParts = DXDraw::Instance();
+				int R = Cam2DControl::GetTileToDispSize(Radius);
 				Vector2DX DispPos;
-				Cam2DControl::Convert2DtoDisp(p->GetChara()->GetPosition(), &DispPos);
+				Cam2DControl::ConvertTiletoDisp(p->GetChara()->GetPosition(), &DispPos);
+				// �͈͊O
+				if (!HitPointToRectangle(
+					static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
+					-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+					return;
+				}
 				double Deg = (double)p->GetChara()->GetViewRad() / (DX_PI * 2.0) * 100.0;
 				double Watch;
 				if (value == 0) {
@@ -107,7 +114,7 @@ namespace FPS_n2 {
 					}
 					Watch = 45.0 / 360.0 * 100.0;
 				}
-				DrawCircleGauge(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Deg + Watch, this->m_Watch.get(), Deg - Watch, (double)Cam2DControl::GetTileToDispSize(Radius) / 64.0);
+				DrawCircleGauge(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Deg + Watch, this->m_Watch.get(), Deg - Watch, (double)R / 64.0);
 			}
 		}
 		void InGameUIControl::DrawCharaUI_Front(PlayerID value) const noexcept {
@@ -116,9 +123,15 @@ namespace FPS_n2 {
 			auto& p = PlayerMngr->GetPlayer(value);
 			if (p->GetChara() && p->GetChara()->CanLookPlayer0()) {
 				if (p->GetAI()->GetGraphAlpha() <= 0.f) { return; }
-				if (!Cam2DControl::Is2DPositionInDisp(p->GetChara()->GetPosition(), 1.f)) { return; }
+				int R = Cam2DControl::GetTileToDispSize(1.f);
 				Vector2DX DispPos;
-				Cam2DControl::Convert2DtoDisp(p->GetChara()->GetPosition(), &DispPos);
+				Cam2DControl::ConvertTiletoDisp(p->GetChara()->GetPosition(), &DispPos);
+				// �͈͊O
+				if (!HitPointToRectangle(
+					static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
+					-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+					return;
+				}
 				int ShadowOfset = DrawParts->GetScreenY(3);
 				float Scale = static_cast<float>(DrawParts->GetScreenY(128)) / 128.0f * p->GetAI()->GetGraphAlpha();
 				if (p->GetAI()->IsAlert()) {
@@ -232,7 +245,6 @@ namespace FPS_n2 {
 				auto& p = PlayerMngr->GetPlayer((PlayerID)i);
 				if (p->GetChara()) {
 					if (p->GetChara()->CanLookPlayer0()) {
-						if (!Cam2DControl::Is2DPositionInDisp(p->GetChara()->GetPosition(), 1.f)) { continue; }
 						SetDrawBright(255, 255, 255);
 						p->GetChara()->DrawHPBer();
 					}
@@ -253,8 +265,8 @@ namespace FPS_n2 {
 				int ShadowOfset = DrawParts->GetScreenY(3);
 				auto& p = PlayerMngr->GetPlayer((PlayerID)0);
 				if (p->GetChara()) {
-					float Len = (Cam2DControl::Get2DSizetoTile(this->m_GoalPos) - p->GetChara()->GetPosition()).magnitude() / 1.f;
-					float Rad = GetRadVec2Vec(Cam2DControl::Get2DSizetoTile(this->m_GoalPos), p->GetChara()->GetPosition());
+					float Len = (this->m_GoalPos - p->GetChara()->GetPosition()).magnitude() / 1.f;
+					float Rad = GetRadVec(this->m_GoalPos - p->GetChara()->GetPosition());
 					if (Len > 1.f / 255.f) {
 						SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * Len), 0, 255));
 						SetDrawBright(0, 0, 0);
@@ -280,12 +292,12 @@ namespace FPS_n2 {
 						Vector2DX Pos = BackGround->GetFloorData(e.m_index)->GetTileCenterPos();
 
 						Vector2DX DispPos;
-						Cam2DControl::Convert2DtoDisp(Pos, &DispPos);
+						Cam2DControl::ConvertTiletoDisp(Pos, &DispPos);
 
 						if (!HitPointToRectangle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), 0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080))) {
 							if (p->GetChara()) {
 								float Len = (Pos - p->GetChara()->GetPosition()).magnitude() / 1.f;
-								float Rad = GetRadVec2Vec(Pos, p->GetChara()->GetPosition());
+								float Rad = GetRadVec(Pos - p->GetChara()->GetPosition());
 								if (Len > 1.f / 255.f) {
 									SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * std::clamp(Len, 0.f, 1.f)), 0, 255));
 									SetDrawBright(0, 0, 0);

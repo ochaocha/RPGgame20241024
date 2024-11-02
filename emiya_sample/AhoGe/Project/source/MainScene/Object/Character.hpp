@@ -15,21 +15,22 @@ namespace FPS_n2 {
 		class CharacterObject : public Base2DObjectKai {
 		private:
 			bool						m_IsPlayableCharacter{ false };
-			PlayerID					m_PlayerID{0};
+			PlayerID					m_PlayerID{ 0 };
 			Vector2DX					m_InputVec{};
 
 			float						m_Speed{ 1.f };
 
-			float						m_Alpha{1.f};
+			float						m_Alpha{ 1.f };
 
-			float						m_Rad{0.f};
+			float						m_Rad{ 0.f };
 			float						m_DodgeCoolTime{ 0.f };
 
 			float						m_ShotCoolTime{ 0.f };
 
-			float						m_RunFootPer{0.f};
+			float						m_RunFootPer{ 0.f };
 
-			HitPoint					m_HitPoint{0};
+			HitPoint					m_HitPoint{ 0 };
+			HitPoint					m_MaxHitPoint{ 3 };
 
 			GunType						m_GunType{ GunType::None };
 			Blur2DControl				m_Blur;
@@ -57,7 +58,7 @@ namespace FPS_n2 {
 			const auto& GetSpeed(void) const noexcept { return this->m_Speed; }
 			const auto& GetPlayerID(void) const noexcept { return this->m_PlayerID; }
 			const auto& GetHitPoint(void) const noexcept { return this->m_HitPoint; }
-			auto GetHitPointMax(void) const noexcept { return 3; }
+			auto GetHitPointMax(void) const noexcept { return m_MaxHitPoint; }
 		public:
 			void Update_OnHitObject(void) noexcept override;
 		public:

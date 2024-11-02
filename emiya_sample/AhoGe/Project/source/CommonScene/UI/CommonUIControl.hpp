@@ -18,20 +18,20 @@ namespace FPS_n2 {
 				Icon,
 			};
 			class ButtonClass {
-				GraphHandle* m_SelectBackImage{nullptr};
+				GraphHandle* m_SelectBackImage{ nullptr };
 
-				int xp1{0};
-				int yp1{0};
-				int xsize{0};
-				int ysize{0};
+				int xp1{ 0 };
+				int yp1{ 0 };
+				int xsize{ 0 };
+				int ysize{ 0 };
 				UISystem::FontXCenter LMR{ UISystem::FontXCenter::LEFT };
 				UISystem::FontYCenter TMB{ UISystem::FontYCenter::TOP };
 
-				float SelYadd{0.f};
+				float SelYadd{ 0.f };
 
-				ButtonStatus m_ButtonStatus{ButtonStatus::Ready};
-				ButtonMode m_ButtonMode{ButtonMode::String};
-				bool m_EnableSelect{false};
+				ButtonStatus m_ButtonStatus{ ButtonStatus::Ready };
+				ButtonMode m_ButtonMode{ ButtonMode::String };
+				bool m_EnableSelect{ false };
 			private:
 				char m_String[64]{};
 				GraphHandle m_Icon;
@@ -88,30 +88,30 @@ namespace FPS_n2 {
 					int xp = DrawParts->GetUIY(xp1);
 					int yp = DrawParts->GetUIY(yp1);
 					switch (LMR) {
-						case UISystem::FontXCenter::LEFT:
-							xp = DrawParts->GetUIY(xp1);
-							break;
-						case UISystem::FontXCenter::MIDDLE:
-							xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize) / 2;
-							break;
-						case UISystem::FontXCenter::RIGHT:
-							xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize);
-							break;
-						default:
-							break;
+					case UISystem::FontXCenter::LEFT:
+						xp = DrawParts->GetUIY(xp1);
+						break;
+					case UISystem::FontXCenter::MIDDLE:
+						xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize) / 2;
+						break;
+					case UISystem::FontXCenter::RIGHT:
+						xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize);
+						break;
+					default:
+						break;
 					}
 					switch (TMB) {
-						case UISystem::FontYCenter::TOP:
-							yp = DrawParts->GetUIY(yp1);
-							break;
-						case UISystem::FontYCenter::MIDDLE:
-							yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize) / 2;
-							break;
-						case UISystem::FontYCenter::BOTTOM:
-							yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize);
-							break;
-						default:
-							break;
+					case UISystem::FontYCenter::TOP:
+						yp = DrawParts->GetUIY(yp1);
+						break;
+					case UISystem::FontYCenter::MIDDLE:
+						yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize) / 2;
+						break;
+					case UISystem::FontYCenter::BOTTOM:
+						yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize);
+						break;
+					default:
+						break;
 					}
 					auto* Pad = PadControl::Instance();
 					return HitPointToRectangle(Pad->GetMS_X(), Pad->GetMS_Y(), xp, yp, xp + DrawParts->GetUIY(xsize), yp + DrawParts->GetUIY(ysize));
@@ -119,131 +119,131 @@ namespace FPS_n2 {
 				void			Draw(void) noexcept {
 					auto* DrawParts = DXDraw::Instance();
 					switch (this->m_ButtonMode) {
-						case ButtonMode::String:
-							{
-								auto* Fonts = UISystem::FontPool::Instance();
-								if (SelYadd > 0.f) {
-									int xp = DrawParts->GetUIY(xp1);
-									int yp = DrawParts->GetUIY(yp1);
-									switch (LMR) {
-										case UISystem::FontXCenter::LEFT:
-											xp = DrawParts->GetUIY(xp1);
-											break;
-										case UISystem::FontXCenter::MIDDLE:
-											xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize) / 2;
-											break;
-										case UISystem::FontXCenter::RIGHT:
-											xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize);
-											break;
-										default:
-											break;
-									}
-									switch (TMB) {
-										case UISystem::FontYCenter::TOP:
-											yp = DrawParts->GetUIY(yp1);
-											break;
-										case UISystem::FontYCenter::MIDDLE:
-											yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize) / 2;
-											break;
-										case UISystem::FontYCenter::BOTTOM:
-											yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize);
-											break;
-										default:
-											break;
-									}
+					case ButtonMode::String:
+					{
+						auto* Fonts = UISystem::FontPool::Instance();
+						if (SelYadd > 0.f) {
+							int xp = DrawParts->GetUIY(xp1);
+							int yp = DrawParts->GetUIY(yp1);
+							switch (LMR) {
+							case UISystem::FontXCenter::LEFT:
+								xp = DrawParts->GetUIY(xp1);
+								break;
+							case UISystem::FontXCenter::MIDDLE:
+								xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize) / 2;
+								break;
+							case UISystem::FontXCenter::RIGHT:
+								xp = DrawParts->GetUIY(xp1) - DrawParts->GetUIY(xsize);
+								break;
+							default:
+								break;
+							}
+							switch (TMB) {
+							case UISystem::FontYCenter::TOP:
+								yp = DrawParts->GetUIY(yp1);
+								break;
+							case UISystem::FontYCenter::MIDDLE:
+								yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize) / 2;
+								break;
+							case UISystem::FontYCenter::BOTTOM:
+								yp = DrawParts->GetUIY(yp1) - DrawParts->GetUIY(ysize);
+								break;
+							default:
+								break;
+							}
 
-									float per = std::clamp(SelYadd / 5.f, 0.f, 1.f);
-									float per2 = 1.f - std::clamp(SelYadd / 10.f, 0.f, 1.f);
-									SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * per), 0, 255));
-									this->m_SelectBackImage->DrawExtendGraph(
-										xp + DrawParts->GetUIY(xsize) / 2 - static_cast<int>(static_cast<float>(DrawParts->GetUIY(xsize) / 2 + DrawParts->GetUIY(300)) * per2), yp + DrawParts->GetUIY(ysize) - DrawParts->GetUIY(12) - static_cast<int>(static_cast<float>(DrawParts->GetUIY(ysize) / 6) * per),
-										xp + DrawParts->GetUIY(xsize) / 2 + static_cast<int>(static_cast<float>(DrawParts->GetUIY(xsize) / 2 + DrawParts->GetUIY(300)) * per2), yp + DrawParts->GetUIY(ysize) - DrawParts->GetUIY(12) + static_cast<int>(static_cast<float>(DrawParts->GetUIY(ysize) / 6) * per),
-										true);
-									SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-								}
-								unsigned int Color = Black;
-								if (DrawParts->GetUIY(ysize) > DrawParts->GetUIY(50)) {
-									switch (this->m_ButtonStatus) {
-										case ButtonStatus::None:
-											Color = Gray75;
-											break;
-										case ButtonStatus::Ready:
-											Color = GetColor(148, 216, 132);
-											break;
-										case ButtonStatus::Focus:
-											Color = Green;
-											break;
-										default:
-											break;
-									}
-								}
-								else {
-									switch (this->m_ButtonStatus) {
-										case ButtonStatus::None:
-											Color = Gray75;
-											if (!this->m_EnableSelect) {
-												Color = GetColor(64, 48, 48);
-											}
-											break;
-										case ButtonStatus::Ready:
-											Color = Gray15;
-											if (!this->m_EnableSelect) {
-												Color = Gray65;
-											}
-											break;
-										case ButtonStatus::Focus:
-											Color = WhiteSel;
-											if (!this->m_EnableSelect) {
-												Color = GetColor(216, 143, 143);
-											}
-											break;
-										default:
-											break;
-									}
-								}
-								Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(ysize), 0)->DrawString(InvalidID, LMR, TMB,
-																												   DrawParts->GetUIY(xp1), DrawParts->GetUIY(yp1 + static_cast<int>(SelYadd)), Color, Black, this->m_String);
+							float per = std::clamp(SelYadd / 5.f, 0.f, 1.f);
+							float per2 = 1.f - std::clamp(SelYadd / 10.f, 0.f, 1.f);
+							SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * per), 0, 255));
+							this->m_SelectBackImage->DrawExtendGraph(
+								xp + DrawParts->GetUIY(xsize) / 2 - static_cast<int>(static_cast<float>(DrawParts->GetUIY(xsize) / 2 + DrawParts->GetUIY(300)) * per2), yp + DrawParts->GetUIY(ysize) - DrawParts->GetUIY(12) - static_cast<int>(static_cast<float>(DrawParts->GetUIY(ysize) / 6) * per),
+								xp + DrawParts->GetUIY(xsize) / 2 + static_cast<int>(static_cast<float>(DrawParts->GetUIY(xsize) / 2 + DrawParts->GetUIY(300)) * per2), yp + DrawParts->GetUIY(ysize) - DrawParts->GetUIY(12) + static_cast<int>(static_cast<float>(DrawParts->GetUIY(ysize) / 6) * per),
+								true);
+							SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+						}
+						unsigned int Color = Black;
+						if (DrawParts->GetUIY(ysize) > DrawParts->GetUIY(50)) {
+							switch (this->m_ButtonStatus) {
+							case ButtonStatus::None:
+								Color = Gray75;
+								break;
+							case ButtonStatus::Ready:
+								Color = GetColor(148, 216, 132);
+								break;
+							case ButtonStatus::Focus:
+								Color = Green;
+								break;
+							default:
+								break;
 							}
+						}
+						else {
+							switch (this->m_ButtonStatus) {
+							case ButtonStatus::None:
+								Color = Gray75;
+								if (!this->m_EnableSelect) {
+									Color = GetColor(64, 48, 48);
+								}
+								break;
+							case ButtonStatus::Ready:
+								Color = Gray15;
+								if (!this->m_EnableSelect) {
+									Color = Gray65;
+								}
+								break;
+							case ButtonStatus::Focus:
+								Color = WhiteSel;
+								if (!this->m_EnableSelect) {
+									Color = GetColor(216, 143, 143);
+								}
+								break;
+							default:
+								break;
+							}
+						}
+						Fonts->Get(UISystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(ysize), 0)->DrawString(InvalidID, LMR, TMB,
+							DrawParts->GetUIY(xp1), DrawParts->GetUIY(yp1 + static_cast<int>(SelYadd)), Color, Black, this->m_String);
+					}
+					break;
+					case ButtonMode::Icon:
+					{
+						if (SelYadd > 0.f) {
+							float per1 = std::clamp(SelYadd / 5.f, 0.f, 1.f);
+							float per2 = 1.f - std::clamp(SelYadd / 10.f, 0.f, 1.f);
+							SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * per1), 0, 255));
+							this->m_SelectBackImage->DrawExtendGraph(
+								DrawParts->GetUIY(xp1) - static_cast<int>(static_cast<float>(DrawParts->GetUIY(xsize)) * per2), DrawParts->GetUIY(yp1) - static_cast<int>(static_cast<float>(DrawParts->GetUIY(ysize)) * per2),
+								DrawParts->GetUIY(xp1) + static_cast<int>(static_cast<float>(DrawParts->GetUIY(xsize)) * per2), DrawParts->GetUIY(yp1) + static_cast<int>(static_cast<float>(DrawParts->GetUIY(ysize)) * per2),
+								true);
+							SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+						}
+						switch (this->m_ButtonStatus) {
+						case ButtonStatus::None:
+							SetDrawBright(128, 128, 128);
 							break;
-						case ButtonMode::Icon:
-							{
-								if (SelYadd > 0.f) {
-									float per1 = std::clamp(SelYadd / 5.f, 0.f, 1.f);
-									float per2 = 1.f - std::clamp(SelYadd / 10.f, 0.f, 1.f);
-									SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * per1), 0, 255));
-									this->m_SelectBackImage->DrawExtendGraph(
-										DrawParts->GetUIY(xp1) - static_cast<int>(static_cast<float>(DrawParts->GetUIY(xsize)) * per2), DrawParts->GetUIY(yp1) - static_cast<int>(static_cast<float>(DrawParts->GetUIY(ysize)) * per2),
-										DrawParts->GetUIY(xp1) + static_cast<int>(static_cast<float>(DrawParts->GetUIY(xsize)) * per2), DrawParts->GetUIY(yp1) + static_cast<int>(static_cast<float>(DrawParts->GetUIY(ysize)) * per2),
-										true);
-									SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-								}
-								switch (this->m_ButtonStatus) {
-									case ButtonStatus::None:
-										SetDrawBright(128, 128, 128);
-										break;
-									case ButtonStatus::Ready:
-										SetDrawBright(216, 216, 216);
-										break;
-									case ButtonStatus::Focus:
-										SetDrawBright(216, 255, 216);
-										break;
-									default:
-										break;
-								}
-								this->m_Icon.DrawRotaGraph(DrawParts->GetUIY(xp1), DrawParts->GetUIY(yp1), static_cast<float>(DrawParts->GetUIY(100)) / 100.f * (1.f + SelYadd / 50.f), 0.f, true);
-								SetDrawBright(255, 255, 255);
-							}
+						case ButtonStatus::Ready:
+							SetDrawBright(216, 216, 216);
+							break;
+						case ButtonStatus::Focus:
+							SetDrawBright(216, 255, 216);
 							break;
 						default:
 							break;
+						}
+						this->m_Icon.DrawRotaGraph(DrawParts->GetUIY(xp1), DrawParts->GetUIY(yp1), static_cast<float>(DrawParts->GetUIY(100)) / 100.f * (1.f + SelYadd / 50.f), 0.f, true);
+						SetDrawBright(255, 255, 255);
+					}
+					break;
+					default:
+						break;
 					}
 				}
 			};
 		private:
 			GraphHandle					m_SelectBackImage;
 			std::vector<std::shared_ptr<ButtonClass>>	ButtonSel{};
-			int							select{0};
-			bool						m_MouseSelMode{false};
+			int							select{ 0 };
+			bool						m_MouseSelMode{ false };
 		public:
 			const auto& GetSelect(void) const noexcept { return select; }
 			bool		GetTriggerButton(void) const noexcept;
@@ -253,7 +253,7 @@ namespace FPS_n2 {
 			ButtonControl(ButtonControl&& o) = delete;
 			ButtonControl& operator=(const ButtonControl&) = delete;
 			ButtonControl& operator=(ButtonControl&& o) = delete;
-				
+
 			virtual ~ButtonControl(void) noexcept;
 		public:
 			void ResetSel(void) noexcept {
@@ -287,7 +287,7 @@ namespace FPS_n2 {
 		// 
 		class CreditControl {
 			static const int			CharMax = 256;
-			int							m_CreditCoulm{0};
+			int							m_CreditCoulm{ 0 };
 			std::array<std::pair<char[CharMax], char[CharMax]>, 64> m_CreditStr{};
 		public:
 			CreditControl(void) {}

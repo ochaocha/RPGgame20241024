@@ -29,7 +29,7 @@ namespace FPS_n2 {
 			Effect2DControl& operator=(const Effect2DControl&) = delete;
 			Effect2DControl& operator=(Effect2DControl&& o) = delete;
 		public:
-			void			SetEffect(const Vector2DX& Pos2D, EffectType Type,float Per) noexcept {
+			void			SetEffect(const Vector2DX& Pos2D, EffectType Type, float Per) noexcept {
 				m_GuardPos.at(m_GuardPosNum).m_Pos = Pos2D;
 				m_GuardPos.at(m_GuardPosNum).m_EffectType = Type;
 				m_GuardPos.at(m_GuardPosNum).m_Per = Per;
@@ -134,10 +134,14 @@ namespace FPS_n2 {
 			const Vector2DX GetCamPos(void) const noexcept { return this->m_Pos + m_CamShake2; }				//見ている座標＋揺れた結果
 			const float GetCamHeight(void) const noexcept { return m_Height; }
 		public:
-			void			SetCamPos(const Vector2DX& Pos) noexcept { this->m_Pos = Pos; }
-			void			SetCamAim(const Vector2DX& Pos) noexcept { Easing(&this->m_Pos, Pos, 0.9f, EasingType::OutExpo); }
-			void			SetCamRangePos(float Z) noexcept { this->m_Height = Z; }
-			void			SetCamRangeAim(float Z) noexcept { Easing(&this->m_Height, Z, 0.9f, EasingType::OutExpo); }
+			void			SetCamPos(const Vector2DX& Pos, float Z) noexcept {
+				this->m_Pos = Pos;
+				this->m_Height = Z;
+			}
+			void			SetCamAim(const Vector2DX& Pos, float Z) noexcept {
+				Easing(&this->m_Pos, Pos, 0.9f, EasingType::OutExpo);
+				Easing(&this->m_Height, Z, 0.9f, EasingType::OutExpo);
+			}
 			//揺れを設定します。　揺れる時間と揺れの力の2点です
 			void			SetCamShake(float time, float power) noexcept {
 				this->m_ShakeTotalTime = time;
@@ -147,33 +151,18 @@ namespace FPS_n2 {
 			void			Update(void) noexcept;
 		public:
 			// 空間上から画面上への変換
-			static void Convert2DtoDisp(const Vector2DX& Pos2D, Vector2DX* pRet) noexcept;
-			// 空間上から画面上への変換
-			static bool Is2DPositionInDisp(const Vector2DX& Pos2D, float Radius) noexcept;
-			// 空間上のタイルごとのサイズを取得
-			static float GetTileTo2DSize(float value) noexcept;
-			static Vector2DX GetTileTo2DSize(Vector2DX value) noexcept {
-				Vector2DX Ret;
-				Ret.Set(
-					GetTileTo2DSize(value.x),
-					GetTileTo2DSize(value.y)
-				);
-				return Ret;
-			}
-			// 空間上のサイズからタイル枚数を取得
-			static float Get2DSizetoTile(float value) noexcept;
-			static Vector2DX Get2DSizetoTile(Vector2DX value) noexcept {
-				Vector2DX Ret;
-				Ret.Set(
-					Get2DSizetoTile(value.x),
-					Get2DSizetoTile(value.y)
-				);
-				return Ret;
-			}
+			static void ConvertTiletoDisp(const Vector2DX& Pos2D, Vector2DX* pRet) noexcept;
 			// 画面上のタイルごとのサイズを取得
 			static int GetTileToDispSize(float value) noexcept;
+
+			static Vector2DX GetTileToDispSize(Vector2DX value) noexcept {
+				Vector2DX Ret;
+				Ret.Set(
+					(float)GetTileToDispSize(value.x),
+					(float)GetTileToDispSize(value.y)
+				);
+				return Ret;
+			}
 		};
-		// ベクトルのxy間の角度を取得
-		extern inline float GetRadVec2Vec(const Vector2DX& vec1, const Vector2DX& vec2) noexcept;
 	};
 };

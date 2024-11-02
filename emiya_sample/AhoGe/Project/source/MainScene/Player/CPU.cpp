@@ -20,13 +20,13 @@ namespace FPS_n2 {
 				class PathplanningUnit {
 				private:
 					int						m_Index{ 0 };					// 番号
-					PathplanningUnit*		m_NextUnit{ nullptr };			// 経路探索で確定した経路上の一つ先の地点( 当地点が経路上に無い場合は nullptr )
-					PathplanningUnit*		m_PrevUnit{ nullptr };			// 経路探索で確定した経路上の一つ前の地点( 当地点が経路上に無い場合は nullptr )
-					PathplanningUnit*		m_ActiveNextUnit{ nullptr };	// 経路探索処理対象になっている次の地点のメモリアドレスを格納する変数
+					PathplanningUnit* m_NextUnit{ nullptr };			// 経路探索で確定した経路上の一つ先の地点( 当地点が経路上に無い場合は nullptr )
+					PathplanningUnit* m_PrevUnit{ nullptr };			// 経路探索で確定した経路上の一つ前の地点( 当地点が経路上に無い場合は nullptr )
+					PathplanningUnit* m_ActiveNextUnit{ nullptr };	// 経路探索処理対象になっている次の地点のメモリアドレスを格納する変数
 					float					m_TotalDistance{ 0.f };			// 経路探索でこの地点に到達するまでに通過した地点間の距離の合計
 				public:
-					const auto&		GetIndex(void) const noexcept { return this->m_Index; }
-					const auto&		GetNextUnit(void) const noexcept { return this->m_NextUnit; }
+					const auto& GetIndex(void) const noexcept { return this->m_Index; }
+					const auto& GetNextUnit(void) const noexcept { return this->m_NextUnit; }
 				public:
 					void			Reset(int index) noexcept {
 						this->m_Index = index;
@@ -111,7 +111,7 @@ namespace FPS_n2 {
 							Now = Now->m_NextUnit;
 						}
 					}
-					static bool		GetNextUnit(const std::vector<PathplanningUnit>& UnitArray, int*NowIndex) noexcept {// 該当ユニットの次の進路を確認
+					static bool		GetNextUnit(const std::vector<PathplanningUnit>& UnitArray, int* NowIndex) noexcept {// 該当ユニットの次の進路を確認
 						auto* BackGround = BackGroundClassBase::Instance();
 						auto* NextPtr = UnitArray.at(static_cast<size_t>(*NowIndex)).GetNextUnit();
 						if (!NextPtr) { return false; }
@@ -131,8 +131,8 @@ namespace FPS_n2 {
 			private:
 				Vector2DX						m_GoalPosition;					// 目標位置
 				std::vector<PathplanningUnit>	m_UnitArray;					// 経路探索処理で使用する全地点の情報配列が格納されたメモリ領域の先頭メモリアドレスを格納する変数
-				PathplanningUnit*				m_pStartUnit{ nullptr };		// 経路のスタート地点にある地点情報へのメモリアドレスを格納する変数
-				PathplanningUnit*				m_pGoalUnit{ nullptr };			// 経路のゴール地点にある地点情報へのメモリアドレスを格納する変数
+				PathplanningUnit* m_pStartUnit{ nullptr };		// 経路のスタート地点にある地点情報へのメモリアドレスを格納する変数
+				PathplanningUnit* m_pGoalUnit{ nullptr };			// 経路のゴール地点にある地点情報へのメモリアドレスを格納する変数
 				int								m_TargetPathPlanningIndex{ 0 };	// 次の中間地点となる経路上の地点の経路探索情報が格納されているメモリアドレスを格納する変数
 			public:
 				auto	CalcNextPosition(const Vector2DX& NowPosition, bool* IsGoal = nullptr) noexcept {
@@ -214,14 +214,14 @@ namespace FPS_n2 {
 						for (int i = 0; i < 100; i++) {
 							if (!PUnit) { break; }
 							Vector2DX DispPos;
-							Cam2DControl::Convert2DtoDisp(BackGround->GetFloorData(PUnit->GetIndex())->GetTileCenterPos(), &DispPos);
+							Cam2DControl::ConvertTiletoDisp(BackGround->GetFloorData(PUnit->GetIndex())->GetTileCenterPos(), &DispPos);
 							DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Radius, Red);
 							PUnit = PUnit->GetNextUnit();
 						}
 					}
 					{
 						Vector2DX DispPos;
-						Cam2DControl::Convert2DtoDisp(BackGround->GetFloorData(this->m_TargetPathPlanningIndex)->GetTileCenterPos(), &DispPos);
+						Cam2DControl::ConvertTiletoDisp(BackGround->GetFloorData(this->m_TargetPathPlanningIndex)->GetTileCenterPos(), &DispPos);
 						DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(static_cast<float>(Radius) * 1.5f), Yellow);
 					}
 				}
@@ -234,11 +234,11 @@ namespace FPS_n2 {
 			std::shared_ptr<CharacterObject>		m_MyChara{ nullptr };
 		private:
 			// 
-			ENUM_AI_PHASE							m_Phase{ENUM_AI_PHASE::Normal};
+			ENUM_AI_PHASE							m_Phase{ ENUM_AI_PHASE::Normal };
 			InputControl							m_MyInput;
-			float									m_InputRad{0.f};
+			float									m_InputRad{ 0.f };
 			Vector2DX								m_LastFindPos{};
-			float									m_LostTimer{0.f};
+			float									m_LostTimer{ 0.f };
 			float									m_TargetDistance{ 0.f };
 			float									m_ShotTimer{ 0.f };
 			float									m_GraphTimer{ 0.f };
@@ -247,7 +247,7 @@ namespace FPS_n2 {
 			float									m_PathUpdateTimer{ 0.f };
 		public:
 			const InputControl& GetAIInput(void) const noexcept { return this->m_MyInput; }
-			const float&			GetInputRad(void) const noexcept { return this->m_InputRad; }
+			const float& GetInputRad(void) const noexcept { return this->m_InputRad; }
 			inline bool			IsCaution(void) const noexcept { return this->m_Phase == ENUM_AI_PHASE::Check || this->m_Phase == ENUM_AI_PHASE::Caution; }
 			inline bool			IsAlert(void) const noexcept { return this->m_Phase == ENUM_AI_PHASE::Alert; }
 			// 
@@ -286,8 +286,8 @@ namespace FPS_n2 {
 				if (!this->m_TargetChara) { return false; }
 				if (this->m_MyChara->CanLookPlayer0()) {
 					if (this->m_TargetDistance < 15.f) {
-						Vector2DX Vec;Vec.Set(std::sin(this->m_MyChara->GetViewRad()), std::cos(this->m_MyChara->GetViewRad()));
-						Vector2DX vec_a;vec_a = (this->m_MyChara->GetPosition() - this->m_TargetChara->GetPosition()).normalized();
+						Vector2DX Vec; Vec.Set(std::sin(this->m_MyChara->GetViewRad()), std::cos(this->m_MyChara->GetViewRad()));
+						Vector2DX vec_a; vec_a = (this->m_MyChara->GetPosition() - this->m_TargetChara->GetPosition()).normalized();
 						if (-Vector2DX::Dot(vec_a, Vec) > std::cos(deg2rad(45))) {
 							return true;
 						}
@@ -373,7 +373,7 @@ namespace FPS_n2 {
 						this->m_PathChecker.UpdatePath(this->m_MyChara->GetPosition(), this->m_LastFindPos);
 						this->m_PathUpdateTimer += 1.f;
 					}
-					if(this->m_Phase == ENUM_AI_PHASE::Alert) {
+					if (this->m_Phase == ENUM_AI_PHASE::Alert) {
 						this->m_PathChecker.UpdatePath(this->m_MyChara->GetPosition(), this->m_TargetChara->GetPosition());
 						this->m_PathUpdateTimer += 1.f;
 					}
@@ -407,7 +407,7 @@ namespace FPS_n2 {
 					ChangeCheckPhase();
 				}
 				// 
-				this->m_InputRad = DX_PI_F + GetRadVec2Vec(this->m_MyChara->GetPosition(), this->m_LastFindPos);
+				this->m_InputRad = GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
 			}
 			void		Update_Check(void) noexcept {
 				auto* DrawParts = DXDraw::Instance();
@@ -420,9 +420,9 @@ namespace FPS_n2 {
 					// 探索
 					{
 						bool IsGoal = false;
-						GoingPoint = this->m_PathChecker.CalcNextPosition(this->m_MyChara->GetPosition(),&IsGoal);
+						GoingPoint = this->m_PathChecker.CalcNextPosition(this->m_MyChara->GetPosition(), &IsGoal);
 						float Len = 0.1f;
-						auto Vec = GoingPoint- this->m_MyChara->GetPosition();
+						auto Vec = GoingPoint - this->m_MyChara->GetPosition();
 						if (Vec.sqrMagnitude() > Len * Len) {
 							this->m_MyInput.SetInputPADS(PADS::MOVE_W, Vec.y > Len / 3.f);
 							this->m_MyInput.SetInputPADS(PADS::MOVE_S, Vec.y < -Len / 3.f);
@@ -445,7 +445,7 @@ namespace FPS_n2 {
 					this->m_LastFindPos = this->m_TargetChara->GetPosition();
 				}
 				// 
-				this->m_InputRad = DX_PI_F + GetRadVec2Vec(this->m_MyChara->GetPosition(), GoingPoint);
+				this->m_InputRad = GetRadVec(GoingPoint - this->m_MyChara->GetPosition());
 			}
 			void		Update_Caution(void) noexcept {
 				auto* DrawParts = DXDraw::Instance();
@@ -481,7 +481,7 @@ namespace FPS_n2 {
 					}
 				}
 				// 
-				this->m_InputRad = DX_PI_F + GetRadVec2Vec(this->m_MyChara->GetPosition(), this->m_LastFindPos);
+				this->m_InputRad = GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
 			}
 			void		Update_Alert(void) noexcept {
 				auto* DrawParts = DXDraw::Instance();
@@ -525,7 +525,7 @@ namespace FPS_n2 {
 					}
 				}
 				// 
-				this->m_InputRad = DX_PI_F + GetRadVec2Vec(this->m_MyChara->GetPosition(), this->m_LastFindPos);
+				this->m_InputRad = GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
 			}
 		public:
 			void		Init(void) noexcept {
@@ -538,22 +538,22 @@ namespace FPS_n2 {
 				auto* DrawParts = DXDraw::Instance();
 				this->Update_Before();
 				switch (this->m_Phase) {
-					case ENUM_AI_PHASE::Normal:
-						this->Update_Normal();
-						break;
-					case ENUM_AI_PHASE::Check:
-						this->Update_Check();
-						break;
-					case ENUM_AI_PHASE::Caution:
-						this->Update_Caution();
-						break;
-					case ENUM_AI_PHASE::Alert:
-						this->Update_Alert();
-						break;
-					case ENUM_AI_PHASE::Dead:
-						break;
-					default:
-						break;
+				case ENUM_AI_PHASE::Normal:
+					this->Update_Normal();
+					break;
+				case ENUM_AI_PHASE::Check:
+					this->Update_Check();
+					break;
+				case ENUM_AI_PHASE::Caution:
+					this->Update_Caution();
+					break;
+				case ENUM_AI_PHASE::Alert:
+					this->Update_Alert();
+					break;
+				case ENUM_AI_PHASE::Dead:
+					break;
+				default:
+					break;
 				}
 				// 
 				this->m_GraphTimer = std::max(this->m_GraphTimer - DrawParts->GetDeltaTime(), 0.f);
@@ -565,10 +565,9 @@ namespace FPS_n2 {
 				this->m_PathChecker.Draw();
 				// 視線を示す
 				{
-					int Radius =Cam2DControl::GetTileToDispSize(0.25f);
 					Vector2DX DispPos;
-					Cam2DControl::Convert2DtoDisp(this->m_LastFindPos, &DispPos);
-					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Radius, Red);
+					Cam2DControl::ConvertTiletoDisp(this->m_LastFindPos, &DispPos);
+					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Cam2DControl::GetTileToDispSize(0.25f), Red);
 				}
 			}
 			void		Dispose(void) noexcept {
@@ -589,7 +588,7 @@ namespace FPS_n2 {
 		}
 		// 
 		const InputControl& AIControl::GetAIInput(void) const noexcept { return this->GetParam()->GetAIInput(); }
-		const float&			AIControl::GetInputRad(void) const noexcept { return this->GetParam()->GetInputRad(); }
+		const float& AIControl::GetInputRad(void) const noexcept { return this->GetParam()->GetInputRad(); }
 		const float			AIControl::GetGraphAlpha(void) const noexcept { return this->GetParam()->GetGraphAlpha(); }
 		bool			AIControl::IsCaution(void) const noexcept { return this->GetParam()->IsCaution(); }
 		bool			AIControl::IsAlert(void) const noexcept { return this->GetParam()->IsAlert(); }

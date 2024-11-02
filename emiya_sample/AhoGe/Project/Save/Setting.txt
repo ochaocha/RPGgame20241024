@@ -1,11 +1,10 @@
-GraphicsPreset=0
+GraphicsPreset=false
 DirectXVer=11
 bloom=true
-shadow=1
+shadow=true
 vsync=true
 FpsLimit=60
 SE=0.500000
-VOICE=0.500000
 BGM=0.500000
 WindowMode=0
 ScreenEffect=true

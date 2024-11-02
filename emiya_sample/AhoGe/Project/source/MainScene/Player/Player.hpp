@@ -11,7 +11,7 @@ namespace FPS_n2 {
 		private:
 			class PlayerControl {
 			private:
-				std::shared_ptr<CharacterObject>				m_Chara{nullptr};
+				std::shared_ptr<CharacterObject>				m_Chara{ nullptr };
 				std::shared_ptr<AIControl>						m_AI{ nullptr };
 			public:
 				PlayerControl(void) {}
@@ -25,10 +25,10 @@ namespace FPS_n2 {
 				}
 			public:
 				void		SetChara(const std::shared_ptr<CharacterObject>& pChara) noexcept { this->m_Chara = pChara; }
-				auto&		GetChara(void) noexcept { return this->m_Chara; }
+				auto& GetChara(void) noexcept { return this->m_Chara; }
 
 				void		SetAI(const std::shared_ptr<AIControl>& pAI) noexcept { this->m_AI = pAI; }
-				auto&		GetAI(void) noexcept { return this->m_AI; }
+				auto& GetAI(void) noexcept { return this->m_AI; }
 			public:
 				void Init(void) noexcept {
 					this->m_Chara = nullptr;
@@ -47,8 +47,8 @@ namespace FPS_n2 {
 			std::vector<std::unique_ptr<PlayerControl>>	m_Player;
 			int											m_PlayerNum{ 0 };
 		public:
-			auto&		GetPlayer(PlayerID ID) noexcept { return this->m_Player.at(static_cast<size_t>(ID)); }
-			const auto&	GetPlayerNum(void) const noexcept { return this->m_PlayerNum; }
+			auto& GetPlayer(PlayerID ID) noexcept { return this->m_Player.at(static_cast<size_t>(ID)); }
+			const auto& GetPlayerNum(void) const noexcept { return this->m_PlayerNum; }
 		private:
 			PlayerManager(void) {}
 			PlayerManager(const PlayerManager&) = delete;

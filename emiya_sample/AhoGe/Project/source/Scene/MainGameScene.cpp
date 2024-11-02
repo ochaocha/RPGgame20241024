@@ -59,7 +59,7 @@ namespace FPS_n2 {
 			m_BossUniqueID = InvalidID;
 			m_WinCutSceneID = InvalidID;
 			// 全キャラの設定
-			Vector2DX					GoalPos;GoalPos.Set(-1.f, -1.f);
+			Vector2DX					GoalPos; GoalPos.Set(-1.f, -1.f);
 			for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
 				AddCharacter((PlayerID)i);
 
@@ -71,7 +71,7 @@ namespace FPS_n2 {
 								p->GetChara()->SetPosition(BackGround->GetFloorData(e.m_index)->GetTileCenterPos());
 							}
 							else {
-								GoalPos = Cam2DControl::GetTileTo2DSize(BackGround->GetFloorData(e.m_index)->GetTileCenterPos());
+								GoalPos = BackGround->GetFloorData(e.m_index)->GetTileCenterPos();
 							}
 						}
 						if (e.m_EventType == EventType::Boss) {
@@ -93,8 +93,7 @@ namespace FPS_n2 {
 			}
 			auto& Chara = PlayerMngr->GetPlayer(this->m_MyPlayerID)->GetChara();
 			// カメラ
-			Cam2D->SetCamPos(Chara->GetPosition());
-			Cam2D->SetCamRangePos(BackGround->GetCamScale());
+			Cam2D->SetCamPos(Chara->GetPosition(), Tile_DispSize);
 			// 
 			this->m_PrevXY = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPosition()));
 			// 
@@ -180,7 +179,7 @@ namespace FPS_n2 {
 					auto& P = (std::shared_ptr<MetalObject>&)(Obj);
 					P->SetCanMove(this->m_IsPlayable);
 				}
-				else if(m_WinCutSceneID != InvalidID && !m_IsBadEnd){
+				else if (m_WinCutSceneID != InvalidID && !m_IsBadEnd) {
 					CutSceneControl::StartCutScene(m_WinCutSceneID);
 					m_WinCutSceneID = InvalidID;
 				}
@@ -194,7 +193,7 @@ namespace FPS_n2 {
 				bool Prev = this->m_IsCautionBGM || this->m_IsAlertBGM;
 				this->m_IsCautionBGM = false;
 				this->m_IsAlertBGM = false;
-				for (int i = 0;i < PlayerMngr->GetPlayerNum();i++) {
+				for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
 					auto& p = PlayerMngr->GetPlayer((PlayerID)i);
 					if (p->GetChara()) {
 						if (p->GetAI()->IsAlert()) {
@@ -341,7 +340,7 @@ namespace FPS_n2 {
 			// 
 			BackGround->Update();
 			// 入力制御
-			for (int i = 0;i < PlayerMngr->GetPlayerNum();i++) {
+			for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
 				auto& p = PlayerMngr->GetPlayer((PlayerID)i);
 				if (p->GetChara()) {
 					if (this->m_IsPlayable) {
@@ -362,23 +361,23 @@ namespace FPS_n2 {
 								float XV = static_cast<float>(Pad->GetMS_X() - DrawParts->GetUIXMax() / 2);
 								float YV = static_cast<float>(Pad->GetMS_Y() - DrawParts->GetUIYMax() / 2);
 								if (std::abs(XV) > 0.1f || std::abs(YV) > 0.1f) {
-									MyInput.SetyRad(std::atan2f(XV, -YV));
+									MyInput.SetyRad(GetRadVec(Vector2DX::vget(XV, -YV)));
 								}
 							}
 							else {
 								if (std::abs(Pad->GetLS_X()) > 0.1f || std::abs(Pad->GetLS_Y()) > 0.1f) {
-									MyInput.SetyRad(std::atan2f(Pad->GetLS_X(), Pad->GetLS_Y()));
+									MyInput.SetyRad(GetRadVec(Vector2DX::vget(Pad->GetLS_X(), Pad->GetLS_Y())));
 								}
 							}
 							if (p->GetChara()->GetSpeed() > 1.f) {
-								MyInput.SetyRad(std::atan2f(p->GetChara()->GetVec().x, p->GetChara()->GetVec().y));
+								MyInput.SetyRad(GetRadVec(p->GetChara()->GetVec()));
 							}
 							p->GetChara()->UpdateInput(MyInput);
 
 							// カメラ制御
 							Vector2DX CamAddPos;
 							if (Pad->GetPadsInfo(PADS::AIM).GetKey().press()) {
-								float ViewLimit = Cam2DControl::GetTileTo2DSize(10.f);
+								float ViewLimit = 10.f;
 								CamAddPos.Set(std::sin(MyInput.GetyRad()) * ViewLimit, std::cos(MyInput.GetyRad()) * ViewLimit);
 							}
 							Easing(&this->m_CamAddPos, CamAddPos, 0.9f, EasingType::OutExpo);
@@ -398,7 +397,7 @@ namespace FPS_n2 {
 			}
 			// 死亡制御
 			{
-				for (int i = 0;i < PlayerMngr->GetPlayerNum();i++) {
+				for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
 					auto& p = PlayerMngr->GetPlayer((PlayerID)i);
 					if (p->GetChara()) {
 						if (p->GetChara()->GetIsDelete()) {
@@ -421,19 +420,18 @@ namespace FPS_n2 {
 			}
 			// カメラ制御
 			if (Chara) {
-				Cam2D->SetCamAim(Chara->GetPosition() + this->m_CamAddPos);
-				Cam2D->SetCamRangeAim(BackGround->GetCamScale());
+				Cam2D->SetCamAim(Chara->GetPosition() + this->m_CamAddPos, Tile_DispSize);
 				Cam2DControl::Instance()->Update();
 			}
 			// 
 			if (Chara) {
 				BackGround->SetPointLight(Chara->GetPosition());
 			}
-			BackGround->SetAmbientLight(120.f, deg2rad(30));
+			BackGround->SetAmbientLight(3.f, deg2rad(30));//3タイル分として上から30度傾け
 			BackGround->SetupShadow([]() {
 				auto* Obj2DParts = Object2DManager::Instance();
 				Obj2DParts->DrawShadow();
-									});
+				});
 
 			InGameUIControl::UpdateUI();
 			if (FadeControl::IsFadeClear() && Chara) {
@@ -441,7 +439,7 @@ namespace FPS_n2 {
 				auto MyIndex = BackGround->GetNumToXY(BackGround->GetNearestFloors(Chara->GetPosition()));
 				auto IsNearIndex = [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
 					return  (std::abs(a.first - b.first) <= 3 && std::abs(a.second - b.second) <= 3);
-				};
+					};
 				if (!IsNearIndex(this->m_PrevXY, MyIndex)) {
 					this->m_PrevXY = MyIndex;
 					if (this->m_IsPlayable) {
@@ -449,7 +447,7 @@ namespace FPS_n2 {
 							if (IsNearIndex(BackGround->GetNumToXY(e.m_index), MyIndex)) {// 該当のチップに踏み込んだ
 								// 次マップへの遷移
 								if (e.m_EventType == EventType::Entry) {
-									if (e.m_EntryID!= InvalidID) {
+									if (e.m_EntryID != InvalidID) {
 										this->m_MapName = e.m_MapName;
 										this->m_EntryID = e.m_EntryID;
 										this->m_CutSceneID = e.m_CutSceneID;
@@ -494,7 +492,7 @@ namespace FPS_n2 {
 			PlayerMngr->Dispose();
 			BackGround->Dispose();
 			// セーブ
-			if(!this->m_IsGoodEnd){
+			if (!this->m_IsGoodEnd) {
 				// 最後に訪れたマップ
 				SaveDataParts->SetParam("LastMap", std::stoi(this->m_MapName.substr(3)));
 				SaveDataParts->SetParam("LastEntry", this->m_EntryID);

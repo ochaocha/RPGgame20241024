@@ -10,7 +10,7 @@ namespace FPS_n2 {
 			Object2DType	m_ObjType{};						// オブジェクトの種類
 			bool			m_IsCheckOnlyHitWall{ false };// マップの壁と当たり判定でずり判定をしない(当たった段階で消える)かどうか
 		public:
-			const auto&		GetObjType(void) const noexcept { return this->m_ObjType; }
+			const auto& GetObjType(void) const noexcept { return this->m_ObjType; }
 		public:
 			// 自分が何タイプかを設定
 			void			SetObjType(Object2DType value) noexcept { this->m_ObjType = value; }

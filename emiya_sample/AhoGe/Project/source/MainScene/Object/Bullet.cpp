@@ -30,35 +30,48 @@ namespace FPS_n2 {
 			m_Blur.Update();
 		}
 		void BulletObject::DrawShadow_Sub(void) noexcept {
-			float Radius = GetSize() / 2.f;
-			if (!Cam2DControl::Is2DPositionInDisp(GetPosition(), Radius)) { return; }
-			// 影
+			auto* DrawParts = DXDraw::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
-			Vector2DX DispPos;
-			Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
 
-			DispPos += BackGround->GetAmbientLightVec() * 0.25f* Cam2DControl::Instance()->GetCamHeight();
-			DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Cam2DControl::GetTileToDispSize(Radius), Black);
+			float Radius = GetSize() / 2.f;
+			int R = Cam2DControl::GetTileToDispSize(Radius);
+			Vector2DX DispPos;
+			Cam2DControl::ConvertTiletoDisp(GetPosition() + BackGround->GetAmbientLightVec() * 0.25f, &DispPos);
+			// 範囲外
+			if (!HitPointToRectangle(
+				static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
+				-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+				return;
+			}
+			// 影
+			DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), R, Black);
 		}
 		void BulletObject::Draw_Sub(void) noexcept {
 			float Radius = GetSize() / 2.f;
-			if (!Cam2DControl::Is2DPositionInDisp(GetPosition(), Radius)) { return; }
+			auto* DrawParts = DXDraw::Instance();
+			int R = Cam2DControl::GetTileToDispSize(Radius);
+			Vector2DX Pos;
+			Cam2DControl::ConvertTiletoDisp(GetPosition(), &Pos);
+			// 範囲外
+			if (!HitPointToRectangle(
+				static_cast<int>(Pos.x), static_cast<int>(Pos.y),
+				-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+				return;
+			}
 			// ブラー
 			for (auto& b : m_Blur.GetBlur()) {
 				if (b.IsActive()) {
 					SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(16.f * b.GetPer()), 0, 255));
 					Vector2DX DispPos;
-					Cam2DControl::Convert2DtoDisp(b.GetPos(), &DispPos);
+					Cam2DControl::ConvertTiletoDisp(b.GetPos(), &DispPos);
 					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
-						static_cast<int>(static_cast<float>(Cam2DControl::GetTileToDispSize(Radius)) * std::pow(b.GetPer(), 0.5f)),
+						static_cast<int>(static_cast<float>(R) * std::pow(b.GetPer(), 0.5f)),
 						(this->m_ShotPlayerID == 0) ? Yellow : Green);
 				}
 			}
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 			// 本体
-			Vector2DX DispPos;
-			Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
-			DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Cam2DControl::GetTileToDispSize(Radius), (this->m_ShotPlayerID == 0) ? Yellow : Green);
+			DrawCircle(static_cast<int>(Pos.x), static_cast<int>(Pos.y), R, (this->m_ShotPlayerID == 0) ? Yellow : Green);
 		}
 		void BulletObject::Dispose_Sub(void) noexcept {}
 	};

@@ -67,12 +67,7 @@ namespace FPS_n2 {
 			}
 			// 狙い
 			{
-				Vector2DX Vec; Vec.Set(std::sin(this->m_Rad), std::cos(this->m_Rad));
-				Vector2DX vec_a; vec_a.Set(std::sin(MyInput.GetyRad()), std::cos(MyInput.GetyRad()));
-				float cost = Vector2DX::Cross(vec_a, Vec);
-				float sint = sqrtf(std::abs(1.f - cost * cost));
-				this->m_Rad += (std::atan2f(cost, sint)) * 10.f * DrawParts->GetDeltaTime();
-
+				this->m_Rad += GetRadRad2Rad(this->m_Rad, MyInput.GetyRad()) * 10.f * DrawParts->GetDeltaTime();
 				if (this->m_Rad < 0.f) { this->m_Rad += DX_PI_F * 2.f; }
 				if (this->m_Rad > DX_PI_F * 2.f) { this->m_Rad -= DX_PI_F * 2.f; }
 			}
@@ -118,8 +113,15 @@ namespace FPS_n2 {
 		}
 		void CharacterObject::DrawHPBer() noexcept {
 			auto* DrawParts = DXDraw::Instance();
+			int R = Cam2DControl::GetTileToDispSize(1.f);
 			Vector2DX DispPos;
-			Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
+			Cam2DControl::ConvertTiletoDisp(GetPosition(), &DispPos);
+			// 範囲外
+			if (!HitPointToRectangle(
+				static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
+				-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+				return;
+			}
 			int xmin = DrawParts->GetScreenY(-50);
 			int ymin = DrawParts->GetScreenY(-50);
 			int xmax = DrawParts->GetScreenY(50);
@@ -149,7 +151,7 @@ namespace FPS_n2 {
 		void CharacterObject::Init_Sub(void) noexcept {
 			SetIsHitOtherObject(true);
 			this->m_RunFootPer = 0.f;
-			this->m_HitPoint = 3;
+			this->m_HitPoint = m_MaxHitPoint;
 		}
 		void CharacterObject::Update_Sub(void) noexcept {
 			auto* DrawParts = DXDraw::Instance();
@@ -163,7 +165,7 @@ namespace FPS_n2 {
 				if (Chara) {
 					float ViewLimit = 40.f;
 					if ((Chara->GetPosition() - GetPosition()).sqrMagnitude() < ViewLimit * ViewLimit) {
-						Easing(&this->m_Alpha, BackGround->CheckHideShadow(Chara->GetPosition(), GetPosition(), GetSize() / 2.f / Cam2DControl::GetTileToDispSize(1.f)), 0.5f, EasingType::OutExpo);
+						Easing(&this->m_Alpha, BackGround->CheckHideShadow(Chara->GetPosition(), GetPosition(), GetSize() / 2.f), 0.5f, EasingType::OutExpo);
 					}
 					else {
 						Easing(&this->m_Alpha, 0.f, 0.5f, EasingType::OutExpo);
@@ -191,34 +193,47 @@ namespace FPS_n2 {
 			m_Blur.Update();
 		}
 		void CharacterObject::DrawShadow_Sub(void) noexcept {
-			float Radius = static_cast<float>(GetSize() / 2.f);
-			if (!Cam2DControl::Is2DPositionInDisp(GetPosition(), Radius)) { return; }
+			auto* DrawParts = DXDraw::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
-			if (this->m_Alpha > 1.f / 255.f) {
-				Vector2DX DispPos;
-				Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
 
-				DispPos += BackGround->GetAmbientLightVec() * 0.25f * Cam2DControl::Instance()->GetCamHeight();
-				DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Cam2DControl::GetTileToDispSize(Radius)), Black);
+			float Radius = static_cast<float>(GetSize() / 2.f);
+			int R = Cam2DControl::GetTileToDispSize(Radius);
+			Vector2DX DispPos;
+			Cam2DControl::ConvertTiletoDisp(GetPosition() + BackGround->GetAmbientLightVec() * 0.25f, &DispPos);
+			// 範囲外
+			if (!HitPointToRectangle(
+				static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
+				-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+				return;
+			}
+			if (this->m_Alpha > 1.f / 255.f) {
+				DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(R), Black);
 			}
 		}
 		void CharacterObject::Draw_Sub(void) noexcept {
 			float Radius = static_cast<float>(GetSize() / 2.f);
-			if (!Cam2DControl::Is2DPositionInDisp(GetPosition(), Radius)) { return; }
+			auto* DrawParts = DXDraw::Instance();
+			int R = Cam2DControl::GetTileToDispSize(Radius);
+			Vector2DX Pos;
+			Cam2DControl::ConvertTiletoDisp(GetPosition(), &Pos);
+			// 範囲外
+			if (!HitPointToRectangle(
+				static_cast<int>(Pos.x), static_cast<int>(Pos.y),
+				-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+				return;
+			}
 			// ブラー
 			for (auto& b : m_Blur.GetBlur()) {
 				if (b.IsActive()) {
 					SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(16.f * this->m_Alpha * b.GetPer()), 0, 255));
 					Vector2DX DispPos;
-					Cam2DControl::Convert2DtoDisp(b.GetPos(), &DispPos);
-					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Cam2DControl::GetTileToDispSize(Radius) * std::pow(b.GetPer(), 0.5f)), (m_IsPlayableCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50));
+					Cam2DControl::ConvertTiletoDisp(b.GetPos(), &DispPos);
+					DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(R * std::pow(b.GetPer(), 0.5f)), (m_IsPlayableCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50));
 				}
 			}
 			// 本体
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_Alpha), 0, 255));
-			Vector2DX DispPos;
-			Cam2DControl::Convert2DtoDisp(GetPosition(), &DispPos);
-			DrawCircle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<int>(Cam2DControl::GetTileToDispSize(Radius)), (m_IsPlayableCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50));
+			DrawCircle(static_cast<int>(Pos.x), static_cast<int>(Pos.y), static_cast<int>(R), (m_IsPlayableCharacter) ? GetColor(37, 68, 141) : GetColor(92, 84, 50));
 
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}
