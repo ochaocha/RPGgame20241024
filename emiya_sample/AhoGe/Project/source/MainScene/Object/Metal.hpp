@@ -1,12 +1,11 @@
 #pragma once
 #include	"../../Header.hpp"
 #include	"../../sub.hpp"
-#include	"../../CommonScene/Object/Base2DObject.hpp"
 #include	"Bullet.hpp"
 
 namespace FPS_n2 {
 	namespace Sceneclass {
-		class MetalObject : public Base2DObjectKai {
+		class MetalObject : public Object2DManager::Base2DObject {
 		private:
 			PlayerID					m_PlayerID{ 0 };
 			PlayerID					m_HitPlayerID{ 0 };
@@ -63,7 +62,6 @@ namespace FPS_n2 {
 
 		public:
 			void Update_OnHitObject(void) noexcept override;
-			void Update_OnHitWall(void) noexcept override {}
 		public:
 			void Init_Sub(void) noexcept override;
 			void Update_Sub(void) noexcept override;

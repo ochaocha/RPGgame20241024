@@ -1,7 +1,6 @@
 #pragma once
 #include	"../../Header.hpp"
 #include	"../../sub.hpp"
-#include	"../../CommonScene/Object/Base2DObject.hpp"
 
 namespace FPS_n2 {
 	namespace Sceneclass {
@@ -12,7 +11,7 @@ namespace FPS_n2 {
 			Rocket,
 		};
 
-		class CharacterObject : public Base2DObjectKai {
+		class CharacterObject : public Object2DManager::Base2DObject {
 		private:
 			bool						m_IsPlayableCharacter{ false };
 			PlayerID					m_PlayerID{ 0 };

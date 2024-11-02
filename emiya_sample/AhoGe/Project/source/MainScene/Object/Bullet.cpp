@@ -5,29 +5,34 @@
 namespace FPS_n2 {
 	namespace Sceneclass {
 		BulletObject::BulletObject(void) noexcept {
-			SetObjType(Object2DType::Bullet);
+			SetObjType(static_cast<int>(Object2DType::Bullet));
 		}
 		// 
 		void BulletObject::Update_OnHitObject(void) noexcept {
 			SetDelete();
 		}
-		void BulletObject::Update_OnHitWall(void) noexcept {
-			SetDelete();
-			Effect2DControl::Instance()->SetEffect(GetPosition(), EffectType::WallHit, 0.5f);
-		}
 		// 
 		void BulletObject::Init_Sub(void) noexcept {
 			SetIsHitOtherObject(true);
-			SetIsCheckOnlyHitWall(true);
 			SetMass(0.01f);
 		}
 		void BulletObject::Update_Sub(void) noexcept {
 			// ブラー
 			m_Blur.AddBlur(0.5f, GetPosition(), this->GetVec());
-			// 
-			UpdateWallHit();
-
 			m_Blur.Update();
+			// 移動処理
+			auto* DrawParts = DXDraw::Instance();
+			auto* BackGround = BackGroundClassBase::Instance();
+			//移動後の座標を取得
+			Vector2DX PosTmp = this->GetPosition() + this->GetVec() * DrawParts->GetDeltaTime();
+			// 壁衝突演算(当たったらその場で消滅とする)
+			if (BackGround->CheckLinetoMap(this->GetPrevPos(), &PosTmp, GetSize() / 2.f, false)) {
+				//自身を消すフラグを立てて
+				SetDelete();
+				//ヒット位置にヒットエフェクトを追加
+				Effect2DControl::Instance()->SetEffect(PosTmp, EffectType::WallHit, 0.5f);
+			}
+			SetPosition(PosTmp);
 		}
 		void BulletObject::DrawShadow_Sub(void) noexcept {
 			auto* DrawParts = DXDraw::Instance();

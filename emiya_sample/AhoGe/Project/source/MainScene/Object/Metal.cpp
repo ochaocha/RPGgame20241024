@@ -6,7 +6,7 @@ namespace FPS_n2 {
 	namespace Sceneclass {
 		MetalObject::MetalObject(void) noexcept {
 			this->m_InputVec.Set(0.f, 0.f);
-			SetObjType(Object2DType::Metal);
+			SetObjType(static_cast<int>(Object2DType::Metal));
 		}
 		MetalObject::~MetalObject(void) noexcept {}
 		void MetalObject::DrawHPBer() noexcept {
@@ -34,13 +34,13 @@ namespace FPS_n2 {
 			auto* Obj2DParts = Object2DManager::Instance();
 			const auto& Obj = Obj2DParts->GetObj(GetHitUniqueID());
 			if (Obj) {
-				std::shared_ptr<Base2DObjectKai>& o = (std::shared_ptr<Base2DObjectKai>&)(Obj);
+				std::shared_ptr<Base2DObject>& o = (std::shared_ptr<Base2DObject>&)(Obj);
 				// ’eˆÈŠO‚ª“–‚½‚Á‚½Žž‚ÍˆÈ‰º‚Í’Ê‚³‚È‚¢
-				if (o->GetObjType() != Object2DType::Rocket && o->GetObjType() != Object2DType::Bullet) { return; }
+				if (o->GetObjType() != static_cast<int>(Object2DType::Rocket) && o->GetObjType() != static_cast<int>(Object2DType::Bullet)) { return; }
 
 				Effect2DControl::Instance()->SetEffect(o->GetPosition(), EffectType::Guard, 1.f);
 				// Effect2DControl::Instance()->Set(o->GetPosition(), EffectType::Damage, 0.25f);
-				if (o->GetObjType() == Object2DType::Rocket) {
+				if (o->GetObjType() == static_cast<int>(Object2DType::Rocket)) {
 					this->m_HitPoint = 0;
 					SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Bomb))->Play(DX_PLAYTYPE_BACK, TRUE);
 				}
@@ -234,7 +234,7 @@ namespace FPS_n2 {
 				for (auto& g : m_MissileID) {
 					const auto& Obj = Obj2DParts->GetObj(g);
 					if (Obj) {
-						std::shared_ptr<Base2DObjectKai>& o = (std::shared_ptr<Base2DObjectKai>&)(Obj);
+						std::shared_ptr<Base2DObject>& o = (std::shared_ptr<Base2DObject>&)(Obj);
 						Vector2DX Vec; Vec = (Chara->GetPosition() - o->GetPosition()).normalized();
 						Vector2DX Vec_R; Vec_R = o->GetVec().normalized();
 						if (Vector2DX::Dot(Vec, Vec_R) > 0.f) {

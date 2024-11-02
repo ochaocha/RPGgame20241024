@@ -17,13 +17,14 @@ namespace DXLibRef {
 			UniqueID		m_UniqueID{ InvalidID };			// オブジェクトマネージャーにつけてもらうID オブジェクトマネージャーでDeleteAllされない限り各オブジェクトでID被りを起こさない
 			bool			m_IsDelete{ false };				// オブジェクトがマネージャーに削除フラグを伝えるための変数
 			bool			m_IsFirstLoop{ true };				// 初めてUpdate_Subを通る場合TRUEになる変数(継承先でのみ参照できるものとする)
-			Vector2DX		m_PrevPos{};		// SetPositionで設定する前の座標
-			Vector2DX		m_Pos{};			// 座標
-			Vector2DX		m_Vec{};			// 移動ベクトル
-			float			m_Size{ 1.f };		// サイズ
-			float			m_Mass{ 1.f };		// 重量
-			UniqueID		m_HitUniqueID{ InvalidID };// オブジェクトに当たった場合に何のオブジェクトに当たったかを確認する為の変数
-			bool			m_IsHitOtherObject{ false };// 他のオブジェクトと当たるかどうか
+			Vector2DX		m_PrevPos{};						// SetPositionで設定する前の座標
+			Vector2DX		m_Pos{};							// 座標
+			Vector2DX		m_Vec{};							// 移動ベクトル
+			float			m_Size{ 1.f };						// サイズ
+			float			m_Mass{ 1.f };						// 重量
+			UniqueID		m_HitUniqueID{ InvalidID };			// オブジェクトに当たった場合に何のオブジェクトに当たったかを確認する為の変数
+			bool			m_IsHitOtherObject{ false };		// 他のオブジェクトと当たるかどうか
+			int				m_ObjType{};						// オブジェクトの種類
 		protected:
 			// 初めてUpdate_Subを通るかどうか
 			const auto& GetIsFirstLoop(void) const noexcept { return this->m_IsFirstLoop; }
@@ -40,6 +41,7 @@ namespace DXLibRef {
 			const auto& GetMass(void) const noexcept { return this->m_Mass; }
 			const auto& GetHitUniqueID(void) const noexcept { return this->m_HitUniqueID; }
 			const auto& GetIsHitOtherObject(void) const noexcept { return this->m_IsHitOtherObject; }
+			const auto& GetObjType(void) const noexcept { return this->m_ObjType; }
 		public:
 			// 自分をマネージャーに破棄してもらうフラグを立てる
 			void			SetDelete(void) noexcept { this->m_IsDelete = true; }
@@ -52,6 +54,7 @@ namespace DXLibRef {
 			void			SetMass(float value) noexcept { this->m_Mass = value; }
 			void			SetHitUniqueID(UniqueID value) noexcept { this->m_HitUniqueID = value; }
 			void			SetIsHitOtherObject(bool value) noexcept { this->m_IsHitOtherObject = value; }
+			void			SetObjType(int value) noexcept { this->m_ObjType = value; }			// 自分が何タイプかを設定
 		public:
 			// コンストラクタ
 			Base2DObject() noexcept {}

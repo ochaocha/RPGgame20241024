@@ -47,18 +47,15 @@ namespace DXLibRef {
 	// ポーズ画面
 	void SceneControl::PauseDrawer::UpdatePause(void) noexcept {
 		// ポーズ画面では点滅の演算を行う
-		if (m_IsPauseActive) {
-			auto* DrawParts = DXDraw::Instance();
-			// 1秒経ったら0秒にリセットする
-			m_PauseFlashCount += DrawParts->GetDeltaTime();
-			if (m_PauseFlashCount > 1.f) {
-				m_PauseFlashCount -= 1.f;
-			}
+		auto* DrawParts = DXDraw::Instance();
+		// 1秒経ったら0秒にリセットする
+		m_PauseFlashCount += DrawParts->GetDeltaTime();
+		if (m_PauseFlashCount > 1.f) {
+			m_PauseFlashCount -= 1.f;
 		}
 	}
 	void SceneControl::PauseDrawer::DrawPause(void) const noexcept {
 		// ポーズ画面に入っていない場合はスルーする
-		if (!m_IsPauseActive) { return; }
 		auto* DrawParts = DXDraw::Instance();
 		auto* DrawCtrls = UISystem::DrawControl::Instance();
 		// 半透明の暗幕
@@ -70,17 +67,14 @@ namespace DXLibRef {
 			UISystem::SetMsg(DrawParts->GetUIY(16), DrawParts->GetUIY(16) + DrawParts->GetUIY(36) / 2, DrawParts->GetUIY(36), UISystem::FontXCenter::LEFT, Green, Black, "Pause");
 		}
 	}
-	void SceneControl::PauseDrawer::ChangePause(bool value) noexcept {
+
+	void SceneControl::ChangePause(bool value) noexcept {
+		auto* PopUpParts = UISystem::PopUp::Instance();
 		if (m_IsPauseActive != value) {
 			m_IsPauseActive = value;
 			auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 			KeyGuideParts->SetGuideUpdate();
 		}
-	}
-
-	void SceneControl::ChangePause(bool value) noexcept {
-		auto* PopUpParts = UISystem::PopUp::Instance();
-		m_PauseDrawer.ChangePause(value);
 		//ポップアップをすべて削除とする
 		PopUpParts->EndAll();
 	}
@@ -198,10 +192,12 @@ namespace DXLibRef {
 		// ポップアップのアップデート
 		PopUpParts->Update();
 		// ポーズ画面の更新
-		m_PauseDrawer.UpdatePause();
+		if (IsPause()) {
+			m_PauseDrawer.UpdatePause();
+		}
 		// ポーズ入力によるオンオフ
 		if (Pad->GetPadsInfo(PADS::INVENTORY).GetKey().trigger()) {
-			ChangePause(!m_PauseDrawer.IsPause());
+			ChangePause(!IsPause());
 		}
 		// FPS表示機能の更新
 		m_FPSDrawer.UpdateFPSCounter();
@@ -237,7 +233,9 @@ namespace DXLibRef {
 			// UI描画設定
 			this->m_NowScenesPtr->DrawUI_Base();
 			// ポーズ描画を設定
-			m_PauseDrawer.DrawPause();
+			if (IsPause()) {
+				m_PauseDrawer.DrawPause();
+			}
 			// FPS表示描画を設定
 			m_FPSDrawer.DrawFPSCounter();
 			// キーガイド描画を設定

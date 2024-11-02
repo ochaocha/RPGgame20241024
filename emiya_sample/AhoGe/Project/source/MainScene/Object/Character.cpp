@@ -8,7 +8,7 @@ namespace FPS_n2 {
 	namespace Sceneclass {
 		CharacterObject::CharacterObject(void) noexcept {
 			this->m_InputVec.Set(0.f, 0.f);
-			SetObjType(Object2DType::Human);
+			SetObjType(static_cast<int>(Object2DType::Human));
 			SetSize(1.f);
 		}
 		CharacterObject::~CharacterObject(void) noexcept {}
@@ -97,7 +97,7 @@ namespace FPS_n2 {
 					case GunType::Rocket:
 						this->m_ShotCoolTime = 5.f;
 						SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Shot3))->Play(DX_PLAYTYPE_BACK, TRUE);
-						Obj->SetObjType(Object2DType::Rocket);// “Á•Ê‚ÉƒƒPƒbƒg‚Æ‚µ‚Ä“o˜^
+						Obj->SetObjType(static_cast<int>(Object2DType::Rocket));// “Á•Ê‚ÉƒƒPƒbƒg‚Æ‚µ‚Ä“o˜^
 						Obj->SetPosition(GetPosition() + Vec * 2.5f);
 						Obj->SetVec(Vec * 0.5f * 5.f);
 						Obj->SetSize(3.f);
@@ -134,9 +134,9 @@ namespace FPS_n2 {
 			auto* Obj2DParts = Object2DManager::Instance();
 			const auto& Obj = Obj2DParts->GetObj(GetHitUniqueID());
 			if (Obj) {
-				std::shared_ptr<Base2DObjectKai>& o = (std::shared_ptr<Base2DObjectKai>&)(Obj);
+				std::shared_ptr<Base2DObject>& o = (std::shared_ptr<Base2DObject>&)(Obj);
 				// ’eˆÈŠO‚ª“–‚½‚Á‚½Žž‚ÍˆÈ‰º‚Í’Ê‚³‚È‚¢
-				if (o->GetObjType() != Object2DType::Rocket && o->GetObjType() != Object2DType::Bullet) { return; }
+				if (o->GetObjType() != static_cast<int>(Object2DType::Rocket) && o->GetObjType() != static_cast<int>(Object2DType::Bullet)) { return; }
 
 				Effect2DControl::Instance()->SetEffect(o->GetPosition(), EffectType::Damage, 0.25f);
 				this->m_HitPoint--;
@@ -187,9 +187,21 @@ namespace FPS_n2 {
 					}
 				}
 			}
-			// 
-			UpdateWallHit();
-
+			// •ÇÕ“Ë‰‰ŽZ
+			Vector2DX Vec = this->GetVec() * DrawParts->GetDeltaTime();
+			{
+				bool IsHit = false;
+				int Max = static_cast<int>(std::max(1.f, 60.f / std::max(30.f, DrawParts->GetFps())));
+				for (int i = 0; i < Max; i++) {
+					Vector2DX PosTmp = this->GetPosition() + Vec * (1.f / static_cast<float>(Max));
+					IsHit |= BackGround->CheckLinetoMap(this->GetPrevPos(), &PosTmp, GetSize() / 2.f, true);
+					SetPosition(PosTmp);
+				}
+				if (IsHit) {
+					//‚È‚ñ‚©ƒqƒbƒg‚µ‚½
+				}
+			}
+			//
 			m_Blur.Update();
 		}
 		void CharacterObject::DrawShadow_Sub(void) noexcept {

@@ -110,5 +110,19 @@ namespace FPS_n2 {
 			}
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}
+
+		void Blur2DControl::BlurParts::Update(void) noexcept {
+			auto* DrawParts = DXDraw::Instance();
+			this->m_Time = std::max(this->m_Time - DrawParts->GetDeltaTime(), 0.f);
+		}
+		void Blur2DControl::AddBlur(float Blur, const Vector2DX& Pos, const Vector2DX& Vec) noexcept {
+			auto* DrawParts = DXDraw::Instance();
+			int Max = static_cast<int>(std::max(1.f, 300.f / std::max(30.f, DrawParts->GetFps())));
+			Vector2DX Goal = Pos - Vec * DrawParts->GetDeltaTime();
+			for (int i = 0; i < Max; i++) {
+				this->m_Blur.at(static_cast<size_t>(this->m_BlurNow)).Set(Lerp(Goal, Pos, (static_cast<float>(i) / static_cast<float>(Max))), Blur);
+				++this->m_BlurNow %= static_cast<int>(this->m_Blur.size());
+			}
+		}
 	};
 };

@@ -92,15 +92,9 @@ namespace DXLibRef {
 		// ポーズ画面表示用クラス
 		class PauseDrawer {
 			float						m_PauseFlashCount{ 0.f };
-			// ポーズ中かどうかのフラグ
-			bool						m_IsPauseActive{ false };
 		public:
 			void	UpdatePause(void) noexcept;
 			void	DrawPause(void) const noexcept;
-		public:
-			// ポーズの有効無効を取得
-			const auto		IsPause(void) const noexcept { return m_IsPauseActive; }
-			void			ChangePause(bool value) noexcept;
 		};
 	private:
 		bool						m_IsEndScene{ false };		// 現在のシーンが終了したフラグ
@@ -111,11 +105,13 @@ namespace DXLibRef {
 		FPSDrawer					m_FPSDrawer;		// FPS表示用クラスの実体
 		PauseDrawer					m_PauseDrawer;		// ポーズ画面表示用クラスの実体
 		std::shared_ptr<TEMPSCENE>	m_NowScenesPtr;		// 今行っているシーン
+		// ポーズ中かどうかのフラグ
+		bool						m_IsPauseActive{ false };
 	public:
 		const auto		IsEndScene(void) const noexcept { return m_IsEndScene || m_IsEndGame; }
 		const auto		IsEndGame(void) const noexcept { return m_IsEndGame; }
 		// ポーズの有効無効を取得
-		const auto		IsPause(void) const noexcept { return m_PauseDrawer.IsPause(); }
+		const auto		IsPause(void) const noexcept { return m_IsPauseActive; }
 		void			ChangePause(bool value) noexcept;
 		// 終了、再起動フラグが立っているか外から確認できます
 		const auto&		IsExit(void) const noexcept { return m_IsExitSelect; }

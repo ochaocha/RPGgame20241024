@@ -164,5 +164,41 @@ namespace FPS_n2 {
 				return Ret;
 			}
 		};
+
+		// キャラが纏うブラーエフェクトの描画処理クラス
+		class Blur2DControl {
+		private:
+			class BlurParts {
+				Vector2DX	m_Pos;
+				float		m_Time{};
+				float		m_TimeMax{};
+			public:
+				void Set(const Vector2DX& pos, float time) noexcept {
+					this->m_Pos = pos;
+					this->m_TimeMax = time;
+					this->m_Time = this->m_TimeMax;
+				}
+			public:
+				auto IsActive(void) const noexcept { return this->m_Time > 0.f; }
+				auto GetPer(void) const noexcept { return this->m_Time / this->m_TimeMax; }
+				const auto& GetPos(void) const noexcept { return this->m_Pos; }
+			public:
+				void Update(void) noexcept;
+			};
+		private:
+			std::array<BlurParts, 60>	m_Blur{};
+			int				m_BlurNow{ 0 };
+		public:
+			const auto& GetBlur(void) const noexcept { return this->m_Blur; }
+		public:
+			// 自分が何タイプかを設定
+			void			AddBlur(float Blur, const Vector2DX& Pos, const Vector2DX& Vec) noexcept;
+		public:
+			void			Update(void) noexcept {
+				for (auto& b : this->m_Blur) {
+					b.Update();
+				}
+			}
+		};
 	};
 };
