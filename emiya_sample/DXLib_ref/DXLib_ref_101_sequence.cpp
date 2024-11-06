@@ -5,17 +5,16 @@ namespace DXLibRef {
 	const SceneControl* SingletonBase<SceneControl>::m_Singleton = nullptr;
 
 	// FPS表示
-	void SceneControl::FPSDrawer::InitFPSCounter(void) noexcept {
+	void SceneControl::FPSDrawer::Initialize(void) noexcept {
 		// 各々の数値を初期化
 		for (auto& f : FPSAvgs) {
 			f = FrameRate;
 		}
 		m_FPSAvgCount = 0;
 	}
-	void SceneControl::FPSDrawer::UpdateFPSCounter(void) noexcept {
-		auto* DrawParts = DXDraw::Instance();
+	void SceneControl::FPSDrawer::Update(void) noexcept {
 		// m_FPSAvgCountの番号に対して今のフレームレートを保存
-		FPSAvgs.at(m_FPSAvgCount) = DrawParts->GetFps();
+		FPSAvgs.at(m_FPSAvgCount) = DXLib_ref::Instance()->GetFps();
 		// 保存する場所をずらす
 		++m_FPSAvgCount %= FPSAvgs.size();
 		// 保存している過去のFPS値の平均をとる
@@ -26,7 +25,7 @@ namespace DXLibRef {
 		m_FPSAvg = m_FPSAvg / static_cast<float>(FPSAvgs.size());
 	}
 	void SceneControl::FPSDrawer::DrawFPSCounter(void) const noexcept {
-		auto* DrawParts = DXDraw::Instance();
+		auto* DrawCtrls = UISystem::DrawControl::Instance();
 		auto* OptionParts = OPTION::Instance();
 		// FPSの平均値が設定していた上限値に対して高いなら緑、低いなら黄色赤色と変化させる
 		auto color = White;
@@ -40,31 +39,35 @@ namespace DXLibRef {
 			color = Red;// まったくFPSが出ていない
 		}
 		// FPS値の表示
-		UISystem::SetMsg(DrawParts->GetUIXMax() - DrawParts->GetUIY(8), DrawParts->GetUIY(8) + LineHeight / 2, LineHeight, UISystem::FontXCenter::RIGHT, color, Black, "%5.2f FPS", m_FPSAvg);
+		DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+			LineHeight, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::TOP,
+			BaseScreenWidth - 8, 8, color, Black, "%5.2f FPS", m_FPSAvg);
 		// ドローコール(DirectXに何回描画指示を送ったか)の表示
-		UISystem::SetMsg(DrawParts->GetUIXMax() - DrawParts->GetUIY(8), DrawParts->GetUIY(8 + 20) + LineHeight / 2, LineHeight, UISystem::FontXCenter::RIGHT, White, Black, "%d Drawcall", GetDrawCallCount());
+		DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+			LineHeight, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::TOP,
+			BaseScreenWidth - 8, 8 + 20, White, Black, "%d Drawcall", GetDrawCallCount());
 	}
 	// ポーズ画面
-	void SceneControl::PauseDrawer::UpdatePause(void) noexcept {
+	void SceneControl::PauseDrawer::Update(void) noexcept {
 		// ポーズ画面では点滅の演算を行う
-		auto* DrawParts = DXDraw::Instance();
+		m_PauseFlashCount += DXLib_ref::Instance()->GetDeltaTime();
 		// 1秒経ったら0秒にリセットする
-		m_PauseFlashCount += DrawParts->GetDeltaTime();
 		if (m_PauseFlashCount > 1.f) {
 			m_PauseFlashCount -= 1.f;
 		}
 	}
 	void SceneControl::PauseDrawer::DrawPause(void) const noexcept {
 		// ポーズ画面に入っていない場合はスルーする
-		auto* DrawParts = DXDraw::Instance();
 		auto* DrawCtrls = UISystem::DrawControl::Instance();
 		// 半透明の暗幕
 		DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 128);
-		DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, DrawParts->GetUIXMax(), DrawParts->GetUIYMax(), Black, TRUE);
+		DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, BaseScreenWidth, BaseScreenHeight, Black, TRUE);
 		DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 		// カウントが0.5秒以上であれば Pause の文字を表示
 		if (m_PauseFlashCount > 0.5f) {
-			UISystem::SetMsg(DrawParts->GetUIY(16), DrawParts->GetUIY(16) + DrawParts->GetUIY(36) / 2, DrawParts->GetUIY(36), UISystem::FontXCenter::LEFT, Green, Black, "Pause");
+			DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+				36, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+				16, 16, Green, Black, "Pause");
 		}
 	}
 
@@ -73,36 +76,33 @@ namespace DXLibRef {
 		if (m_IsPauseActive != value) {
 			m_IsPauseActive = value;
 			auto* KeyGuideParts = UISystem::KeyGuide::Instance();
-			KeyGuideParts->SetGuideUpdate();
+			KeyGuideParts->SetGuideFlip();
 		}
 		//ポップアップをすべて削除とする
 		PopUpParts->EndAll();
 	}
 
 	// シーンのループ開始前に行う処理
-	void SceneControl::InitMainLoop(void) noexcept {
+	void SceneControl::Initialize(void) noexcept {
 		auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 		// シーンのロード
 		this->m_NowScenesPtr->Load();
 		// シーンの初回処理
-		this->m_NowScenesPtr->Set();
+		this->m_NowScenesPtr->Initialize();
 		// キーガイドに設定しているものをリセット
-		KeyGuideParts->Reset();
+		KeyGuideParts->Dispose();
 		// シーン開始時にキーガイド表示の更新を行うフラグを立てる
-		KeyGuideParts->SetGuideUpdate();
+		KeyGuideParts->SetGuideFlip();
 		// FPS表示の初期化
-		m_FPSDrawer.InitFPSCounter();
+		m_FPSDrawer.Initialize();
 	}
 	// シーンの演算更新を行う処理
-	void SceneControl::UpdateMainLoop(void) noexcept {
+	void SceneControl::Update(void) noexcept {
 		auto* Pad = PadControl::Instance();
 		auto* PopUpParts = UISystem::PopUp::Instance();
 		auto* OptionWindowParts = OptionWindowClass::Instance();
-		auto* PostPassParts = PostPassEffect::Instance();
-		auto* DrawParts = DXDraw::Instance();
+		auto* PostPassParts = PostPass::PostPassEffect::Instance();
 		auto* DrawCtrls = UISystem::DrawControl::Instance();
-		// ループ初回の更新
-		DrawParts->StartCount();
 		// UI描画リストをクリア
 		DrawCtrls->ClearList();
 		// 終了キーを押し、尚且つ終了ウィンドウが出ていない場合
@@ -113,22 +113,30 @@ namespace DXLibRef {
 			PopUpParts->Add("Exit", 480, 240,
 				[this](int xmin, int ymin, int xmax, int ymax, bool) {
 					// ポップアップ内で描画するもの
-					auto* DrawParts = DXDraw::Instance();
-					int xp1, yp1;
+					auto* DrawCtrls = UISystem::DrawControl::Instance();
+					auto* Pad = PadControl::Instance();
 					// タイトル
 					{
-						xp1 = xmin + DrawParts->GetUIY(24);
-						yp1 = ymin + LineHeight;
-
-						UISystem::SetMsg(xp1, yp1 + LineHeight / 2, LineHeight, UISystem::FontXCenter::LEFT, White, Black, "ゲームを終了しますか？");
+						DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+							LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+							xmin + 24, ymin + LineHeight,White, Black, "ゲームを終了しますか？");
 					}
 					// 終了するボタン
 					{
-						xp1 = (xmax + xmin) / 2 - DrawParts->GetUIY(54);
-						yp1 = ymax - LineHeight * 3;
+						int xp1 = (xmax + xmin) / 2 - 54;
+						int yp1 = ymax - LineHeight * 3;
+						int xp2 = (xmax + xmin) / 2 + 54;
+						int yp2 = ymax - LineHeight * 3 + LineHeight * 2;
 
-						auto* Pad = PadControl::Instance();
-						bool ret = UISystem::SetMsgClickBox(xp1, yp1, xp1 + DrawParts->GetUIY(108), yp1 + LineHeight * 2, LineHeight, Gray15, false, true, "終了");
+						bool MouseOver = UISystem::GetMouseOver(xp1, yp1, xp2, yp2);
+						DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal,
+							xp1, yp1, xp2, yp2, MouseOver ? (Pad->GetMouseClick().press() ? Gray25 : White) : Gray15, true);
+						bool ret = (MouseOver && (Pad->GetMouseClick().trigger()));
+
+						DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+							LineHeight, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::MIDDLE,
+							(xp1 + xp2) / 2, (yp1 + yp2) / 2, White, Black, "終了");
+
 						if (Pad->GetPadsInfo(PADS::INTERACT).GetKey().trigger() || ret) {
 							// 終了フラグを立てる
 							this->m_IsEndGame = true;
@@ -149,22 +157,30 @@ namespace DXLibRef {
 			PopUpParts->Add("Restart", 480, 240,
 				[this](int xmin, int ymin, int xmax, int ymax, bool) {
 					// ポップアップ内で描画するもの
-					auto* DrawParts = DXDraw::Instance();
-					int xp1, yp1;
+					auto* DrawCtrls = UISystem::DrawControl::Instance();
+					auto* Pad = PadControl::Instance();
 					// タイトル
 					{
-						xp1 = xmin + DrawParts->GetUIY(24);
-						yp1 = ymin + LineHeight;
-
-						UISystem::SetMsg(xp1, yp1 + LineHeight / 2, LineHeight, UISystem::FontXCenter::LEFT, White, Black, "ゲームを再起動しますか？");
+						DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+							LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+							xmin + 24, ymin + LineHeight, White, Black, "ゲームを再起動しますか？");
 					}
 					// 終了するボタン
 					{
-						xp1 = (xmax + xmin) / 2 - DrawParts->GetUIY(54);
-						yp1 = ymax - LineHeight * 3;
+						int xp1 = (xmax + xmin) / 2 - 54;
+						int yp1 = ymax - LineHeight * 3;
+						int xp2 = (xmax + xmin) / 2 + 54;
+						int yp2 = ymax - LineHeight * 3 + LineHeight * 2;
 
-						auto* Pad = PadControl::Instance();
-						bool ret = UISystem::SetMsgClickBox(xp1, yp1, xp1 + DrawParts->GetUIY(108), yp1 + LineHeight * 2, LineHeight, Gray15, false, true, "再起動");
+						bool MouseOver = UISystem::GetMouseOver(xp1, yp1, xp2, yp2);
+						DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal,
+							xp1, yp1, xp2, yp2, MouseOver ? (Pad->GetMouseClick().press() ? Gray25 : White) : Gray15, true);
+						bool ret = (MouseOver && (Pad->GetMouseClick().trigger()));
+
+						DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+							LineHeight, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::MIDDLE,
+							(xp1 + xp2) / 2, (yp1 + yp2) / 2, White, Black, "再起動");
+
 						if (Pad->GetPadsInfo(PADS::INTERACT).GetKey().trigger() || ret) {
 							// 終了フラグを立てる
 							this->m_IsEndGame = true;
@@ -193,21 +209,21 @@ namespace DXLibRef {
 		PopUpParts->Update();
 		// ポーズ画面の更新
 		if (IsPause()) {
-			m_PauseDrawer.UpdatePause();
+			m_PauseDrawer.Update();
 		}
 		// ポーズ入力によるオンオフ
 		if (Pad->GetPadsInfo(PADS::INVENTORY).GetKey().trigger()) {
 			ChangePause(!IsPause());
 		}
 		// FPS表示機能の更新
-		m_FPSDrawer.UpdateFPSCounter();
+		m_FPSDrawer.Update();
 	}
 	// シーンの描画を行う処理
 	void SceneControl::DrawMainLoop(void) const noexcept {
-		auto* DrawParts = DXDraw::Instance();
+		auto* WindowSizeParts = WindowSizeControl::Instance();
 		auto* KeyGuideParts = UISystem::KeyGuide::Instance();
 		auto* PopUpParts = UISystem::PopUp::Instance();
-		auto* PostPassParts = PostPassEffect::Instance();
+		auto* PostPassParts = PostPass::PostPassEffect::Instance();
 		auto* DrawCtrls = UISystem::DrawControl::Instance();
 #if DEBUG
 		auto* DebugParts = DebugClass::Instance();
@@ -216,7 +232,7 @@ namespace DXLibRef {
 		PostPassParts->GetBufferScreen().SetDraw_Screen();
 		{
 			// ワールド空間の描画
-			this->m_NowScenesPtr->MainDraw();
+			this->m_NowScenesPtr->DrawMain();
 		}
 		// ポストプロセス
 		PostPassParts->DrawPostProcess();
@@ -227,7 +243,7 @@ namespace DXLibRef {
 			int Prev = GetDrawMode();
 			// SetDrawMode(DX_DRAWMODE_NEAREST);
 			SetDrawMode(DX_DRAWMODE_BILINEAR);
-			PostPassParts->GetBufferScreen().DrawExtendGraph(0, 0, DrawParts->GetUIXMax(), DrawParts->GetUIYMax(), false);
+			PostPassParts->GetBufferScreen().DrawExtendGraph(0, 0, WindowSizeParts->GetUIY(BaseScreenWidth), WindowSizeParts->GetUIY(BaseScreenHeight), false);
 			SetDrawMode(Prev);
 
 			// UI描画設定
@@ -241,12 +257,12 @@ namespace DXLibRef {
 			// キーガイド描画を設定
 			KeyGuideParts->Draw();
 			// ポップアップ描画を画面中央をセンターとして設定
-			PopUpParts->Draw(DrawParts->GetUIXMax() / 2, DrawParts->GetUIYMax() / 2);
+			PopUpParts->Draw(BaseScreenWidth / 2, BaseScreenHeight / 2);
 			// ポーズ画面の前などに描画するUIの描画設定
 			this->m_NowScenesPtr->DrawUI_In();
 #if DEBUG
 			// デバッグ画面描画を設定
-			DebugParts->DebugWindow(DrawParts->GetUIXMax() - DrawParts->GetUIY(350), DrawParts->GetUIY(150));
+			DebugParts->DebugWindow(BaseScreenWidth - 350, 150);
 #endif // DEBUG
 			// 結果を描画
 			DrawCtrls->Draw();

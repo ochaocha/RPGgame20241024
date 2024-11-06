@@ -48,8 +48,7 @@ namespace DXLibRef {
 				m_Point[0][static_cast<std::size_t>(index)] = m_Point[0][m_PointSel - 1];
 			}
 			if (index == PointMax) {
-				auto* DrawParts = DXDraw::Instance();
-				m_Point[0][static_cast<std::size_t>(index)] = 1000.0f * DrawParts->GetDeltaTime();
+				m_Point[0][static_cast<std::size_t>(index)] = 1000.0f * DXLib_ref::Instance()->GetDeltaTime();
 			}
 
 			for (int j = static_cast<int>(PointFrame - 1); j >= 1; --j) {
@@ -72,7 +71,6 @@ namespace DXLibRef {
 
 	// Œ‹‰Ê‚ð•\Ž¦‚µ‚Ü‚·
 	void DebugClass::DebugWindow(int xpos, int ypos) noexcept {
-		auto* DrawParts = DXDraw::Instance();
 		auto* OptionParts = OPTION::Instance();
 		auto* DrawCtrls = UISystem::DrawControl::Instance();
 		if (!m_IsActive) {
@@ -97,12 +95,12 @@ namespace DXLibRef {
 		// ˆ—ŽžŠÔ‚ðƒOƒ‰ƒt‚Æ‚µ‚Ä•`‰æ
 		{
 			auto PMax = PointMax + 1;
-			const int wide = DrawParts->GetUIY(340);
-			const int height = DrawParts->GetUIY(360);
+			const int wide = 340;
+			const int height = 360;
 			const int border = height * 2 / 3;
 			// ”wŒi
-			UISystem::SetBox(xpos, ypos, xpos + wide, ypos + height, White);
-			UISystem::SetBox(xpos + 1, ypos + 1, xpos + wide - 1, ypos + height - 1, Black);
+			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, xpos, ypos, xpos + wide, ypos + height, White, true);
+			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, xpos + 1, ypos + 1, xpos + wide - 1, ypos + height - 1, Black, true);
 
 			{
 				const int xp = xpos;
@@ -134,29 +132,39 @@ namespace DXLibRef {
 		}
 		// FPS‚âŠeƒ|ƒCƒ“ƒg‚Å‚ÌŽžŠÔ‚ð•\Ž¦
 		{
-			const int wide = DrawParts->GetUIY(350);
-			const int height = static_cast<int>(m_PointSel + 3 + 1) * LineHeight + DrawParts->GetUIY(10);
+			const int wide = 350;
+			const int height = static_cast<int>(m_PointSel + 3 + 1) * LineHeight + 10;
 			// ”wŒi
-			UISystem::SetBox(xpos, ypos, xpos + wide, ypos + height, White);
-			UISystem::SetBox(xpos + 1, ypos + 1, xpos + wide - 1, ypos + height - 1, Black);
+			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, xpos, ypos, xpos + wide, ypos + height, White, true);
+			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, xpos + 1, ypos + 1, xpos + wide - 1, ypos + height - 1, Black, true);
 
-			xpos += DrawParts->GetUIY(2);
-			ypos += DrawParts->GetUIY(2);
+			xpos += 2;
+			ypos += 2;
 			int i = 0;
 			// “à—e
-			UISystem::SetMsg(xpos, ypos + (i * LineHeight) + LineHeight / 2, LineHeight, UISystem::FontXCenter::LEFT, White, Black, "AsyncCount :%d", GetASyncLoadNum());
+			DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+				LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+				xpos, ypos + (i * LineHeight), White, Black, "AsyncCount :%d", GetASyncLoadNum());
 			++i;
-			UISystem::SetMsg(xpos, ypos + (i * LineHeight) + LineHeight / 2, LineHeight, UISystem::FontXCenter::LEFT, White, Black, "Drawcall  :%d", GetDrawCallCount());
+			DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+				LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+				xpos, ypos + (i * LineHeight), White, Black, "Drawcall  :%d", GetDrawCallCount());
 			++i;
-			UISystem::SetMsg(xpos, ypos + (i * LineHeight) + LineHeight / 2, LineHeight, UISystem::FontXCenter::LEFT, White, Black, "FPS    :%5.2f fps", GetFPS());
+			DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+				LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+				xpos, ypos + (i * LineHeight), White, Black, "FPS    :%5.2f fps", GetFPS());
 			++i;
-			for (size_t index = 1; index < static_cast<int>(m_PointSel + 1); ++index) {
-				UISystem::SetMsg(xpos, ypos + (i * LineHeight) + LineHeight / 2, LineHeight, UISystem::FontXCenter::LEFT, Colors[index], DarkGreen, "%02d(%5.2fms)[%s]", index, m_Point[static_cast<size_t>(PointFrame)][index], m_Str[index - 1].c_str());
+			for (size_t index = 1; index < static_cast<size_t>(m_PointSel + 1); ++index) {
+				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+					LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+					xpos, ypos + (i * LineHeight), Colors[index], DarkGreen, "%02d(%5.2fms)[%s]", index, m_Point[static_cast<size_t>(PointFrame)][index], m_Str[index - 1].c_str());
 				++i;
 			}
 			{
 				size_t index = static_cast<size_t>(PointMax);
-				UISystem::SetMsg(xpos, ypos + (i * LineHeight) + LineHeight / 2, LineHeight, UISystem::FontXCenter::LEFT, Colors[index], DarkGreen, "%02d(%5.2fms)[%s]", index, m_Point[static_cast<size_t>(PointFrame)][index], m_Str[index - 1].c_str());
+				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+					LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+					xpos, ypos + (i * LineHeight), Colors[index], DarkGreen, "%02d(%5.2fms)[%s]", index, m_Point[static_cast<size_t>(PointFrame)][index], m_Str[index - 1].c_str());
 				++i;
 			}
 		}

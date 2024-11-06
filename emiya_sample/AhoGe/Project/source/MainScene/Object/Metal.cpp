@@ -10,37 +10,38 @@ namespace DXLIB_Sample {
 			SetObjType(static_cast<int>(Object2DType::Metal));
 		}
 		// 
-		void MetalObject::Update_OnHitObject(void) noexcept {
-			auto* SoundParts = SoundPool::Instance();
+		void MetalObject::OnHitObject_Sub(void) noexcept {
+			auto* SoundParts = SoundSystem::SoundPool::Instance();
 			auto* Obj2DParts = Object2DManager::Instance();
+			auto* Effect2DParts = Effect2DControl::Instance();
 			const auto& Obj = Obj2DParts->GetObj(GetHitUniqueID());
 			if (Obj) {
 				// 弾以外が当たった時は以下は通さない
 				if (Obj->GetObjType() != static_cast<int>(Object2DType::Rocket) && Obj->GetObjType() != static_cast<int>(Object2DType::Bullet)) { return; }
 				//ヒットエフェクトを出す
-				Effect2DControl::Instance()->SetEffect(Obj->GetPosition(), EffectType::Guard, 1.f);
-				// Effect2DControl::Instance()->Set(Obj->GetPosition(), EffectType::Damage, 0.25f);
+				Effect2DParts->SetEffect(Obj->GetPosition(), EffectType::Guard, 1.f);
+				// Effect2DParts->Set(Obj->GetPosition(), EffectType::Damage, 0.25f);
 				if (Obj->GetObjType() == static_cast<int>(Object2DType::Rocket)) {
 					//ロケットランチャーにヒットした場合はHPを0にする
 					this->m_HitPoint = 0;
-					SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Bomb))->Play(DX_PLAYTYPE_BACK, TRUE);
+					SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Bomb))->Play(DX_PLAYTYPE_BACK, TRUE);
 				}
 				else {
 					//それ以外は体力を1減らすだけ
 					this->m_HitPoint--;
-					SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Guard))->Play(DX_PLAYTYPE_BACK, TRUE);
+					SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Guard))->Play(DX_PLAYTYPE_BACK, TRUE);
 				}
 				//体力が0になったら
 				if (this->m_HitPoint == 0) {
 					//爆発代わりのエフェクトを発生させ
-					Effect2DControl::Instance()->SetEffect(GetPosition(), EffectType::WallHit, 2.f);
+					Effect2DParts->SetEffect(GetPosition(), EffectType::WallHit, 2.f);
 					//自壊フラグを立てる
 					SetDelete();
 				}
 			}
 		}
 		// 
-		void MetalObject::Init_Sub(void) noexcept {
+		void MetalObject::Initialize_Sub(void) noexcept {
 			SetIsHitOtherObject(true);
 			SetMass(100000.f);
 			m_FootTimer = 0.f;
@@ -51,9 +52,9 @@ namespace DXLIB_Sample {
 			this->m_HitPoint = m_MaxHitPoint;
 		}
 		void MetalObject::Update_Sub(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
 			auto* PlayerMngr = PlayerManager::Instance();
 			auto* Obj2DParts = Object2DManager::Instance();
+			auto* Cam2D = Cam2DControl::Instance();
 
 			if (GetIsFirstLoop()) {
 				m_BasePos = GetPosition();//行動の基準となる座標を取得(ここからあまり離れないようなルーチン)
@@ -82,7 +83,7 @@ namespace DXLIB_Sample {
 			float TargetRad = DX_PI_F - GetRadVec(TargetCharacter->GetPosition() - GetPosition());
 
 			//車体を目標方向に回転
-			this->m_Rad += GetRadRad2Rad(this->m_Rad, TargetRad) * 0.6f * DrawParts->GetDeltaTime();
+			this->m_Rad += GetRadRad2Rad(this->m_Rad, TargetRad) * 0.6f * DXLib_ref::Instance()->GetDeltaTime();
 			{
 				// 移動速度
 				float SpeedLimit = 0.5f;
@@ -130,19 +131,19 @@ namespace DXLIB_Sample {
 				}
 				// 上記仮想WASDを基に移動演算
 				if (DKey && !AKey) {
-					this->m_InputVec.x = std::clamp(this->m_InputVec.x + 4.f * DrawParts->GetDeltaTime(), -SpeedLimit, SpeedLimit);
+					this->m_InputVec.x = std::clamp(this->m_InputVec.x + 4.f * DXLib_ref::Instance()->GetDeltaTime(), -SpeedLimit, SpeedLimit);
 				}
 				else if (AKey && !DKey) {
-					this->m_InputVec.x = std::clamp(this->m_InputVec.x - 4.f * DrawParts->GetDeltaTime(), -SpeedLimit, SpeedLimit);
+					this->m_InputVec.x = std::clamp(this->m_InputVec.x - 4.f * DXLib_ref::Instance()->GetDeltaTime(), -SpeedLimit, SpeedLimit);
 				}
 				else {
 					Easing(&this->m_InputVec.x, 0.f, 0.95f, EasingType::OutExpo);
 				}
 				if (WKey && !SKey) {
-					this->m_InputVec.y = std::clamp(this->m_InputVec.y + 4.f * DrawParts->GetDeltaTime(), -SpeedLimit, SpeedLimit);
+					this->m_InputVec.y = std::clamp(this->m_InputVec.y + 4.f * DXLib_ref::Instance()->GetDeltaTime(), -SpeedLimit, SpeedLimit);
 				}
 				else if (SKey && !WKey) {
-					this->m_InputVec.y = std::clamp(this->m_InputVec.y - 4.f * DrawParts->GetDeltaTime(), -SpeedLimit, SpeedLimit);
+					this->m_InputVec.y = std::clamp(this->m_InputVec.y - 4.f * DXLib_ref::Instance()->GetDeltaTime(), -SpeedLimit, SpeedLimit);
 				}
 				else {
 					Easing(&this->m_InputVec.y, 0.f, 0.95f, EasingType::OutExpo);
@@ -152,7 +153,7 @@ namespace DXLIB_Sample {
 				SetVec(this->m_InputVec.normalized() * Speed * 5.f);
 			}
 			{
-				m_FootTimer += DrawParts->GetDeltaTime();
+				m_FootTimer += DXLib_ref::Instance()->GetDeltaTime();
 				if (m_FootTimer > 2.f) {
 					m_FootTimer -= 2.f;//2秒で1周期
 				}
@@ -160,7 +161,7 @@ namespace DXLIB_Sample {
 				//0.6~0.8秒目では左足を上げる
 				if (0.6f < m_FootTimer && m_FootTimer < 0.8f) {
 					//TargetRadに左足の座標、回転を寄せる
-					this->m_RadL += GetRadRad2Rad(this->m_RadL, TargetRad) * 10.f * DrawParts->GetDeltaTime();
+					this->m_RadL += GetRadRad2Rad(this->m_RadL, TargetRad) * 10.f * DXLib_ref::Instance()->GetDeltaTime();
 					Easing(&m_PosR, GetPosition() + GetVec() * 1.f, 0.5f, EasingType::OutExpo);
 					//脚を上げた判定を立てる
 					m_FootUp = true;
@@ -170,14 +171,14 @@ namespace DXLIB_Sample {
 					if (m_FootUp) {
 						m_FootUp = false;
 						if (Length < 30.f) {
-							Cam2DControl::Instance()->SetCamShake(0.1f, 20.f * 5.f / GetMax(Length, 1.f));
+							Cam2D->SetCamShake(0.1f, 20.f * 5.f / GetMax(Length, 1.f));
 						}
 					}
 				}
 				//1.6~1.8秒目では右足を上げる
 				if (1.6f < m_FootTimer && m_FootTimer < 1.8f) {
 					//TargetRadに右足の座標、回転を寄せる
-					this->m_RadR += GetRadRad2Rad(this->m_RadR, TargetRad) * 10.f * DrawParts->GetDeltaTime();
+					this->m_RadR += GetRadRad2Rad(this->m_RadR, TargetRad) * 10.f * DXLib_ref::Instance()->GetDeltaTime();
 					Easing(&m_PosL, GetPosition() + GetVec() * 1.f, 0.5f, EasingType::OutExpo);
 					//脚を上げた判定を立てる
 					m_FootUp = true;
@@ -187,7 +188,7 @@ namespace DXLIB_Sample {
 					if (m_FootUp) {
 						m_FootUp = false;
 						if (Length < 30.f) {
-							Cam2DControl::Instance()->SetCamShake(0.1f, 20.f * 5.f / GetMax(Length, 1.f));
+							Cam2D->SetCamShake(0.1f, 20.f * 5.f / GetMax(Length, 1.f));
 						}
 					}
 				}
@@ -221,7 +222,7 @@ namespace DXLIB_Sample {
 			}
 			else {
 				//弾を放った後のクールダウン
-				this->m_ShotCoolTime = GetMax(this->m_ShotCoolTime - DrawParts->GetDeltaTime(), 0.f);
+				this->m_ShotCoolTime = GetMax(this->m_ShotCoolTime - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 			}
 			//ミサイルとして登録されたオブジェクトをターゲットに向けて少しずつ誘導します
 			for (auto& g : m_MissileID) {
@@ -236,7 +237,7 @@ namespace DXLIB_Sample {
 				}
 			}
 			// 壁衝突演算抜きの移動処理
-			SetPosition(this->GetPosition() + this->GetVec() * DrawParts->GetDeltaTime());
+			SetPosition(this->GetPosition() + this->GetVec() * DXLib_ref::Instance()->GetDeltaTime());
 		}
 		// 影
 		void MetalObject::DrawShadow_Sub(void) noexcept {
@@ -245,23 +246,23 @@ namespace DXLIB_Sample {
 			Vector2DX DispPosA;
 			Vector2DX DispPosB;
 			// 右脚
-			Cam2DControl::ConvertTiletoDisp(m_PosL + GetVectorRotated(Vector2DX::vget(-1.2f, -1.2f) * (GetSize() / 2.f), m_RadR) + BackGround->GetAmbientLightVec() * 0.25f, &DispPosB);
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.8f, -0.2f) * (GetSize() / 2.f), m_RadR) + BackGround->GetAmbientLightVec() * 0.25f, &DispPosA);
+			DispPosB = Cam2DControl::ConvertTiletoDisp(m_PosL + GetVectorRotated(Vector2DX::vget(-1.2f, -1.2f) * (GetSize() / 2.f), m_RadR) + BackGround->GetAmbientLightVec() * 0.25f);
+			DispPosA = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.8f, -0.2f) * (GetSize() / 2.f), m_RadR) + BackGround->GetAmbientLightVec() * 0.25f);
 			DrawLine(static_cast<int>(DispPosA.x), static_cast<int>(DispPosA.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), Black, static_cast<int>(Radius * 0.25f) * 2);
 			// 右脚
-			Cam2DControl::ConvertTiletoDisp(m_PosR + GetVectorRotated(Vector2DX::vget(1.2f, -1.2f) * (GetSize() / 2.f), m_RadL) + BackGround->GetAmbientLightVec() * 0.25f, &DispPosB);
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(0.8f, -0.2f) * (GetSize() / 2.f), m_RadL) + BackGround->GetAmbientLightVec() * 0.25f, &DispPosA);
+			DispPosB = Cam2DControl::ConvertTiletoDisp(m_PosR + GetVectorRotated(Vector2DX::vget(1.2f, -1.2f) * (GetSize() / 2.f), m_RadL) + BackGround->GetAmbientLightVec() * 0.25f);
+			DispPosA = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(0.8f, -0.2f) * (GetSize() / 2.f), m_RadL) + BackGround->GetAmbientLightVec() * 0.25f);
 			DrawLine(static_cast<int>(DispPosA.x), static_cast<int>(DispPosA.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), Black, static_cast<int>(Radius * 0.25f) * 2);
 			// 身体
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + BackGround->GetAmbientLightVec() * 0.25f, &DispPosA);
+			DispPosA = Cam2DControl::ConvertTiletoDisp(GetPosition() + BackGround->GetAmbientLightVec() * 0.25f);
 			DrawCircle(static_cast<int>(DispPosA.x), static_cast<int>(DispPosA.y), static_cast<int>(Radius), Black);
 			// 右手
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.9f, -2.5f) * (GetSize() / 2.f), this->m_Rad) + BackGround->GetAmbientLightVec() * 0.35f, &DispPosB);
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.9f, 0.5f) * (GetSize() / 2.f), this->m_Rad) + BackGround->GetAmbientLightVec() * 0.35f, &DispPosA);
+			DispPosB = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.9f, -2.5f) * (GetSize() / 2.f), this->m_Rad) + BackGround->GetAmbientLightVec() * 0.35f);
+			DispPosA = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.9f, 0.5f) * (GetSize() / 2.f), this->m_Rad) + BackGround->GetAmbientLightVec() * 0.35f);
 			DrawLine(static_cast<int>(DispPosA.x), static_cast<int>(DispPosA.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), Black, static_cast<int>(Radius * 0.15f) * 2);
 			// 左手
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(1.2f, 0.35f) * (GetSize() / 2.f), this->m_Rad) + BackGround->GetAmbientLightVec() * 0.35f, &DispPosB);
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(1.2f, -0.35f) * (GetSize() / 2.f), this->m_Rad) + BackGround->GetAmbientLightVec() * 0.35f, &DispPosA);
+			DispPosB = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(1.2f, 0.35f) * (GetSize() / 2.f), this->m_Rad) + BackGround->GetAmbientLightVec() * 0.35f);
+			DispPosA = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(1.2f, -0.35f) * (GetSize() / 2.f), this->m_Rad) + BackGround->GetAmbientLightVec() * 0.35f);
 			DrawLine(static_cast<int>(DispPosA.x), static_cast<int>(DispPosA.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), Black, static_cast<int>(Radius * 0.25f) * 2);
 		}
 		// 描画
@@ -270,23 +271,23 @@ namespace DXLIB_Sample {
 			Vector2DX DispPosA;
 			Vector2DX DispPosB;
 			// 右脚
-			Cam2DControl::ConvertTiletoDisp(m_PosL + GetVectorRotated(Vector2DX::vget(-1.2f, -1.2f) * (GetSize() / 2.f), m_RadL), &DispPosB);
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.8f, -0.2f) * (GetSize() / 2.f), m_RadL), &DispPosA);
+			DispPosB = Cam2DControl::ConvertTiletoDisp(m_PosL + GetVectorRotated(Vector2DX::vget(-1.2f, -1.2f) * (GetSize() / 2.f), m_RadL));
+			DispPosA = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.8f, -0.2f) * (GetSize() / 2.f), m_RadL));
 			DrawLine(static_cast<int>(DispPosA.x), static_cast<int>(DispPosA.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), GetColor(128, 0, 0), Radius / 2);
 			// 左脚
-			Cam2DControl::ConvertTiletoDisp(m_PosR + GetVectorRotated(Vector2DX::vget(1.2f, -1.2f) * (GetSize() / 2.f), m_RadR), &DispPosB);
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(0.8f, -0.2f) * (GetSize() / 2.f), m_RadR), &DispPosA);
+			DispPosB = Cam2DControl::ConvertTiletoDisp(m_PosR + GetVectorRotated(Vector2DX::vget(1.2f, -1.2f) * (GetSize() / 2.f), m_RadR));
+			DispPosA = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(0.8f, -0.2f) * (GetSize() / 2.f), m_RadR));
 			DrawLine(static_cast<int>(DispPosA.x), static_cast<int>(DispPosA.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), GetColor(128, 0, 0), Radius / 2);
 			// 身体
-			Cam2DControl::ConvertTiletoDisp(GetPosition(), &DispPosA);
+			DispPosA = Cam2DControl::ConvertTiletoDisp(GetPosition());
 			DrawCircle(static_cast<int>(DispPosA.x), static_cast<int>(DispPosA.y), Radius, GetColor(192, 0, 0));
 			// 右手
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.9f, -2.5f) * (GetSize() / 2.f), this->m_Rad), &DispPosB);
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.9f, 0.5f) * (GetSize() / 2.f), this->m_Rad), &DispPosA);
+			DispPosB = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.9f, -2.5f) * (GetSize() / 2.f), this->m_Rad));
+			DispPosA = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(-0.9f, 0.5f) * (GetSize() / 2.f), this->m_Rad));
 			DrawLine(static_cast<int>(DispPosA.x), static_cast<int>(DispPosA.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), GetColor(255, 0, 0), Radius * 3 / 10);
 			// 左手
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(1.2f, 0.35f) * (GetSize() / 2.f), this->m_Rad), &DispPosB);
-			Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(1.2f, -0.35f) * (GetSize() / 2.f), this->m_Rad), &DispPosA);
+			DispPosB = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(1.2f, 0.35f) * (GetSize() / 2.f), this->m_Rad));
+			DispPosA = Cam2DControl::ConvertTiletoDisp(GetPosition() + GetVectorRotated(Vector2DX::vget(1.2f, -0.35f) * (GetSize() / 2.f), this->m_Rad));
 			DrawLine(static_cast<int>(DispPosA.x), static_cast<int>(DispPosA.y), static_cast<int>(DispPosB.x), static_cast<int>(DispPosB.y), GetColor(255, 0, 0), Radius / 2);
 		}
 	}

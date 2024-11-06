@@ -1,5 +1,6 @@
 #include	"BackGround.hpp"
 
+// シングルトンの実態定義
 const DXLIB_Sample::Sceneclass::EventDataBase* SingletonBase<DXLIB_Sample::Sceneclass::EventDataBase>::m_Singleton = nullptr;
 const DXLIB_Sample::Sceneclass::BackGroundClassBase* SingletonBase<DXLIB_Sample::Sceneclass::BackGroundClassBase>::m_Singleton = nullptr;
 
@@ -123,17 +124,9 @@ namespace DXLIB_Sample {
 
 		// 影を描画
 		void BackGroundClassBase::Blick::DrawAmbientShadow(float AmbientShadowLength, float AmbientLightRad, const GraphHandle& ShadowChip) const noexcept {
-			{
-				auto* DrawParts = DXDraw::Instance();
-				int R = Cam2DControl::GetTileToDispSize(0.5f + AmbientShadowLength);
-				Vector2DX Pos;
-				Cam2DControl::ConvertTiletoDisp(GetTileCenterPos(), &Pos);
-				// 範囲外
-				if (!HitPointToRectangle(
-					static_cast<int>(Pos.x), static_cast<int>(Pos.y),
-					-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
-					return;
-				}
+			// 範囲外
+			if (!IsOnScreen(Cam2DControl::ConvertTiletoDisp(GetTileCenterPos()), Cam2DControl::GetTileToDispSize(0.5f + AmbientShadowLength))) {
+				return;
 			}
 			std::array<Vector2DX, 4> Position{ };
 			for (int i = 0; i < 4; i++) {
@@ -145,27 +138,19 @@ namespace DXLIB_Sample {
 				float radsub = deg2rad(90 * i);
 				if (std::cos(AmbientLightRad - radsub) > 0.f) {
 					float lightrad1 = AmbientLightRad;
-					Cam2DControl::ConvertTiletoDisp(Pos1 + GetVecByRad(lightrad1) * AmbientShadowLength, &Position.at(0));
-					Cam2DControl::ConvertTiletoDisp(Pos2 + GetVecByRad(lightrad1) * AmbientShadowLength, &Position.at(1));
-					Cam2DControl::ConvertTiletoDisp(Pos2, &Position.at(2));
-					Cam2DControl::ConvertTiletoDisp(Pos1, &Position.at(3));
+					Position.at(0) = Cam2DControl::ConvertTiletoDisp(Pos1 + GetVecByRad(lightrad1) * AmbientShadowLength);
+					Position.at(1) = Cam2DControl::ConvertTiletoDisp(Pos2 + GetVecByRad(lightrad1) * AmbientShadowLength);
+					Position.at(2) = Cam2DControl::ConvertTiletoDisp(Pos2);
+					Position.at(3) = Cam2DControl::ConvertTiletoDisp(Pos1);
 					DrawModiGraph_2D(Position, 3.f, ShadowChip);
 				}
 			}
 		}
 		void BackGroundClassBase::Blick::DrawPointShadow(const Vector2DX& PointLightPos, const GraphHandle& ShadowChip) const noexcept {
 			float Radius = 255.f;
-			{
-				auto* DrawParts = DXDraw::Instance();
-				int R = Cam2DControl::GetTileToDispSize(0.5f + Radius);
-				Vector2DX Pos;
-				Cam2DControl::ConvertTiletoDisp(GetTileCenterPos(), &Pos);
-				// 範囲外
-				if (!HitPointToRectangle(
-					static_cast<int>(Pos.x), static_cast<int>(Pos.y),
-					-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
-					return;
-				}
+			// 範囲外
+			if (!IsOnScreen(Cam2DControl::ConvertTiletoDisp(GetTileCenterPos()), Cam2DControl::GetTileToDispSize(0.5f + Radius))) {
+				return;
 			}
 			std::array<Vector2DX, 4> Position{ };
 			for (int i = 0; i < 4; i++) {
@@ -178,29 +163,21 @@ namespace DXLIB_Sample {
 				if (std::cos((DX_PI_F - GetRadVec((Pos1 + Pos2) / 2.f - PointLightPos)) - radsub) > 0.f) {
 					float lightrad1 = DX_PI_F - GetRadVec(Pos1 - PointLightPos);
 					float lightrad2 = DX_PI_F - GetRadVec(Pos2 - PointLightPos);
-					Cam2DControl::ConvertTiletoDisp(Pos1 + GetVecByRad(lightrad1) * Radius, &Position.at(0));
-					Cam2DControl::ConvertTiletoDisp(Pos2 + GetVecByRad(lightrad2) * Radius, &Position.at(1));
-					Cam2DControl::ConvertTiletoDisp(Pos2, &Position.at(2));
-					Cam2DControl::ConvertTiletoDisp(Pos1, &Position.at(3));
+					Position.at(0) = Cam2DControl::ConvertTiletoDisp(Pos1 + GetVecByRad(lightrad1) * Radius);
+					Position.at(1) = Cam2DControl::ConvertTiletoDisp(Pos2 + GetVecByRad(lightrad2) * Radius);
+					Position.at(2) = Cam2DControl::ConvertTiletoDisp(Pos2);
+					Position.at(3) = Cam2DControl::ConvertTiletoDisp(Pos1);
 					DrawModiGraph_2D(Position, 3.f, ShadowChip);
 				}
 			}
 		}
 		// 線分の間で壁に当たっているか
 		float BackGroundClassBase::CheckHideShadow(const Vector2DX& PosA, const Vector2DX& PosB, float Radius) noexcept {
-			float Ret = 1.f;
+			float Answer = 1.f;
 			for (auto& B : this->m_CheckWallBlick) {
-				{
-					auto* DrawParts = DXDraw::Instance();
-					int R = Cam2DControl::GetTileToDispSize(Radius);
-					Vector2DX Pos;
-					Cam2DControl::ConvertTiletoDisp(B->GetTileCenterPos(), &Pos);
-					// 範囲外
-					if (!HitPointToRectangle(
-						static_cast<int>(Pos.x), static_cast<int>(Pos.y),
-						-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
-						continue;
-					}
+				// 範囲外
+				if (!IsOnScreen(Cam2DControl::ConvertTiletoDisp(B->GetTileCenterPos()), Cam2DControl::GetTileToDispSize(Radius))) {
+					continue;
 				}
 				// ヒットするかとヒットした場合の透明度を指定
 				float tmp = 1.f;
@@ -222,12 +199,12 @@ namespace DXLIB_Sample {
 						tmp = P;
 					}
 				}
-				if (Ret > tmp) {
-					Ret = tmp;
+				if (Answer > tmp) {
+					Answer = tmp;
 				}
-				if (Ret <= 0.f) { break; }
+				if (Answer <= 0.f) { break; }
 			}
-			return Ret;
+			return Answer;
 		}
 		// 壁判定
 		bool BackGroundClassBase::CheckLinetoMap(const Vector2DX& StartPos, Vector2DX* EndPos, float Radius, bool IsPhysical) const noexcept {
@@ -422,8 +399,9 @@ namespace DXLIB_Sample {
 			return HitFlag;
 		}
 		// 
-		void BackGroundClassBase::Init(const std::string& MapPath) noexcept {
-			auto* DrawParts = DXDraw::Instance();
+		void BackGroundClassBase::Initialize(const std::string& MapPath) noexcept {
+			auto* DrawParts = WindowSizeControl::Instance();
+			auto* EventParts = EventDataBase::Instance();
 
 			std::string CommonPath = "data/map/" + MapPath + "/";
 			std::array<std::pair<int, int>, 8> Dir;
@@ -466,7 +444,7 @@ namespace DXLIB_Sample {
 				}
 			}
 			// 
-			EventDataBase::Instance()->LoadData(CommonPath + "evt.bmp");
+			EventParts->LoadData(CommonPath + "evt.bmp");
 			// 
 			this->m_Blick.resize(static_cast<size_t>(this->m_Xsize * this->m_Ysize));
 			for (int x = 0; x < this->m_Xsize; x++) {
@@ -534,27 +512,28 @@ namespace DXLIB_Sample {
 					}
 					else {
 						// それ以外の記述はイベント関連とする
-						EventDataBase::Instance()->LoadEventScript(LEFT, RIGHT);
+						EventParts->LoadEventScript(LEFT, RIGHT);
 					}
 				}
 			}
 			// 
-			this->m_PointShadowHandle.Make(DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), true);
-			this->m_AmbientShadowHandle.Make(DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), true);
+			this->m_PointShadowHandle.Make(DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), true);
+			this->m_AmbientShadowHandle.Make(DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), true);
 			this->m_AmbientShadowHandle.SetDraw_Screen(false);
 			{
-				DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
+				DrawBox(0, 0, DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), White, true);
 			}
 		}
 		// 
 		void BackGroundClassBase::Update() noexcept {
-			auto* DrawParts = DXDraw::Instance();
+			auto* DrawParts = WindowSizeControl::Instance();
 			auto* OptionParts = OPTION::Instance();
+			auto* Obj2DParts = Object2DManager::Instance();
 			if (OptionParts->GetParamBoolean(EnumSaveParam::Shadow)) {
 				this->m_AmbientShadowHandle.SetDraw_Screen(false);
 				{
-					DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
-					Object2DManager::Instance()->DrawShadow();
+					DrawBox(0, 0, DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), White, true);
+					Obj2DParts->DrawShadow();
 
 					for (auto& B : this->m_CheckWallBlick) {
 						B->DrawAmbientShadow(this->m_AmbientShadowLength, this->m_AmbientLightRad, this->m_MapChip.at(0));
@@ -564,7 +543,7 @@ namespace DXLIB_Sample {
 			}
 			this->m_PointShadowHandle.SetDraw_Screen(false);
 			{
-				DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
+				DrawBox(0, 0, DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), White, true);
 				for (auto& B : this->m_CheckWallBlick) {
 					B->DrawPointShadow(this->m_PointLightPos, this->m_MapChip.at(0));
 				}
@@ -575,16 +554,13 @@ namespace DXLIB_Sample {
 		}
 		// 
 		void BackGroundClassBase::Draw(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
+			auto* DrawParts = WindowSizeControl::Instance();
 			int R = Cam2DControl::GetTileToDispSize(0.5f);
 			// 床
 			for (auto& B : this->m_FloorBlick) {
-				Vector2DX DispPos;
-				Cam2DControl::ConvertTiletoDisp(B->GetTileCenterPos(), &DispPos);
+				Vector2DX DispPos = Cam2DControl::ConvertTiletoDisp(B->GetTileCenterPos());
 				// 範囲外
-				if (!HitPointToRectangle(
-					static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
-					-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+				if (!IsOnScreen(DispPos, R)) {
 					continue;
 				}
 				this->m_MapChip.at(static_cast<size_t>(B->GetPalette().at(0).GetpaletteNum())).DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), static_cast<float>(R * 2) / (32 - 1), B->GetPalette().at(0).GetZRad(), FALSE);
@@ -593,22 +569,21 @@ namespace DXLIB_Sample {
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 64);
 			auto* OptionParts = OPTION::Instance();
 			if (OptionParts->GetParamBoolean(EnumSaveParam::Shadow)) {
-				this->m_AmbientShadowHandle.DrawExtendGraph(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), false);
+				this->m_AmbientShadowHandle.DrawExtendGraph(0, 0, DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), false);
 			}
 			else {
-				DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, TRUE);
+				DrawBox(0, 0, DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), White, TRUE);
 			}
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}
 		void BackGroundClassBase::DrawFront(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
+			auto* DrawParts = WindowSizeControl::Instance();
 			float Radius = 0.5f;
 			int R = Cam2DControl::GetTileToDispSize(Radius);
 			// 
 			{
-				Vector2DX MinPos, MaxPos;
-				Cam2DControl::ConvertTiletoDisp(GetFloorData(0, 0)->GetTileCenterPos(), &MinPos);
-				Cam2DControl::ConvertTiletoDisp(GetFloorData(this->m_Xsize - 1, this->m_Ysize - 1)->GetTileCenterPos(), &MaxPos);
+				Vector2DX MinPos = Cam2DControl::ConvertTiletoDisp(GetFloorData(0, 0)->GetTileCenterPos());
+				Vector2DX MaxPos = Cam2DControl::ConvertTiletoDisp(GetFloorData(this->m_Xsize - 1, this->m_Ysize - 1)->GetTileCenterPos());
 				int xmin = static_cast<int>(MinPos.x);
 				int ymin = static_cast<int>(MaxPos.y);
 				int xmax = static_cast<int>(MaxPos.x);
@@ -618,18 +593,15 @@ namespace DXLIB_Sample {
 					DrawBox(p1x, p1y, p2x, p2y, color, IsFill);
 					};
 				DrawBE(0, 0, xmin, ymax, Black, TRUE);
-				DrawBE(xmin, 0, DrawParts->GetScreenY(1920), ymin, Black, TRUE);
-				DrawBE(xmax, ymin, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), Black, TRUE);
-				DrawBE(0, ymax, xmax, DrawParts->GetScreenY(1080), Black, TRUE);
+				DrawBE(xmin, 0, DrawParts->GetScreenY(BaseScreenWidth), ymin, Black, TRUE);
+				DrawBE(xmax, ymin, DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), Black, TRUE);
+				DrawBE(0, ymax, xmax, DrawParts->GetScreenY(BaseScreenHeight), Black, TRUE);
 			}
 			// 壁
 			for (auto& B : this->m_WallBlick) {
-				Vector2DX DispPos;
-				Cam2DControl::ConvertTiletoDisp(B->GetTileCenterPos(), &DispPos);
+				Vector2DX DispPos = Cam2DControl::ConvertTiletoDisp(B->GetTileCenterPos());
 				// 範囲外
-				if (!HitPointToRectangle(
-					static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
-					-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+				if (!IsOnScreen(DispPos, R)) {
 					continue;
 				}
 				for (int i = 0; i < 5; i++) {

@@ -1,7 +1,9 @@
 #include	"Player.hpp"
 #include	"../../sub.hpp"
 
+// シングルトンの実態定義
 const DXLIB_Sample::Sceneclass::PlayerManager* SingletonBase<DXLIB_Sample::Sceneclass::PlayerManager>::m_Singleton = nullptr;
+
 namespace DXLIB_Sample {
 	namespace Sceneclass {
 		void PlayerManager::UpdateDelete(void) noexcept {

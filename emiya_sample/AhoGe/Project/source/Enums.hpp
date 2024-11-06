@@ -7,7 +7,7 @@ namespace DXLIB_Sample {
 	// --------------------------------------------------------------------------------------------------
 	// SEの設定を行う連番
 	enum class SESelect {
-		RunFoot = static_cast<int>(SoundSelectCommon::Num),// SoundSelectCommonの末尾からの連番
+		RunFoot = static_cast<int>(SoundSystem::SoundSelectCommon::Num),// SoundSelectCommonの末尾からの連番
 		Shot1,
 		Shot2,
 		Shot3,

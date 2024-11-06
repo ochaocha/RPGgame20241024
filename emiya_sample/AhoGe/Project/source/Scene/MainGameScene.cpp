@@ -11,27 +11,27 @@ namespace DXLIB_Sample {
 	namespace Sceneclass {
 		// ロード
 		void			MainGameScene::Load_Sub(void) noexcept {
-			auto* SoundParts = SoundPool::Instance();
-			auto* DrawParts = DXDraw::Instance();
+			auto* SoundParts = SoundSystem::SoundPool::Instance();
+			auto* DrawParts = WindowSizeControl::Instance();
 			auto* SaveDataParts = SaveDataClass::Instance();
 
 			// 各種メインシーン内でずっと保持する必要があるリソースの読み込み
-			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::RunFoot), 6, "data/Sound/SE/move/runfoot.wav");
-			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Shot1), 6, "data/Sound/SE/move/shot1.wav");
-			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Shot2), 6, "data/Sound/SE/move/shot2.wav");
-			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Shot3), 6, "data/Sound/SE/move/shot3.wav");
-			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Bomb), 1, "data/Sound/SE/move/bomb.wav");
-			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Hit), 6, "data/Sound/SE/move/hit.wav");
-			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Guard), 6, "data/Sound/SE/move/guard.wav");
-			SoundParts->Add(SoundType::SE, static_cast<int>(SESelect::Normal), 2, "data/Sound/SE/Normal.wav");
-			SoundParts->Add(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Normal), 1, "data/Sound/BGM/normal.wav");
-			SoundParts->Add(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Caution), 1, "data/Sound/BGM/Caution.wav");
-			SoundParts->Add(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Alert), 1, "data/Sound/BGM/Alert.wav");
+			SoundParts->Add(SoundSystem::SoundType::SE, static_cast<int>(SESelect::RunFoot), 6, "data/Sound/SE/move/runfoot.wav");
+			SoundParts->Add(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Shot1), 6, "data/Sound/SE/move/shot1.wav");
+			SoundParts->Add(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Shot2), 6, "data/Sound/SE/move/shot2.wav");
+			SoundParts->Add(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Shot3), 6, "data/Sound/SE/move/shot3.wav");
+			SoundParts->Add(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Bomb), 1, "data/Sound/SE/move/bomb.wav");
+			SoundParts->Add(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Hit), 6, "data/Sound/SE/move/hit.wav");
+			SoundParts->Add(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Guard), 6, "data/Sound/SE/move/guard.wav");
+			SoundParts->Add(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Normal), 2, "data/Sound/SE/Normal.wav");
+			SoundParts->Add(SoundSystem::SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Normal), 1, "data/Sound/BGM/normal.wav");
+			SoundParts->Add(SoundSystem::SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Caution), 1, "data/Sound/BGM/Caution.wav");
+			SoundParts->Add(SoundSystem::SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Alert), 1, "data/Sound/BGM/Alert.wav");
 			this->m_Watch.Load("data/UI/Watch.png");
 			this->m_Caution.Load("data/UI/Caution.png");
 			this->m_Alert.Load("data/UI/Alert.png");
 			this->m_Goal.Load("data/UI/baserad.png");
-			this->m_ViewHandle.Make(DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), true);
+			this->m_ViewHandle.Make(DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), true);
 			m_PauseMenuControl.Load();
 			// ゲームを始める際のマップを選択
 			if ((SaveDataParts->GetParam("LastMap") == -1)) {// 初期データがない場合はプロローグとする
@@ -45,7 +45,33 @@ namespace DXLIB_Sample {
 			this->m_MapName = "map" + std::to_string(SaveDataParts->GetParam("LastMap"));
 			this->m_EntryID = static_cast<int>(SaveDataParts->GetParam("LastEntry"));
 		}
-		void			MainGameScene::Set_Sub(void) noexcept {
+		void			MainGameScene::Dispose_Load_Sub(void) noexcept {
+			auto* SoundParts = SoundSystem::SoundPool::Instance();
+			auto* Obj2DParts = Object2DManager::Instance();
+
+			SoundParts->Delete(SoundSystem::SoundType::SE, static_cast<int>(SESelect::RunFoot));
+			SoundParts->Delete(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Shot1));
+			SoundParts->Delete(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Shot2));
+			SoundParts->Delete(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Shot3));
+			SoundParts->Delete(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Bomb));
+			SoundParts->Delete(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Hit));
+			SoundParts->Delete(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Guard));
+			SoundParts->Delete(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Normal));
+
+			SoundParts->Delete(SoundSystem::SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Normal));
+			SoundParts->Delete(SoundSystem::SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Caution));
+			SoundParts->Delete(SoundSystem::SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Alert));
+
+			Obj2DParts->DeleteAll();
+
+			m_PauseMenuControl.DisposeLoad();
+			this->m_ViewHandle.Dispose();
+			this->m_Watch.Dispose();
+			this->m_Caution.Dispose();
+			this->m_Alert.Dispose();
+		}
+		//
+		void			MainGameScene::Initialize_Sub(void) noexcept {
 			auto* Cam2D = Cam2DControl::Instance();
 			auto* PlayerMngr = PlayerManager::Instance();
 			auto* EventParts = EventDataBase::Instance();
@@ -53,11 +79,13 @@ namespace DXLIB_Sample {
 			auto* SaveDataParts = SaveDataClass::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
 			auto* Pad = PadControl::Instance();
+			auto* FadeInParts = UI::FadeControl::Instance();
+			auto* Effect2DParts = Effect2DControl::Instance();
 
 			m_PauseMenuControl.Set();
-			BackGround->Init(this->m_MapName);
+			BackGround->Initialize(this->m_MapName);
 			BackGround->SetAmbientLight(3.f, deg2rad(30));// 3タイル分として上から30度傾けた
-			PlayerMngr->Init(static_cast<int>(EventParts->GetPlayerSpawn().size()));
+			PlayerMngr->Initialize(static_cast<int>(EventParts->GetPlayerSpawn().size()));
 			m_BossUniqueID = InvalidID;
 			m_WinCutSceneID = InvalidID;
 			// 
@@ -112,7 +140,7 @@ namespace DXLIB_Sample {
 					// AIを作成
 					p->SetAI(std::make_shared<AIControl>());
 					p->GetAI()->SetCharacter((PlayerID)i, PlayerCharacter);
-					p->GetAI()->Init();
+					p->GetAI()->Initialize();
 					// 初期位置を指定
 					p->GetChara()->SetPosition(BackGround->GetFloorData(EventParts->GetPlayerSpawn().at(static_cast<size_t>(i)).m_index)->GetTileCenterPos());
 					// 初期武器を指定
@@ -127,7 +155,7 @@ namespace DXLIB_Sample {
 			}
 
 			m_MapNameDrawControl.Set();						// ステージ遷移時にマップ名を表示する機能の初期化
-			Effect2DControl::Instance()->Init();			// エフェクトの初期化
+			Effect2DParts->Initialize();			// エフェクトの初期化
 			// 各種変数の初期化
 			this->m_PrevXY = BackGround->GetNumToXY(BackGround->GetNearestFloors(PlayerSpawnPoint));// カットシーンが発生する判定用の座標保存用変数
 			this->m_IsCautionBGM = false;
@@ -137,21 +165,22 @@ namespace DXLIB_Sample {
 
 			this->m_IsEndUpdate = false;			// 次のシーンに行くフラグの初期化
 			this->m_StartTime = 0.f;			// シーンが開始されてからプレイアブル状態であった時間
-			m_FadeControl.SetFadeIn();			// シーンの切り替わりはフェードでイン
+			FadeInParts->SetFadeIn();			// シーンの切り替わりはフェードでイン
 			Pad->SetMouseMoveEnable(false);
 		}
 		bool			MainGameScene::Update_Sub(void) noexcept {
 			auto* PlayerMngr = PlayerManager::Instance();
 			auto* Pad = PadControl::Instance();
 			auto* KeyGuideParts = UISystem::KeyGuide::Instance();
-			auto* DrawParts = DXDraw::Instance();
 			auto* Obj2DParts = Object2DManager::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
 			auto* EventParts = EventDataBase::Instance();
 			auto* Cam2D = Cam2DControl::Instance();
-			auto* SoundParts = SoundPool::Instance();
+			auto* SoundParts = SoundSystem::SoundPool::Instance();
 			auto* SaveDataParts = SaveDataClass::Instance();
 			auto* SceneParts = SceneControl::Instance();
+			auto* FadeInParts = UI::FadeControl::Instance();
+			auto* Effect2DParts = Effect2DControl::Instance();
 
 			m_PauseMenuControl.Update();				// ポーズ処理の更新
 			// キーガイドの更新
@@ -226,25 +255,25 @@ namespace DXLIB_Sample {
 				}
 
 				if (Prev && Prev != (this->m_IsCautionBGM || this->m_IsAlertBGM)) {
-					SoundParts->Get(SoundType::SE, static_cast<int>(SESelect::Normal))->Play(DX_PLAYTYPE_BACK, TRUE);
+					SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SESelect::Normal))->Play(DX_PLAYTYPE_BACK, TRUE);
 				}
 				// 
 				if (this->m_IsNormalBGM) {
 					if (this->m_NormalBGM < 1.f) {
 						this->m_NormalBGM = 1.f;
-						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Normal))->Play(DX_PLAYTYPE_LOOP, TRUE);
-						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Normal))->SetLocalVolume(static_cast<int>(255 * this->m_NormalBGM));
+						SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Normal))->Play(DX_PLAYTYPE_LOOP, TRUE);
+						SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Normal))->SetLocalVolume(static_cast<int>(255 * this->m_NormalBGM));
 					}
 				}
 				else {
 					bool IsPlay = (this->m_NormalBGM > 0.f);
-					this->m_NormalBGM = GetMax(this->m_NormalBGM - DrawParts->GetDeltaTime(), 0.f);
+					this->m_NormalBGM = GetMax(this->m_NormalBGM - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 					if (this->m_NormalBGM > 0.f) {
-						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Normal))->SetLocalVolume(static_cast<int>(255 * this->m_NormalBGM));
+						SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Normal))->SetLocalVolume(static_cast<int>(255 * this->m_NormalBGM));
 					}
 					else {
 						if (IsPlay) {
-							SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Normal))->StopAll();
+							SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Normal))->StopAll();
 						}
 					}
 				}
@@ -252,19 +281,19 @@ namespace DXLIB_Sample {
 				if (this->m_IsCautionBGM) {
 					if (this->m_CautionBGM < 1.f) {
 						this->m_CautionBGM = 1.f;
-						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Caution))->Play(DX_PLAYTYPE_LOOP, TRUE);
-						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Caution))->SetLocalVolume(static_cast<int>(255 * this->m_CautionBGM));
+						SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Caution))->Play(DX_PLAYTYPE_LOOP, TRUE);
+						SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Caution))->SetLocalVolume(static_cast<int>(255 * this->m_CautionBGM));
 					}
 				}
 				else {
 					bool IsPlay = (this->m_CautionBGM > 0.f);
-					this->m_CautionBGM = GetMax(this->m_CautionBGM - DrawParts->GetDeltaTime(), 0.f);
+					this->m_CautionBGM = GetMax(this->m_CautionBGM - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 					if (this->m_CautionBGM > 0.f) {
-						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Caution))->SetLocalVolume(static_cast<int>(255 * this->m_CautionBGM));
+						SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Caution))->SetLocalVolume(static_cast<int>(255 * this->m_CautionBGM));
 					}
 					else {
 						if (IsPlay) {
-							SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Caution))->StopAll();
+							SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Caution))->StopAll();
 						}
 					}
 				}
@@ -272,19 +301,19 @@ namespace DXLIB_Sample {
 				if (this->m_IsAlertBGM) {
 					if (this->m_AlertBGM < 1.f) {
 						this->m_AlertBGM = 1.f;
-						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Alert))->Play(DX_PLAYTYPE_LOOP, TRUE);
-						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Alert))->SetLocalVolume(static_cast<int>(255 * this->m_AlertBGM));
+						SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Alert))->Play(DX_PLAYTYPE_LOOP, TRUE);
+						SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Alert))->SetLocalVolume(static_cast<int>(255 * this->m_AlertBGM));
 					}
 				}
 				else {
 					bool IsPlay = (this->m_AlertBGM > 0.f);
-					this->m_AlertBGM = GetMax(this->m_AlertBGM - DrawParts->GetDeltaTime(), 0.f);
+					this->m_AlertBGM = GetMax(this->m_AlertBGM - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 					if (this->m_AlertBGM > 0.f) {
-						SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Alert))->SetLocalVolume(static_cast<int>(255 * this->m_AlertBGM));
+						SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Alert))->SetLocalVolume(static_cast<int>(255 * this->m_AlertBGM));
 					}
 					else {
 						if (IsPlay) {
-							SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Alert))->StopAll();
+							SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Alert))->StopAll();
 						}
 					}
 				}
@@ -309,10 +338,10 @@ namespace DXLIB_Sample {
 			}
 			{
 				auto Prev = this->m_IsPlayable;
-				this->m_IsPlayable = m_FadeControl.IsFadeClear() && !m_CutSceneControl.IsCutScene();
+				this->m_IsPlayable = FadeInParts->IsFadeClear() && !m_CutSceneControl.IsCutScene();
 				if (Prev != this->m_IsPlayable) {
 					// プレイアブルか否かでガイドを変えます
-					KeyGuideParts->SetGuideUpdate();
+					KeyGuideParts->SetGuideFlip();
 				}
 			}
 			if (this->m_IsPlayable) {
@@ -333,7 +362,7 @@ namespace DXLIB_Sample {
 					}
 				}
 				// プレイアブル経過秒数カウント
-				m_StartTime += DrawParts->GetDeltaTime();
+				m_StartTime += DXLib_ref::Instance()->GetDeltaTime();
 			}
 			// 入力制御
 			for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
@@ -354,8 +383,8 @@ namespace DXLIB_Sample {
 							// 視点操作
 							MyInput.SetyRad(p->GetChara()->GetViewRad());
 							if (Pad->GetControlType() == ControlType::PC) {
-								float XV = static_cast<float>(Pad->GetMS_X() - DrawParts->GetUIXMax() / 2);
-								float YV = static_cast<float>(Pad->GetMS_Y() - DrawParts->GetUIYMax() / 2);
+								float XV = static_cast<float>(Pad->GetMS_X() - BaseScreenWidth / 2);
+								float YV = static_cast<float>(Pad->GetMS_Y() - BaseScreenHeight / 2);
 								if (std::abs(XV) > 0.1f || std::abs(YV) > 0.1f) {
 									MyInput.SetyRad(GetRadVec(Vector2DX::vget(-XV, -YV)));
 								}
@@ -392,9 +421,9 @@ namespace DXLIB_Sample {
 				}
 			}
 			// 
-			m_FadeControl.Update();					// フェードアウト表示の更新
+			FadeInParts->Update();					// フェードアウト表示の更新
 			m_MapNameDrawControl.Update();			// マップ名表示の更新
-			Effect2DControl::Instance()->Update();	// エフェクトの更新
+			Effect2DParts->Update();	// エフェクトの更新
 			BackGround->Update();					// 背景の更新
 			Obj2DParts->Update();					// オブジェクトのアップデート
 			PlayerMngr->UpdateDelete();				// 死亡確認(死亡フラグが経ったら削除)
@@ -454,7 +483,7 @@ namespace DXLIB_Sample {
 				}
 				Cam2D->SetCamAim(Chara->GetPosition() + this->m_CamAddPos);		// カメラ制御
 				BackGround->SetPointLight(Chara->GetPosition());				// ポイントライト用の座標更新
-				Cam2DControl::Instance()->Update();
+				Cam2D->Update();
 			}
 			// リタイアなので終了フラグを立てる
 			if (m_PauseMenuControl.IsRetire()) {
@@ -468,7 +497,7 @@ namespace DXLIB_Sample {
 					this->m_IsEnd = true;
 				}
 			}
-			if (this->m_IsEndUpdate && m_FadeControl.IsFadeAll()) { return false; }// 特定のフラグが立ったうえでフェードアウトしきったら次のシーンへ遷移
+			if (this->m_IsEndUpdate && FadeInParts->IsFadeAll()) { return false; }// 特定のフラグが立ったうえでフェードアウトしきったら次のシーンへ遷移
 			// それ以外はシーン持続
 			return true;
 		}
@@ -476,10 +505,10 @@ namespace DXLIB_Sample {
 			auto* SaveDataParts = SaveDataClass::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
 			auto* PlayerMngr = PlayerManager::Instance();
-			auto* SoundParts = SoundPool::Instance();
-			SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Normal))->StopAll();
-			SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Caution))->StopAll();
-			SoundParts->Get(SoundType::BGM, static_cast<int>(BGMSelect::Alert))->StopAll();
+			auto* SoundParts = SoundSystem::SoundPool::Instance();
+			SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Normal))->StopAll();
+			SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Caution))->StopAll();
+			SoundParts->Get(SoundSystem::SoundType::BGM, static_cast<int>(BGMSelect::Alert))->StopAll();
 			// リソース
 			PlayerMngr->Dispose();
 			BackGround->Dispose();
@@ -491,7 +520,7 @@ namespace DXLIB_Sample {
 			}
 			else {
 				// クリアしたのでリセット
-				SaveDataParts->Reset();
+				SaveDataParts->Dispose();
 			}
 			SaveDataParts->Save();
 			if (this->m_IsEnd) {// タイトルに戻る
@@ -505,46 +534,22 @@ namespace DXLIB_Sample {
 			this->m_IsGoodEnd = false;
 			this->m_IsBadEnd = false;
 		}
-		void			MainGameScene::Dispose_Load_Sub(void) noexcept {
-			auto* SoundParts = SoundPool::Instance();
-			auto* Obj2DParts = Object2DManager::Instance();
-
-			SoundParts->Delete(SoundType::SE, static_cast<int>(SESelect::RunFoot));
-			SoundParts->Delete(SoundType::SE, static_cast<int>(SESelect::Shot1));
-			SoundParts->Delete(SoundType::SE, static_cast<int>(SESelect::Shot2));
-			SoundParts->Delete(SoundType::SE, static_cast<int>(SESelect::Shot3));
-			SoundParts->Delete(SoundType::SE, static_cast<int>(SESelect::Bomb));
-			SoundParts->Delete(SoundType::SE, static_cast<int>(SESelect::Hit));
-			SoundParts->Delete(SoundType::SE, static_cast<int>(SESelect::Guard));
-			SoundParts->Delete(SoundType::SE, static_cast<int>(SESelect::Normal));
-
-			SoundParts->Delete(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Normal));
-			SoundParts->Delete(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Caution));
-			SoundParts->Delete(SoundType::BGM, static_cast<int>(DXLIB_Sample::BGMSelect::Alert));
-
-			Obj2DParts->DeleteAll();
-
-			m_PauseMenuControl.DisposeLoad();
-			this->m_ViewHandle.Dispose();
-			this->m_Watch.Dispose();
-			this->m_Caution.Dispose();
-			this->m_Alert.Dispose();
-		}
 		// 
-		void			MainGameScene::MainDraw_Sub(void) const noexcept {
-			auto* DrawParts = DXDraw::Instance();
+		void			MainGameScene::DrawMain_Sub(void) const noexcept {
+			auto* DrawParts = WindowSizeControl::Instance();
 			auto* EventParts = EventDataBase::Instance();
 			auto* PlayerMngr = PlayerManager::Instance();
 			auto* Obj2DParts = Object2DManager::Instance();
 			auto* BackGround = BackGroundClassBase::Instance();
 			auto* DrawCtrls = UISystem::DrawControl::Instance();
+			auto* Effect2DParts = Effect2DControl::Instance();
 
 			// 視認判定表示用のバッファーを描画
 			{
 				auto Prev = GetDrawScreen();
 				this->m_ViewHandle.SetDraw_Screen(false);
 				{
-					DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
+					DrawBox(0, 0, DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), White, true);
 					// 視界
 					for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
 						auto& p = PlayerMngr->GetPlayer((PlayerID)i);
@@ -567,7 +572,7 @@ namespace DXLIB_Sample {
 					SetDrawBright(255, 255, 255);
 					{
 						SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
-						BackGround->GetShadowGraph().DrawExtendGraph(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), false);
+						BackGround->GetShadowGraph().DrawExtendGraph(0, 0, DrawParts->GetScreenY(BaseScreenWidth), DrawParts->GetScreenY(BaseScreenHeight), false);
 						SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 					}
 				}
@@ -580,7 +585,7 @@ namespace DXLIB_Sample {
 			DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 
 			Obj2DParts->Draw();
-			Effect2DControl::Instance()->Draw();
+			Effect2DParts->Draw();
 			BackGround->DrawFront();
 
 			for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
@@ -590,48 +595,45 @@ namespace DXLIB_Sample {
 						continue;
 					}
 					int R = Cam2DControl::GetTileToDispSize(1.f);
-					Vector2DX DispPos;
-					Cam2DControl::ConvertTiletoDisp(p->GetChara()->GetPosition(), &DispPos);
+					Vector2DX DispPos = Cam2DControl::ConvertTiletoDisp(p->GetChara()->GetPosition());
 					// 範囲外
-					if (!HitPointToRectangle(
-						static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
-						-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+					if (!IsOnScreen(DispPos, R)) {
 						continue;
 					}
-					DispPos = DispPos * (float)DrawParts->GetUIY(100) / (float)DrawParts->GetScreenY(100);
 					// 体力バー
 					{
 						DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 255, 255, 255);
-						int xmin = DrawParts->GetUIY(-50);
-						int ymin = DrawParts->GetUIY(-50);
-						int xmax = DrawParts->GetUIY(50);
+						int xmin = -50;
+						int ymin = -50;
+						int xmax = 50;
 						int xper = xmin + (xmax - xmin) * p->GetChara()->GetHitPoint() / p->GetChara()->GetHitPointMax();
-						DrawCtrls->SetDrawLine(UISystem::DrawLayer::Normal, static_cast<int>(DispPos.x + xmin), static_cast<int>(DispPos.y + ymin), static_cast<int>(DispPos.x + xmax), static_cast<int>(DispPos.y + ymin), Gray75, DrawParts->GetUIY(10));
-						DrawCtrls->SetDrawLine(UISystem::DrawLayer::Normal, static_cast<int>(DispPos.x + xmin), static_cast<int>(DispPos.y + ymin), static_cast<int>(DispPos.x + xper), static_cast<int>(DispPos.y + ymin), Green, DrawParts->GetUIY(10));
+						DrawCtrls->SetDrawLine(UISystem::DrawLayer::Normal, static_cast<int>(DispPos.x + xmin), static_cast<int>(DispPos.y + ymin), static_cast<int>(DispPos.x + xmax), static_cast<int>(DispPos.y + ymin), Gray75, 10);
+						DrawCtrls->SetDrawLine(UISystem::DrawLayer::Normal, static_cast<int>(DispPos.x + xmin), static_cast<int>(DispPos.y + ymin), static_cast<int>(DispPos.x + xper), static_cast<int>(DispPos.y + ymin), Green, 10);
 					}
 					// !マーク
 					if (i != 0) {
+						int XP = static_cast<int>(DispPos.x);
+						int YP = static_cast<int>(DispPos.y) - 32;
 						{
 							if (p->GetAI()->GetGraphAlpha() <= 0.f) { continue; }
-							int ShadowOfset = DrawParts->GetUIY(3);
-							float Scale = static_cast<float>(DrawParts->GetUIY(128)) / 128.0f * p->GetAI()->GetGraphAlpha();
+							int ShadowOfset = 3;
 							if (p->GetAI()->IsAlert()) {
 								DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 0, 0, 0);// 
-								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Alert, static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetUIY(32) + ShadowOfset, Scale, 0.f, true);
+								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Alert, XP + ShadowOfset, YP + ShadowOfset, p->GetAI()->GetGraphAlpha(), 0.f, true);
 								DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 255, 0, 0);// 
-								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Alert, static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetUIY(32), Scale, 0.f, true);
+								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Alert, XP, YP, p->GetAI()->GetGraphAlpha(), 0.f, true);
 							}
 							else if (p->GetAI()->IsCaution()) {
 								DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 0, 0, 0);// 
-								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Caution, static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetUIY(32) + ShadowOfset, Scale, 0.f, true);
+								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Caution, XP + ShadowOfset, YP + ShadowOfset, p->GetAI()->GetGraphAlpha(), 0.f, true);
 								DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 255, 255, 0);// 
-								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Caution, static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetUIY(32), Scale, 0.f, true);
+								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Caution, XP, YP, p->GetAI()->GetGraphAlpha(), 0.f, true);
 							}
 							else {
 								DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 0, 0, 0);// 
-								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Caution, static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetUIY(32) + ShadowOfset, Scale, 0.f, true);
+								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Caution, XP + ShadowOfset, YP + ShadowOfset, p->GetAI()->GetGraphAlpha(), 0.f, true);
 								DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 0, 255, 0);// 
-								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Caution, static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetUIY(32), Scale, 0.f, true);
+								DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Caution, XP, YP, p->GetAI()->GetGraphAlpha(), 0.f, true);
 							}
 						}
 					}
@@ -640,7 +642,7 @@ namespace DXLIB_Sample {
 			DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 255, 255, 255);
 			// 
 			if (this->m_GoalPos.x != -1.f && this->m_GoalPos.y != -1.f) {
-				int ShadowOfset = DrawParts->GetUIY(3);
+				int ShadowOfset = 3;
 				auto& p = PlayerMngr->GetPlayer((PlayerID)0);
 				if (p->GetChara()) {
 					float Len = (this->m_GoalPos - p->GetChara()->GetPosition()).magnitude() / 1.f;
@@ -648,9 +650,9 @@ namespace DXLIB_Sample {
 					if (Len > 1.f / 255.f) {
 						DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * Len), 0, 255));
 						DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 0, 0, 0);
-						DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Goal, DrawParts->GetUIY(1920 / 2) + ShadowOfset, DrawParts->GetUIY(1080 / 2) + ShadowOfset, static_cast<float>(DrawParts->GetUIY(1024)) / 400.f, Rad, true);
+						DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Goal, BaseScreenWidth / 2 + ShadowOfset, BaseScreenHeight / 2 + ShadowOfset, 1024.f / 400.f, Rad, true);
 						DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 255, 255, 255);
-						DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Goal, DrawParts->GetUIY(1920 / 2), DrawParts->GetUIY(1080 / 2), static_cast<float>(DrawParts->GetUIY(1024)) / 400.f, Rad, true);
+						DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Goal, BaseScreenWidth / 2, BaseScreenHeight / 2, 1024.f / 400.f, Rad, true);
 						DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 					}
 				}
@@ -664,29 +666,29 @@ namespace DXLIB_Sample {
 					auto* SaveDataParts = SaveDataClass::Instance();
 					std::string SaveStr = "Cut_" + std::to_string(e.m_CutSceneID);
 					if (SaveDataParts->GetParam(SaveStr) == -1) {
-						int ShadowOfset = DrawParts->GetScreenY(3);
 						auto& p = PlayerMngr->GetPlayer((PlayerID)0);
 
 						Vector2DX Pos = BackGround->GetFloorData(e.m_index)->GetTileCenterPos();
 
-						Vector2DX DispPos;
-						Cam2DControl::ConvertTiletoDisp(Pos, &DispPos);
+						Vector2DX DispPos = Cam2DControl::ConvertTiletoDisp(Pos);
 
-						if (!HitPointToRectangle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), 0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080))) {
+						if (!IsOnScreen(DispPos, 0)) {
+							int ShadowOfset = 3;
 							if (p->GetChara()) {
 								float Len = (Pos - p->GetChara()->GetPosition()).magnitude() / 1.f;
 								float Rad = GetRadVec(Pos - p->GetChara()->GetPosition());
 								if (Len > 1.f / 255.f) {
 									DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(128.f * std::clamp(Len, 0.f, 1.f)), 0, 255));
 									DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 0, 0, 0);
-									DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Goal, DrawParts->GetScreenY(1920 / 2) + ShadowOfset, DrawParts->GetScreenY(1080 / 2) + ShadowOfset, static_cast<float>(DrawParts->GetScreenY(768)) / 400.f, Rad, true);
+									DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Goal, BaseScreenWidth / 2 + ShadowOfset, BaseScreenHeight / 2 + ShadowOfset, 768.f / 400.f, Rad, true);
 									DrawCtrls->SetBright(UISystem::DrawLayer::Normal, 255, 255, 255);
-									DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Goal, DrawParts->GetScreenY(1920 / 2), DrawParts->GetScreenY(1080 / 2), static_cast<float>(DrawParts->GetScreenY(768)) / 400.f, Rad, true);
+									DrawCtrls->SetDrawRotaGraph(UISystem::DrawLayer::Normal, &this->m_Goal, BaseScreenWidth / 2, BaseScreenHeight / 2, 768.f / 400.f, Rad, true);
 									DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 								}
 							}
 						}
 						else {
+							int ShadowOfset = DrawParts->GetScreenY(3);
 							float Scale = static_cast<float>(DrawParts->GetScreenY(64)) / 128.0f;
 
 							SetDrawBright(0, 0, 0);// 
@@ -704,28 +706,24 @@ namespace DXLIB_Sample {
 					const auto& Obj = Obj2DParts->GetObj(m_BossUniqueID);
 					auto& P = (std::shared_ptr<MetalObject>&)(Obj);
 					int R = Cam2DControl::GetTileToDispSize(1.f);
-					Vector2DX DispPos;
-					Cam2DControl::ConvertTiletoDisp(P->GetPosition(), &DispPos);
+					Vector2DX DispPos = Cam2DControl::ConvertTiletoDisp(P->GetPosition());
 					// 範囲外
-					if (!HitPointToRectangle(
-						static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
-						-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+					if (!IsOnScreen(DispPos, R)) {
 						return;
 					}
-					int xmin = DrawParts->GetScreenY(-50);
-					int ymin = DrawParts->GetScreenY(-50);
-					int xmax = DrawParts->GetScreenY(50);
-
+					int xmin = -50;
+					int ymin = -50;
+					int xmax = 50;
 					int xper = xmin + (xmax - xmin) * P->GetHitPoint() / P->GetHitPointMax();
-
-					DrawCtrls->SetDrawLine(UISystem::DrawLayer::Normal, DrawParts->GetUIY(static_cast<int>(DispPos.x + xmin)), DrawParts->GetUIY(static_cast<int>(DispPos.y + ymin)), DrawParts->GetUIY(static_cast<int>(DispPos.x + xmax)), DrawParts->GetUIY(static_cast<int>(DispPos.y + ymin)), Gray75, DrawParts->GetUIY(10));
-					DrawCtrls->SetDrawLine(UISystem::DrawLayer::Normal, DrawParts->GetUIY(static_cast<int>(DispPos.x + xmin)), DrawParts->GetUIY(static_cast<int>(DispPos.y + ymin)), DrawParts->GetUIY(static_cast<int>(DispPos.x + xper)), DrawParts->GetUIY(static_cast<int>(DispPos.y + ymin)), Green, DrawParts->GetUIY(10));
+					DrawCtrls->SetDrawLine(UISystem::DrawLayer::Normal, static_cast<int>(DispPos.x + xmin), static_cast<int>(DispPos.y + ymin), static_cast<int>(DispPos.x + xmax), static_cast<int>(DispPos.y + ymin), Gray75, 10);
+					DrawCtrls->SetDrawLine(UISystem::DrawLayer::Normal, static_cast<int>(DispPos.x + xmin), static_cast<int>(DispPos.y + ymin), static_cast<int>(DispPos.x + xper), static_cast<int>(DispPos.y + ymin), Green, 10);
 				}
 			}
 		}
 		void			MainGameScene::DrawUI_Base_Sub(void) const noexcept {
+			auto* FadeInParts = UI::FadeControl::Instance();
 			m_MapNameDrawControl.Draw();
-			m_FadeControl.DrawFade();
+			FadeInParts->DrawFade();
 			m_CutSceneControl.DrawCut();
 		}
 		void			MainGameScene::DrawUI_In_Sub(void) const noexcept {
@@ -734,18 +732,14 @@ namespace DXLIB_Sample {
 		// UI
 		void			MainGameScene::DrawCharaUI_Back(PlayerID value) const noexcept {
 			auto* PlayerMngr = PlayerManager::Instance();
-			auto* DrawParts = DXDraw::Instance();
 			auto& p = PlayerMngr->GetPlayer(value);
 
 			if (!p->GetChara()) { return; }
 			float Radius = 10.f;
 			int R = Cam2DControl::GetTileToDispSize(Radius);
-			Vector2DX DispPos;
-			Cam2DControl::ConvertTiletoDisp(p->GetChara()->GetPosition(), &DispPos);
+			Vector2DX DispPos = Cam2DControl::ConvertTiletoDisp(p->GetChara()->GetPosition());
 			// 範囲外
-			if (!HitPointToRectangle(
-				static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
-				-R, -R, DrawParts->GetScreenY(1920) + R, DrawParts->GetScreenY(1080) + R)) {
+			if (!IsOnScreen(DispPos, R)) {
 				return;
 			}
 			double Deg = (double)-p->GetChara()->GetViewRad() / (DX_PI * 2.0) * 100.0 + 100.0;// ゲージが-100~100の範囲なので+100
@@ -769,8 +763,9 @@ namespace DXLIB_Sample {
 			DrawCircleGauge(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Deg + Watch, this->m_Watch.get(), Deg - Watch, (double)R / 64.0);
 		}
 		void			MainGameScene::SetSceneEnd(void) noexcept {
+			auto* FadeInParts = UI::FadeControl::Instance();
 			if (!this->m_IsEndUpdate) {
-				m_FadeControl.SetFadeOut();
+				FadeInParts->SetFadeOut();
 			}
 			this->m_IsEndUpdate = true;
 		}

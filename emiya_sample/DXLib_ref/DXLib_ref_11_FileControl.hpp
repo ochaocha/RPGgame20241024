@@ -9,7 +9,7 @@ namespace DXLibRef {
 	/*ファイル操作系関数																														*/
 	/*------------------------------------------------------------------------------------------------------------------------------------------*/
 	// クリップボードに画像をコピー
-	static auto GetClipBoardGraphHandle(GraphHandle* RetHandle) noexcept {
+	static auto GetClipBoardGraphHandle(GraphHandle* pAnswerHandle) noexcept {
 		HWND  hwnd = GetMainWindowHandle();
 
 		if (IsClipboardFormatAvailable(CF_BITMAP) == FALSE) {
@@ -42,7 +42,7 @@ namespace DXLibRef {
 		ReleaseDC(hwnd, hDC);
 		DeleteObject(hBitmap);
 
-		RetHandle->CreateGraphFromBmp(&bmpInfo, bmpData);	// ハンドルに変換
+		pAnswerHandle->CreateGraphFromBmp(&bmpInfo, bmpData);	// ハンドルに変換
 		delete[] bmpData;
 		return true;
 	}
@@ -103,7 +103,7 @@ namespace DXLibRef {
 		}
 		~DialogManager(void) noexcept {}
 	public:
-		void			Init(void) noexcept {
+		void			Initialize(void) noexcept {
 			GetCurrentDirectory(MAX_PATH, cdir);
 			ofn.lStructSize = sizeof(OPENFILENAME);
 			ofn.hwndOwner = GetMainWindowHandle();
@@ -206,7 +206,7 @@ namespace DXLibRef {
 			inputputfile.close();
 			return true;
 		}
-		void Reset(void) noexcept {
+		void Dispose(void) noexcept {
 			m_data.clear();
 		}
 	};

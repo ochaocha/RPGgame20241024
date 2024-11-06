@@ -62,9 +62,9 @@ namespace DXLibRef {
 			virtual ~Base2DObject() noexcept {}
 		public:// マネージャーでまとめて行う処理
 			// 初期化
-			void			Init(UniqueID value) noexcept {
+			void			Initialize(UniqueID value) noexcept {
 				this->m_UniqueID = value;
-				Init_Sub();
+				Initialize_Sub();
 				m_IsFirstLoop = true;
 			}
 			// 更新
@@ -72,7 +72,7 @@ namespace DXLibRef {
 				Update_Sub();
 				// 何かに当たった
 				if (this->m_HitUniqueID != InvalidID) {
-					Update_OnHitObject();
+					OnHitObject_Sub();
 					this->m_HitUniqueID = InvalidID;
 				}
 				m_IsFirstLoop = false;
@@ -84,9 +84,9 @@ namespace DXLibRef {
 			// オブジェクト削除
 			void			Dispose(void) noexcept { Dispose_Sub(); }
 		protected:// 任意でoverrideして各オブジェクト特有の処理を追加します
-			virtual void	Init_Sub(void) noexcept {}			// 初期化時に通る
+			virtual void	Initialize_Sub(void) noexcept {}	// 初期化時に通る
 			virtual void	Update_Sub(void) noexcept {}		// 更新の際に通る
-			virtual void	Update_OnHitObject(void) noexcept {}// 他のオブジェクトにヒットした瞬間に呼ぶ系のもの
+			virtual void	OnHitObject_Sub(void) noexcept {}	// 他のオブジェクトにヒットした瞬間に呼ぶ系のもの
 			virtual void	DrawShadow_Sub(void) noexcept {}	// 影描画の際に通る
 			virtual void	Draw_Sub(void) noexcept {}			// 描画の際に通る
 			virtual void	Dispose_Sub(void) noexcept {}		// オブジェクトが削除される際に通る

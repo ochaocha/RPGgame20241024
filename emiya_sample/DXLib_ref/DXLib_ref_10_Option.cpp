@@ -188,19 +188,111 @@ namespace DXLibRef {
 	// --------------------------------------------------------------------------------------------------
 	// 
 	// --------------------------------------------------------------------------------------------------
+
+	// オンオフできるボタン
+	static bool CheckBox(int xp1, int yp1, bool switchturn) noexcept {
+		auto* DrawCtrls = UISystem::DrawControl::Instance();
+		int EdgeSize = 2;
+		int xp3 = xp1 + EdgeSize;
+		int yp3 = yp1 + EdgeSize;
+		int xp4 = xp1 + LineHeight * 2 - EdgeSize;
+		int yp4 = yp1 + LineHeight - EdgeSize;
+
+		auto* Pad = PadControl::Instance();
+
+		bool MouseOver = UISystem::GetMouseOver(xp3, yp3, xp4, yp4);
+		if (MouseOver && Pad->GetMouseClick().trigger()) {
+			switchturn ^= 1;
+			auto* SoundParts = SoundSystem::SoundPool::Instance();
+			SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+		}
+		unsigned int color = Gray25;
+		int Edge = 5;
+		DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal,
+			xp3 + Edge, yp3 + Edge, xp4 - Edge, yp4 - Edge, Black, true);
+		xp4 = xp1 + LineHeight * (switchturn ? 1 : 0) - EdgeSize;
+		DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal,
+			xp3 + Edge, yp3 + Edge, xp4 + Edge, yp4 - Edge, Gray50, true);
+		xp3 = xp1 + LineHeight * (switchturn ? 1 : 0) + EdgeSize;
+		xp4 = xp1 + LineHeight * (switchturn ? 2 : 1) - EdgeSize;
+		DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal,
+			xp3, yp3, xp4, yp4, color, true);
+		return switchturn;
+	}
+	// スライダー
+	static int UpDownBar(int xmin, int xmax, int yp, int value, int valueMin, int valueMax) noexcept {
+		int xpmin = xmin + 1;
+		int xpmax = xmax - 1;
+
+		auto* Pad = PadControl::Instance();
+		auto* DrawCtrls = UISystem::DrawControl::Instance();
+
+		bool MouseOver = UISystem::GetMouseOver(xpmin - 5, yp, xpmin + (xpmax - xpmin) + 5, yp + LineHeight);
+		if (MouseOver && Pad->GetMouseClick().trigger()) {
+			auto* SoundParts = SoundSystem::SoundPool::Instance();
+			SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+		}
+		if (MouseOver && Pad->GetMouseClick().press()) {
+			value = Clamp(((valueMax - valueMin) * (Pad->GetMS_X() - xpmin) / (xpmax - xpmin)) + valueMin, valueMin, valueMax);
+		}
+
+		DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal,
+			xpmin, yp, xpmin + (xpmax - xpmin), yp + LineHeight, DarkGreen, true);
+		DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal,
+			xpmin, yp, xpmin + (xpmax - xpmin) * Clamp(value - valueMin, 0, valueMax - valueMin) / (valueMax - valueMin), yp + LineHeight,
+			MouseOver ? (Pad->GetMouseClick().press() ? Gray25 : White) : Green, true);
+
+		DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+			LineHeight, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::TOP,
+			xmin + (xmax - xmin) / 2, yp, White, Black, "%03d", value);
+		return value;
+	}
+	// 0~valueMaxの選択制ボタン集
+	static int UpDownBox(int xmin, int xmax, int yp, int value, int valueMax) noexcept {
+		auto* DrawCtrls = UISystem::DrawControl::Instance();
+
+		int width = LineHeight;
+		int r = LineHeight / 3;
+		int xps = (xmax + xmin) / 2;
+		int yps = yp + LineHeight / 2;
+		for (int loop = 0; loop < valueMax; ++loop) {
+			int xp1 = xps + loop * width - width * (valueMax - 1) / 2;
+
+			auto* Pad = PadControl::Instance();
+			bool MouseOver = UISystem::GetMouseOver(xp1 - r, yps - r, xp1 + r, yps + r);
+			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal,
+				xp1 - r, yps - r, xp1 + r, yps + r, MouseOver ? (Pad->GetMouseClick().press() ? Gray25 : White) : (value == loop) ? Green : DarkGreen, true);
+			bool ret = (MouseOver && Pad->GetMouseClick().trigger());
+
+			if (ret) {
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+
+				value = loop;
+			}
+		}
+		return value;
+	}
+
+	// --------------------------------------------------------------------------------------------------
+	// 
+	// --------------------------------------------------------------------------------------------------
 	// 
 	void OptionWindowClass::OptionElementsInfo::Draw(int xpos, int ypos, bool isMine) const noexcept {
-		auto* DrawParts = DXDraw::Instance();
-		ypos += DrawParts->GetUIY(static_cast<int>(selanim));
-		UISystem::SetMsg(xpos, ypos + LineHeight / 2, LineHeight, UISystem::FontXCenter::LEFT, isMine ? White : Gray50, Black, m_Name);
-		m_Draw(xpos + DrawParts->GetUIY(720 - 324), ypos, isMine);
+		auto* DrawCtrls = UISystem::DrawControl::Instance();
+
+		ypos += static_cast<int>(selanim);
+		DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+			LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+			xpos, ypos,isMine ? White : Gray50, Black, m_Name);
+		m_Draw(xpos + (720 - 324), ypos, isMine);
 	}
 	// 
 	void OptionWindowClass::OptionTabsInfo::Update(int* select, bool CanPress) noexcept {
 		if ((*select) < 0) {
 			return;
 		}
-		auto* SoundParts = SoundPool::Instance();
+		auto* SoundParts = SoundSystem::SoundPool::Instance();
 		auto* Pad = PadControl::Instance();
 		m_Elements.at(static_cast<size_t>(*select)).GetAnyDoing();
 		if (CanPress) {
@@ -210,7 +302,7 @@ namespace DXLibRef {
 					(*select) = static_cast<int>(m_Elements.size()) - 1;
 				}
 				m_Elements.at(static_cast<size_t>(*select)).selanim = 3.f;
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			}
 			if (Pad->GetPadsInfo(PADS::MOVE_S).GetKey().trigger()) {
 				++(*select);
@@ -218,7 +310,7 @@ namespace DXLibRef {
 					(*select) = 0;
 				}
 				m_Elements.at(static_cast<size_t>(*select)).selanim = -3.f;
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			}
 			if (Pad->GetPadsInfo(PADS::MOVE_A).GetKey().repeat()) {
 				m_Elements.at(static_cast<size_t>(*select)).GetLeftPush();
@@ -235,107 +327,118 @@ namespace DXLibRef {
 		}
 	}
 	void OptionWindowClass::OptionTabsInfo::Draw(int xpos, int ypos, bool isActive, int* TabSel, int* select) noexcept {
-		auto* DrawParts = DXDraw::Instance();
-		int xp1, yp1;
 		// タブ
 		{
-			xp1 = xpos + (DrawParts->GetUIY(140) + DrawParts->GetUIY(12)) * m_id;
-			yp1 = ypos;
-			if (UISystem::SetMsgClickBox(xp1, yp1 + DrawParts->GetUIY(5), xp1 + DrawParts->GetUIY(140), yp1 + LineHeight * 2 - DrawParts->GetUIY(5), LineHeight, (isActive ? Gray25 : Gray75), false, true, m_name)) {
+			auto* Pad = PadControl::Instance();
+			auto* DrawCtrls = UISystem::DrawControl::Instance();
+
+			int xp1 = xpos + (140 + 12) * m_id;
+			int yp1 = ypos + 5;
+			int xp2 = xpos + (140 + 12) * m_id + 140;
+			int yp2 = ypos + LineHeight * 2 - 5;
+			bool MouseOver = UISystem::GetMouseOver(xp1, yp1, xp2, yp2);
+			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal,
+				xp1, yp1, xp2, yp2, MouseOver ? (Pad->GetMouseClick().press() ? Gray25 : White) : (isActive ? Gray25 : Gray75), true);
+			bool ret = (MouseOver && (Pad->GetMouseClick().trigger()));
+
+			DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+				LineHeight, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::MIDDLE,
+				(xp1 + xp2) / 2, (yp1 + yp2) / 2, White, Black, m_name);
+			if (ret) {
 				*TabSel = GetID();
 				*select = 0;
-				auto* SoundParts = SoundPool::Instance();
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			}
 		}
 		// 内容
 		if (isActive) {
-			xp1 = xpos;
-			yp1 = ypos + LineHeight * 2;
+			int yp1 = ypos + LineHeight * 2;
 			for (int i = 0; i < static_cast<int>(m_Elements.size()); ++i) {
-				yp1 += (LineHeight + DrawParts->GetUIY(6));
+				yp1 += (LineHeight + 6);
 
-				auto* Pad = PadControl::Instance();
-				if (HitPointToRectangle(Pad->GetMS_X(), Pad->GetMS_Y(), xp1, yp1, xp1 + DrawParts->GetUIY(500), yp1 + (LineHeight + DrawParts->GetUIY(6)))) {
+				if (UISystem::GetMouseOver(xpos, yp1, xpos + 500, yp1 + (LineHeight + 6))) {
 					*select = i;
 				}
-				m_Elements.at(static_cast<size_t>(i)).Draw(xp1, yp1, (*select == i));
+				m_Elements.at(static_cast<size_t>(i)).Draw(xpos, yp1, (*select == i));
 			}
 		}
 	}
 	void OptionWindowClass::OptionTabsInfo::DrawInfo(int xpos, int ypos, int select) noexcept {
-		UISystem::SetMsg(xpos, ypos + LineHeight / 2, LineHeight, UISystem::FontXCenter::LEFT, White, Black, m_Elements.at(static_cast<size_t>(select)).GetInfoText().c_str());
+		auto* DrawCtrls = UISystem::DrawControl::Instance();
+
+		DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+			LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+			xpos, ypos,White, Black, m_Elements.at(static_cast<size_t>(select)).GetInfoText().c_str());
 	}
 	// 
-	void OptionWindowClass::SoundTabsInfo::Init_Sub(void) noexcept {
+	void OptionWindowClass::SoundTabsInfo::Initialize_Sub(void) noexcept {
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("BGM", "BGMボリュームを変更します",
+		this->m_Elements.back().Initialize("BGM", "BGMボリュームを変更します",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->SetParamFloat(EnumSaveParam::BGM, Clamp(OptionParts->GetParamFloat(EnumSaveParam::BGM) - 0.1f, 0.f, 1.f));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
-				SoundParts->UpdateVolume();
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->FlipVolume();
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->SetParamFloat(EnumSaveParam::BGM, Clamp(OptionParts->GetParamFloat(EnumSaveParam::BGM) + 0.1f, 0.f, 1.f));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
-				SoundParts->UpdateVolume();
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->FlipVolume();
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
-				auto* DrawParts = DXDraw::Instance();
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
-				int value = UISystem::UpDownBar(xpos, xpos + DrawParts->GetUIY(200), ypos, static_cast<int>(OptionParts->GetParamFloat(EnumSaveParam::BGM) * 100.f + 0.5f), 0, 100);
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
+				int value = UpDownBar(xpos, xpos + 200, ypos, static_cast<int>(OptionParts->GetParamFloat(EnumSaveParam::BGM) * 100.f + 0.5f), 0, 100);
 				OptionParts->SetParamFloat(EnumSaveParam::BGM, static_cast<float>(value) / 100.f);
-				SoundParts->UpdateVolume();
+				SoundParts->FlipVolume();
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("SE", "SEボリュームを変更します",
+		this->m_Elements.back().Initialize("SE", "SEボリュームを変更します",
 			[]() {
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				auto* OptionParts = OPTION::Instance();
 				OptionParts->SetParamFloat(EnumSaveParam::SE, Clamp(OptionParts->GetParamFloat(EnumSaveParam::SE) - 0.1f, 0.f, 1.f));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
-				SoundParts->UpdateVolume();
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->FlipVolume();
 			},
 			[]() {
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				auto* OptionParts = OPTION::Instance();
 				OptionParts->SetParamFloat(EnumSaveParam::SE, Clamp(OptionParts->GetParamFloat(EnumSaveParam::SE) + 0.1f, 0.f, 1.f));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
-				SoundParts->UpdateVolume();
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->FlipVolume();
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
-				auto* DrawParts = DXDraw::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				auto* OptionParts = OPTION::Instance();
-				int value = UISystem::UpDownBar(xpos, xpos + DrawParts->GetUIY(200), ypos, static_cast<int>(OptionParts->GetParamFloat(EnumSaveParam::SE) * 100.f + 0.5f), 0, 100);
+				int value = UpDownBar(xpos, xpos + 200, ypos, static_cast<int>(OptionParts->GetParamFloat(EnumSaveParam::SE) * 100.f + 0.5f), 0, 100);
 				OptionParts->SetParamFloat(EnumSaveParam::SE, static_cast<float>(value) / 100.f);
-				SoundParts->UpdateVolume();
+				SoundParts->FlipVolume();
 			}
 		);
 	}
-	void OptionWindowClass::GraphicTabsInfo::Init_Sub(void) noexcept {
+	void OptionWindowClass::GraphicTabsInfo::Initialize_Sub(void) noexcept {
 		HDC hdc;
 		hdc = GetDC(GetMainWindowHandle());	// デバイスコンテキストの取得
 		RefreshRate = GetDeviceCaps(hdc, VREFRESH);	// リフレッシュレートの取得
 		ReleaseDC(GetMainWindowHandle(), hdc);	// デバイスコンテキストの解放
 
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("Graphics Preset", "グラフィック設定を一律設定します",
+		this->m_Elements.back().Initialize("Graphics Preset", "グラフィック設定を一律設定します",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::GraphicsPreset);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 				if (!OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)) {
 					OptionParts->SetParamBoolean(EnumSaveParam::Shadow, false);
 					OptionParts->SetParamBoolean(EnumSaveParam::Bloom, false);
@@ -349,9 +452,9 @@ namespace DXLibRef {
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::GraphicsPreset);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 				if (!OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)) {
 					OptionParts->SetParamBoolean(EnumSaveParam::Shadow, false);
 					OptionParts->SetParamBoolean(EnumSaveParam::Bloom, false);
@@ -368,7 +471,7 @@ namespace DXLibRef {
 			[](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
 				auto prev = OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset);
-				OptionParts->SetParamBoolean(EnumSaveParam::GraphicsPreset, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)));
+				OptionParts->SetParamBoolean(EnumSaveParam::GraphicsPreset, CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)));
 				if (prev != OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)) {
 					if (!OptionParts->GetParamBoolean(EnumSaveParam::GraphicsPreset)) {
 						OptionParts->SetParamBoolean(EnumSaveParam::Shadow, false);
@@ -384,32 +487,33 @@ namespace DXLibRef {
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("Window Mode", "ウィンドウ、ボーダーレス、フルスクリーンモードを選択します",
+		this->m_Elements.back().Initialize("Window Mode", "ウィンドウ、ボーダーレス、フルスクリーンモードを選択します",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->SetParamInt(EnumSaveParam::WindowMode, Clamp(OptionParts->GetParamInt(EnumSaveParam::WindowMode) - 1, static_cast<int>(WindowType::None), static_cast<int>(WindowType::Max)));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
-				auto* DrawParts = DXDraw::Instance();
-				DrawParts->SetWindowOrBorderless();
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				auto* WindowSizeParts = WindowSizeControl::Instance();
+				WindowSizeParts->SetWindowOrBorderless();
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->SetParamInt(EnumSaveParam::WindowMode, Clamp(OptionParts->GetParamInt(EnumSaveParam::WindowMode) + 1, static_cast<int>(WindowType::None), static_cast<int>(WindowType::Max)));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
-				auto* DrawParts = DXDraw::Instance();
-				DrawParts->SetWindowOrBorderless();
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				auto* WindowSizeParts = WindowSizeControl::Instance();
+				WindowSizeParts->SetWindowOrBorderless();
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
-				auto* DrawParts = DXDraw::Instance();
+				auto* DrawCtrls = UISystem::DrawControl::Instance();
+				auto* WindowSizeParts = WindowSizeControl::Instance();
 				auto prev = OptionParts->GetParamInt(EnumSaveParam::WindowMode);
-				OptionParts->SetParamInt(EnumSaveParam::WindowMode, UISystem::UpDownBox(xpos, xpos + DrawParts->GetUIY(200), ypos, OptionParts->GetParamInt(EnumSaveParam::WindowMode), static_cast<int>(WindowType::Max)));
+				OptionParts->SetParamInt(EnumSaveParam::WindowMode, UpDownBox(xpos, xpos + 200, ypos, OptionParts->GetParamInt(EnumSaveParam::WindowMode), static_cast<int>(WindowType::Max)));
 				if (prev != OptionParts->GetParamInt(EnumSaveParam::WindowMode)) {
-					DrawParts->SetWindowOrBorderless();
+					WindowSizeParts->SetWindowOrBorderless();
 				}
 				std::string Type;
 				switch (static_cast<WindowType>(OptionParts->GetParamInt(EnumSaveParam::WindowMode))) {
@@ -426,38 +530,40 @@ namespace DXLibRef {
 				default:
 					break;
 				}
-				UISystem::SetMsg(xpos + DrawParts->GetUIY(250), ypos + LineHeight / 2,
-					LineHeight, UISystem::FontXCenter::RIGHT, White, Black, Type.c_str());
+				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+					LineHeight, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::TOP,
+					xpos + 250, ypos,
+					White, Black, Type.c_str());
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("V Sync", "垂直同期の有効無効を指定します",
+		this->m_Elements.back().Initialize("V Sync", "垂直同期の有効無効を指定します",
 			[this]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::VSync);
 				if (OptionParts->GetParamBoolean(EnumSaveParam::VSync)) {
 					OptionParts->SetParamInt(EnumSaveParam::FpsLimit, RefreshRate);
 				}
-				SetWaitVSyncFlag(OptionParts->GetParamBoolean(EnumSaveParam::VSync));									// 垂直同期
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				DXLib_ref::Instance()->SetWaitVSync();
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[this]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::VSync);
 				if (OptionParts->GetParamBoolean(EnumSaveParam::VSync)) {
 					OptionParts->SetParamInt(EnumSaveParam::FpsLimit, RefreshRate);
 				}
-				SetWaitVSyncFlag(OptionParts->GetParamBoolean(EnumSaveParam::VSync));									// 垂直同期
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				DXLib_ref::Instance()->SetWaitVSync();
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[this](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
 				auto prev = OptionParts->GetParamBoolean(EnumSaveParam::VSync);
-				OptionParts->SetParamBoolean(EnumSaveParam::VSync, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::VSync)));
+				OptionParts->SetParamBoolean(EnumSaveParam::VSync, CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::VSync)));
 				if (OptionParts->GetParamBoolean(EnumSaveParam::VSync)) {
 					OptionParts->SetParamInt(EnumSaveParam::FpsLimit, RefreshRate);
 				}
@@ -465,15 +571,15 @@ namespace DXLibRef {
 					if (OptionParts->GetParamBoolean(EnumSaveParam::VSync)) {
 						OptionParts->SetParamInt(EnumSaveParam::FpsLimit, RefreshRate);
 					}
-					SetWaitVSyncFlag(OptionParts->GetParamBoolean(EnumSaveParam::VSync));									// 垂直同期
+					DXLib_ref::Instance()->SetWaitVSync();
 				}
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("FPS Limit", "垂直同期を切った際のFPS制限を指定します",
+		this->m_Elements.back().Initialize("FPS Limit", "垂直同期を切った際のFPS制限を指定します",
 			[this]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 
 				int value = OptionParts->GetParamInt(EnumSaveParam::FpsLimit);
 				bool isHit = false;
@@ -493,11 +599,11 @@ namespace DXLibRef {
 				}
 
 				OptionParts->SetParamInt(EnumSaveParam::FpsLimit, value);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[this]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				int value = OptionParts->GetParamInt(EnumSaveParam::FpsLimit);
 				bool isHit = false;
 				for (int i = 0; i < FrameLimitsNum; ++i) {
@@ -515,13 +621,13 @@ namespace DXLibRef {
 					value = FrameLimits[1];
 				}
 				OptionParts->SetParamInt(EnumSaveParam::FpsLimit, value);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[this](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
-				auto* DrawParts = DXDraw::Instance();
+				auto* DrawCtrls = UISystem::DrawControl::Instance();
 				int ret = 0;
 				// 結果から一番近いやつに指定
 				int diff = 10000;
@@ -532,183 +638,185 @@ namespace DXLibRef {
 						ret = i;
 					}
 				}
-				int value = UISystem::UpDownBox(xpos, xpos + DrawParts->GetUIY(200), ypos, ret, FrameLimitsNum);
+				int value = UpDownBox(xpos, xpos + 200, ypos, ret, FrameLimitsNum);
 				OptionParts->SetParamInt(EnumSaveParam::FpsLimit, FrameLimits[value]);
-				UISystem::SetMsg(xpos + DrawParts->GetUIY(250), ypos + LineHeight / 2,
-					LineHeight, UISystem::FontXCenter::RIGHT, White, Black, "%d", OptionParts->GetParamInt(EnumSaveParam::FpsLimit));
+				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+					LineHeight, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::TOP,
+					xpos + 250, ypos,
+					White, Black, "%d", OptionParts->GetParamInt(EnumSaveParam::FpsLimit));
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("DirectX Version", "DirectXのバージョンを変更します(反映は再起動後にされます)",
+		this->m_Elements.back().Initialize("DirectX Version", "DirectXのバージョンを変更します(反映は再起動後にされます)",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
 				auto* OptionWindowParts = OptionWindowClass::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->SetParamInt(EnumSaveParam::DirectXVer, 1 - OptionParts->GetParamInt(EnumSaveParam::DirectXVer));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 				OptionWindowParts->SetRestart();
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
 				auto* OptionWindowParts = OptionWindowClass::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->SetParamInt(EnumSaveParam::DirectXVer, 1 - OptionParts->GetParamInt(EnumSaveParam::DirectXVer));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 				OptionWindowParts->SetRestart();
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
-				auto* DrawParts = DXDraw::Instance();
 				auto* OptionWindowParts = OptionWindowClass::Instance();
 				auto* OptionParts = OPTION::Instance();
+				auto* DrawCtrls = UISystem::DrawControl::Instance();
 				auto prev = OptionParts->GetParamInt(EnumSaveParam::DirectXVer);
-				OptionParts->SetParamInt(EnumSaveParam::DirectXVer, UISystem::CheckBox(xpos, ypos, (OptionParts->GetParamInt(EnumSaveParam::DirectXVer) == 1)) ? 1 : 0);
+				OptionParts->SetParamInt(EnumSaveParam::DirectXVer, CheckBox(xpos, ypos, (OptionParts->GetParamInt(EnumSaveParam::DirectXVer) == 1)) ? 1 : 0);
 				if (prev != OptionParts->GetParamInt(EnumSaveParam::DirectXVer)) {
 					OptionWindowParts->SetRestart();
 				}
-				UISystem::SetMsg(xpos + DrawParts->GetUIY(100), ypos + LineHeight / 2,
-					LineHeight, UISystem::FontXCenter::MIDDLE, White, Black, DirectXVerStr[OptionParts->GetParamInt(EnumSaveParam::DirectXVer)]);
+				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+					LineHeight, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::TOP,
+					xpos + 100, ypos,
+					White, Black, DirectXVerStr[OptionParts->GetParamInt(EnumSaveParam::DirectXVer)]);
 			}
 		);
 
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("Shadow", "影のクオリティを指定します",
+		this->m_Elements.back().Initialize("Shadow", "影のクオリティを指定します",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::Shadow);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::Shadow);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
-				OptionParts->SetParamBoolean(EnumSaveParam::Shadow, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::Shadow)));
+				OptionParts->SetParamBoolean(EnumSaveParam::Shadow, CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::Shadow)));
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("Bloom Effect", "ブルームエフェクトの有効無効を指定します",
+		this->m_Elements.back().Initialize("Bloom Effect", "ブルームエフェクトの有効無効を指定します",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::Bloom);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::Bloom);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
-				OptionParts->SetParamBoolean(EnumSaveParam::Bloom, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::Bloom)));
+				OptionParts->SetParamBoolean(EnumSaveParam::Bloom, CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::Bloom)));
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("Screen Effect", "画面エフェクトの有効無効を指定します",
+		this->m_Elements.back().Initialize("Screen Effect", "画面エフェクトの有効無効を指定します",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::ScreenEffect);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::ScreenEffect);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
-				OptionParts->SetParamBoolean(EnumSaveParam::ScreenEffect, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::ScreenEffect)));
+				OptionParts->SetParamBoolean(EnumSaveParam::ScreenEffect, CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::ScreenEffect)));
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("MotionBlur", "モーションブラーの有効無効を指定します",
+		this->m_Elements.back().Initialize("MotionBlur", "モーションブラーの有効無効を指定します",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::MotionBlur);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->ChangeParamBoolean(EnumSaveParam::MotionBlur);
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
 				auto* OptionParts = OPTION::Instance();
-				OptionParts->SetParamBoolean(EnumSaveParam::MotionBlur, UISystem::CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::MotionBlur)));
+				OptionParts->SetParamBoolean(EnumSaveParam::MotionBlur, CheckBox(xpos, ypos, OptionParts->GetParamBoolean(EnumSaveParam::MotionBlur)));
 			}
 		);
 	}
-	void OptionWindowClass::ElseTabsInfo::Init_Sub(void) noexcept {
+	void OptionWindowClass::ElseTabsInfo::Initialize_Sub(void) noexcept {
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("X sensing", "横方向の感度を変更します",
+		this->m_Elements.back().Initialize("X sensing", "横方向の感度を変更します",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->SetParamFloat(EnumSaveParam::Xsensing, Clamp(OptionParts->GetParamFloat(EnumSaveParam::Xsensing) - 0.01f, 0.01f, 1.f));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->SetParamFloat(EnumSaveParam::Xsensing, Clamp(OptionParts->GetParamFloat(EnumSaveParam::Xsensing) + 0.01f, 0.01f, 1.f));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
-				auto* DrawParts = DXDraw::Instance();
 				auto* OptionParts = OPTION::Instance();
-				int value = UISystem::UpDownBar(xpos, xpos + DrawParts->GetUIY(200), ypos, static_cast<int>(OptionParts->GetParamFloat(EnumSaveParam::Xsensing) * 100.f + 0.5f), 10, 100);
+				int value = UpDownBar(xpos, xpos + 200, ypos, static_cast<int>(OptionParts->GetParamFloat(EnumSaveParam::Xsensing) * 100.f + 0.5f), 10, 100);
 				OptionParts->SetParamFloat(EnumSaveParam::Xsensing, static_cast<float>(value) / 100.f);
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("Y sensing", "縦方向の感度を変更します",
+		this->m_Elements.back().Initialize("Y sensing", "縦方向の感度を変更します",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->SetParamFloat(EnumSaveParam::Ysensing, Clamp(OptionParts->GetParamFloat(EnumSaveParam::Ysensing) - 0.01f, 0.f, 1.f));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				OptionParts->SetParamFloat(EnumSaveParam::Ysensing, Clamp(OptionParts->GetParamFloat(EnumSaveParam::Ysensing) + 0.01f, 0.f, 1.f));
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
-				auto* DrawParts = DXDraw::Instance();
 				auto* OptionParts = OPTION::Instance();
-				int value = UISystem::UpDownBar(xpos, xpos + DrawParts->GetUIY(200), ypos, static_cast<int>(OptionParts->GetParamFloat(EnumSaveParam::Ysensing) * 100.f + 0.5f), 10, 100);
+				int value = UpDownBar(xpos, xpos + 200, ypos, static_cast<int>(OptionParts->GetParamFloat(EnumSaveParam::Ysensing) * 100.f + 0.5f), 10, 100);
 				OptionParts->SetParamFloat(EnumSaveParam::Ysensing, static_cast<float>(value) / 100.f);
 			}
 		);
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("GamePadType", "パッドの入力方式を変更します",
+		this->m_Elements.back().Initialize("GamePadType", "パッドの入力方式を変更します",
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				switch ((ControlType)OptionParts->GetParamInt(EnumSaveParam::ControlType)) {
 				case ControlType::PS4:
 					OptionParts->SetParamInt(EnumSaveParam::ControlType, static_cast<int>(ControlType::XBox));
@@ -720,11 +828,11 @@ namespace DXLibRef {
 				default:
 					break;
 				}
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {
 				auto* OptionParts = OPTION::Instance();
-				auto* SoundParts = SoundPool::Instance();
+				auto* SoundParts = SoundSystem::SoundPool::Instance();
 				switch ((ControlType)OptionParts->GetParamInt(EnumSaveParam::ControlType)) {
 				case ControlType::PS4:
 					OptionParts->SetParamInt(EnumSaveParam::ControlType, static_cast<int>(ControlType::XBox));
@@ -736,14 +844,14 @@ namespace DXLibRef {
 				default:
 					break;
 				}
-				SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+				SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 			},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool) {
-				auto* DrawParts = DXDraw::Instance();
 				auto* OptionParts = OPTION::Instance();
-				if (UISystem::CheckBox(xpos, ypos, (OptionParts->GetParamInt(EnumSaveParam::ControlType) == static_cast<int>(ControlType::PS4)))) {
+				auto* DrawCtrls = UISystem::DrawControl::Instance();
+				if (CheckBox(xpos, ypos, (OptionParts->GetParamInt(EnumSaveParam::ControlType) == static_cast<int>(ControlType::PS4)))) {
 					OptionParts->SetParamInt(EnumSaveParam::ControlType, static_cast<int>(ControlType::PS4));
 				}
 				else {
@@ -751,12 +859,16 @@ namespace DXLibRef {
 				}
 				ypos -= LineHeight * 1 / 6;
 				if (OptionParts->GetParamInt(EnumSaveParam::ControlType) == static_cast<int>(ControlType::XBox)) {
-					UISystem::SetMsg(xpos + DrawParts->GetUIY(125), ypos + LineHeight / 3,
-						LineHeight * 2 / 3, UISystem::FontXCenter::MIDDLE, White, Black, "XInput");
+					DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+						LineHeight * 2 / 3, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::MIDDLE,
+						xpos + 125, ypos + LineHeight / 3,
+						White, Black, "XInput");
 				}
 				else {
-					UISystem::SetMsg(xpos + DrawParts->GetUIY(125), ypos + LineHeight / 3,
-						LineHeight * 2 / 3, UISystem::FontXCenter::MIDDLE, White, Black, "DirectInput");
+					DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+						LineHeight * 2 / 3, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::MIDDLE,
+						xpos + 125, ypos + LineHeight / 3,
+						White, Black, "DirectInput");
 				}
 
 				if (GetJoypadNum() > 0) {
@@ -768,13 +880,17 @@ namespace DXLibRef {
 					case DX_PADTYPE_SWITCH_JOY_CON_R:
 					case DX_PADTYPE_SWITCH_PRO_CTRL:
 					case DX_PADTYPE_SWITCH_HORI_PAD:
-						UISystem::SetMsg(xpos + DrawParts->GetUIY(125), ypos + LineHeight * 3 / 3,
-							LineHeight * 2 / 3, UISystem::FontXCenter::MIDDLE, White, Black, "推奨:DirectInput");
+						DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+							LineHeight * 2 / 3, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::MIDDLE,
+							xpos + 125, ypos + LineHeight * 3 / 3,
+							White, Black, "推奨:DirectInput");
 						break;
 					case DX_PADTYPE_XBOX_360:
 					case DX_PADTYPE_XBOX_ONE:
-						UISystem::SetMsg(xpos + DrawParts->GetUIY(125), ypos + LineHeight * 3 / 3,
-							LineHeight * 2 / 3, UISystem::FontXCenter::MIDDLE, White, Black, "推奨:XInput");
+						DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+							LineHeight * 2 / 3, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::MIDDLE,
+							xpos + 125, ypos + LineHeight * 3 / 3,
+							White, Black, "推奨:XInput");
 						break;
 					default:
 						break;
@@ -785,51 +901,54 @@ namespace DXLibRef {
 	}
 	void OptionWindowClass::ControlTabsInfo::KeyDraw(int xpos, int ypos, bool isMine, PADS Sel) noexcept {
 		auto* Pad = PadControl::Instance();
-		auto* DrawParts = DXDraw::Instance();
-
+		auto* DrawCtrls = UISystem::DrawControl::Instance();
 		auto* KeyGuideParts = UISystem::KeyGuide::Instance();
-		KeyGuideParts->DrawButton(xpos + DrawParts->GetUIY(50), ypos + LineHeight / 2, KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(Sel).GetAssign(), Pad->GetControlType()));
+		KeyGuideParts->DrawButton(xpos + 50, ypos + LineHeight / 2, KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(Sel).GetAssign(), Pad->GetControlType()));
 
-		UISystem::SetMsg(xpos + DrawParts->GetUIY(100), ypos + LineHeight / 2,
-			LineHeight, UISystem::FontXCenter::LEFT, isMine ? White : Gray25, Black,
+		DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+			LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+			xpos + 100, ypos,
+			isMine ? White : Gray25, Black,
 			"->");
 
 		if (Pad->GetPadsInfo(Sel).IsEnableSelectReserve()) {
-			KeyGuideParts->DrawButton(xpos + DrawParts->GetUIY(150), ypos + LineHeight / 2, KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(Sel).GetReserve(), Pad->GetControlType()));
+			KeyGuideParts->DrawButton(xpos + 150, ypos + LineHeight / 2, KeyGuideParts->GetIDtoOffset(Pad->GetPadsInfo(Sel).GetReserve(), Pad->GetControlType()));
 		}
 	}
 
 
-	void OptionWindowClass::ControlTabsInfo::Init_Sub(void) noexcept {
+	void OptionWindowClass::ControlTabsInfo::Initialize_Sub(void) noexcept {
 		auto* Pad = PadControl::Instance();
 		const char* KeyInfo = "[マウス必須]カーソルをかざし設定するボタンを押してください";
 
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("Reset", "[マウス必須]変更をリセットします",
+		this->m_Elements.back().Initialize("Reset", "[マウス必須]変更をリセットします",
 			[]() {},
 			[]() {},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool isMine) {
-				auto* DrawParts = DXDraw::Instance();
 				auto* Pad = PadControl::Instance();
+				auto* DrawCtrls = UISystem::DrawControl::Instance();
 				if (isMine && Pad->GetMouseClick().trigger()) {
 					Pad->ResetAssign();
 				}
-				UISystem::SetMsg(xpos + DrawParts->GetUIY(100), ypos + LineHeight / 2, LineHeight, UISystem::FontXCenter::MIDDLE, isMine ? White : Gray25, Black, "LMB Click");
+				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+					LineHeight, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::TOP,
+					xpos + 100, ypos, isMine ? White : Gray25, Black, "LMB Click");
 			}
 		);
 		if (Pad->GetPadsInfo(PADS::MOVE_W).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("前進/上を選択", KeyInfo,
+			this->m_Elements.back().Initialize("前進/上を選択", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::MOVE_W)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::MOVE_W); }
@@ -837,15 +956,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::MOVE_S).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("後退/下を選択", KeyInfo,
+			this->m_Elements.back().Initialize("後退/下を選択", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::MOVE_S)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::MOVE_S); }
@@ -853,15 +972,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::MOVE_A).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("左移動/左を選択", KeyInfo,
+			this->m_Elements.back().Initialize("左移動/左を選択", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::MOVE_A)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::MOVE_A); }
@@ -869,15 +988,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::MOVE_D).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("右移動/右を選択", KeyInfo,
+			this->m_Elements.back().Initialize("右移動/右を選択", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::MOVE_D)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::MOVE_D); }
@@ -885,15 +1004,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::LEAN_L).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("左タブを選択", KeyInfo,
+			this->m_Elements.back().Initialize("左タブを選択", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::LEAN_L)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::LEAN_L); }
@@ -901,15 +1020,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::LEAN_R).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("右タブを選択", KeyInfo,
+			this->m_Elements.back().Initialize("右タブを選択", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::LEAN_R)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::LEAN_R); }
@@ -917,15 +1036,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::RELOAD).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("戻る", KeyInfo,
+			this->m_Elements.back().Initialize("戻る", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::RELOAD)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::RELOAD); }
@@ -933,15 +1052,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::INTERACT).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("選択", KeyInfo,
+			this->m_Elements.back().Initialize("選択", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::INTERACT)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::INTERACT); }
@@ -949,15 +1068,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::JUMP).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("ドッジロール", KeyInfo,
+			this->m_Elements.back().Initialize("ドッジロール", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::JUMP)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::JUMP); }
@@ -965,15 +1084,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::RUN).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("走る", KeyInfo,
+			this->m_Elements.back().Initialize("走る", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::RUN)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::RUN); }
@@ -981,15 +1100,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::WALK).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("ゆっくり歩く", KeyInfo,
+			this->m_Elements.back().Initialize("ゆっくり歩く", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::WALK)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::WALK); }
@@ -997,15 +1116,15 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::SHOT).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("射撃", KeyInfo,
+			this->m_Elements.back().Initialize("射撃", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::SHOT)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::SHOT); }
@@ -1013,48 +1132,50 @@ namespace DXLibRef {
 		}
 		if (Pad->GetPadsInfo(PADS::AIM).IsUse()) {
 			this->m_Elements.resize(this->m_Elements.size() + 1);
-			this->m_Elements.back().Init("注目", KeyInfo,
+			this->m_Elements.back().Initialize("注目", KeyInfo,
 				[]() {},
 				[]() {},
 				[]() {},
 				[]() {
 					auto* Pad = PadControl::Instance();
 					if (Pad->ChangeConfig(PADS::AIM)) {
-						auto* SoundParts = SoundPool::Instance();
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						auto* SoundParts = SoundSystem::SoundPool::Instance();
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 				},
 				[this](int xpos, int ypos, bool isMine) { KeyDraw(xpos, ypos, isMine, PADS::AIM); }
 			);
 		}
 		this->m_Elements.resize(this->m_Elements.size() + 1);
-		this->m_Elements.back().Init("Save", "[マウス必須]キーコンフィグをセーブします",
+		this->m_Elements.back().Initialize("Save", "[マウス必須]キーコンフィグをセーブします",
 			[]() {},
 			[]() {},
 			[]() {},
 			[]() {},
 			[](int xpos, int ypos, bool isMine) {
 				auto* Pad = PadControl::Instance();
-				auto* DrawParts = DXDraw::Instance();
+				auto* DrawCtrls = UISystem::DrawControl::Instance();
 				if (isMine && Pad->GetMouseClick().trigger()) {
 					Pad->FlipAssign();
 					Pad->Save();
 				}
-				UISystem::SetMsg(xpos + DrawParts->GetUIY(100), ypos + LineHeight / 2, LineHeight, UISystem::FontXCenter::MIDDLE, isMine ? White : Gray25, Black, "LMB Click");
+				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+					LineHeight, UISystem::FontXCenter::MIDDLE, UISystem::FontYCenter::TOP,
+					xpos + 100, ypos, isMine ? White : Gray25, Black, "LMB Click");
 			}
 		);
 	}
 	// 
-	void OptionWindowClass::Init(void) noexcept {
+	void OptionWindowClass::Initialize(void) noexcept {
 		// 
 		m_Tabs.at(0) = std::make_unique<SoundTabsInfo>();
-		m_Tabs.at(0)->Init(0, "Sound");
+		m_Tabs.at(0)->Initialize(0, "Sound");
 		m_Tabs.at(1) = std::make_unique<GraphicTabsInfo>();
-		m_Tabs.at(1)->Init(1, "Graphic");
+		m_Tabs.at(1)->Initialize(1, "Graphic");
 		m_Tabs.at(2) = std::make_unique<ElseTabsInfo>();
-		m_Tabs.at(2)->Init(2, "Else");
+		m_Tabs.at(2)->Initialize(2, "Else");
 		m_Tabs.at(3) = std::make_unique<ControlTabsInfo>();
-		m_Tabs.at(3)->Init(3, "Control");
+		m_Tabs.at(3)->Initialize(3, "Control");
 		// 
 	}
 	void OptionWindowClass::Update(void) noexcept {
@@ -1064,23 +1185,16 @@ namespace DXLibRef {
 			auto* PopUpParts = UISystem::PopUp::Instance();
 			PopUpParts->Add("Option", 720, 720,
 				[this](int xmin, int ymin, int, int ymax, bool EndSwitch) {
-					auto* DrawParts = DXDraw::Instance();
 					auto* OptionParts = OPTION::Instance();
 					auto* Pad = PadControl::Instance();
 					auto* KeyGuideParts = UISystem::KeyGuide::Instance();
-					auto* SoundParts = SoundPool::Instance();
-					int xp1, yp1;
+					auto* SoundParts = SoundSystem::SoundPool::Instance();
 
-
-					xp1 = xmin + DrawParts->GetUIY(24);
-					yp1 = ymin;
 					for (auto& t : m_Tabs) {
-						t->Draw(xp1, yp1, m_tabsel == t->GetID(), &m_tabsel, &m_select);
+						t->Draw(xmin + 24, ymin, m_tabsel == t->GetID(), &m_tabsel, &m_select);
 					}
 					// ガイド
-					xp1 = xmin + DrawParts->GetUIY(24);
-					yp1 = ymax - LineHeight * 3 / 2;
-					m_Tabs.at(static_cast<size_t>(m_tabsel))->DrawInfo(xp1, yp1, m_select);
+					m_Tabs.at(static_cast<size_t>(m_tabsel))->DrawInfo(xmin + 24, ymax - LineHeight * 3 / 2, m_select);
 
 					// 
 					if (Pad->GetPadsInfo(PADS::LEAN_L).GetKey().trigger() && (m_tabsel != 3)) {
@@ -1089,7 +1203,7 @@ namespace DXLibRef {
 							m_tabsel = static_cast<int>(m_Tabs.size()) - 1;
 						}
 						m_select = 0;
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 					if (Pad->GetPadsInfo(PADS::LEAN_R).GetKey().trigger() && (m_tabsel != 3)) {
 						++m_tabsel;
@@ -1097,13 +1211,13 @@ namespace DXLibRef {
 							m_tabsel = 0;
 						}
 						m_select = 0;
-						SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+						SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 					}
 
 					m_Tabs.at(static_cast<size_t>(m_tabsel))->Update(&m_select, (m_tabsel != 3));
 					// 
 					if (EndSwitch) {
-						KeyGuideParts->SetGuideUpdate();
+						KeyGuideParts->SetGuideFlip();
 						OptionParts->Save();
 						Pad->Save();
 						m_tabsel = 0;

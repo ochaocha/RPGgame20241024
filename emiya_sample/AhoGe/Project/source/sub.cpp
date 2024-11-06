@@ -13,11 +13,10 @@ namespace DXLIB_Sample {
 		void Effect2DControl::Draw() noexcept {
 			//半径5を基準として画面上でのサイズを取得
 			float Radius = static_cast<float>(Cam2DControl::GetTileToDispSize(5.f));
-			Vector2DX DispPos;
 			for (auto& g : m_GuardPos) {
 				if (!g.IsActive()) { continue; }
 				//タイル座標から表示上の座標に変換
-				Cam2DControl::ConvertTiletoDisp(g.GetEffectPos(), &DispPos);
+				Vector2DX DispPos = Cam2DControl::ConvertTiletoDisp(g.GetEffectPos());
 				//座標を基に描画
 				switch (g.GetEffectType()) {
 				case EffectType::Damage:

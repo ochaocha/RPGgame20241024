@@ -195,7 +195,7 @@ namespace DXLIB_Sample {
 					this->m_TargetPathPlanningIndex = this->m_pStartUnit->GetIndex();	// 移動開始時点の移動中間地点の経路探索情報もスタート地点にある地点の情報
 				}
 			public:
-				void		Init(void) noexcept {
+				void		Initialize(void) noexcept {
 					auto* BackGround = BackGroundClassBase::Instance();
 					this->m_UnitArray.resize(static_cast<size_t>(BackGround->GetXSize() * BackGround->GetYSize()));
 				}
@@ -245,8 +245,9 @@ namespace DXLIB_Sample {
 				}
 			}
 		public:
+			//コンストラクタ
 			Impl(void) noexcept {}
-			Impl(const Impl&) = delete;
+			Impl(const Impl&) = delete;// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
 			Impl(Impl&& o) = delete;
 			Impl& operator=(const Impl&) = delete;
 			Impl& operator=(Impl&& o) = delete;
@@ -312,7 +313,6 @@ namespace DXLIB_Sample {
 			}
 		private:
 			void		Update_Before(void) noexcept {
-				auto* DrawParts = DXDraw::Instance();
 				auto* PlayerMngr = PlayerManager::Instance();
 				if (!this->m_TargetChara) { return; }
 				this->m_TargetDistance = (this->m_MyChara->GetPosition() - this->m_TargetChara->GetPosition()).magnitude();
@@ -337,7 +337,7 @@ namespace DXLIB_Sample {
 					}
 				}
 				// 
-				this->m_PathUpdateTimer -= DrawParts->GetDeltaTime();
+				this->m_PathUpdateTimer -= DXLib_ref::Instance()->GetDeltaTime();
 				if (this->m_PathUpdateTimer <= 0.f) {
 					if (this->m_Phase == ENUM_AI_PHASE::Normal || this->m_Phase == ENUM_AI_PHASE::Caution) {
 						PatrolPoint();
@@ -384,12 +384,11 @@ namespace DXLIB_Sample {
 				this->m_InputRad = -GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
 			}
 			void		Update_Check(void) noexcept {
-				auto* DrawParts = DXDraw::Instance();
 				if (!this->m_TargetChara) { return; }
 				// 
 				Vector2DX GoingPoint = this->m_LastFindPos;
 				// 
-				this->m_LostTimer = GetMin(this->m_LostTimer + DrawParts->GetDeltaTime(), 5.f);
+				this->m_LostTimer = GetMin(this->m_LostTimer + DXLib_ref::Instance()->GetDeltaTime(), 5.f);
 				if (this->m_LostTimer == 5.f) {
 					// 探索
 					{
@@ -422,7 +421,6 @@ namespace DXLIB_Sample {
 				this->m_InputRad = -GetRadVec(GoingPoint - this->m_MyChara->GetPosition());
 			}
 			void		Update_Caution(void) noexcept {
-				auto* DrawParts = DXDraw::Instance();
 				if (!this->m_TargetChara) { return; }
 				// 探索
 				{
@@ -449,7 +447,7 @@ namespace DXLIB_Sample {
 					this->m_LostTimer = 10.f;
 				}
 				else {
-					this->m_LostTimer = GetMax(this->m_LostTimer - DrawParts->GetDeltaTime(), 0.f);
+					this->m_LostTimer = GetMax(this->m_LostTimer - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 					if (this->m_LostTimer == 0.f) {
 						ChangeNormalPhase();
 					}
@@ -458,7 +456,6 @@ namespace DXLIB_Sample {
 				this->m_InputRad = -GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
 			}
 			void		Update_Alert(void) noexcept {
-				auto* DrawParts = DXDraw::Instance();
 				if (!this->m_TargetChara) { return; }
 
 				// 探索
@@ -481,7 +478,7 @@ namespace DXLIB_Sample {
 						this->m_MyInput.SetInputPADS(PADS::SHOT, true);
 					}
 					else {
-						this->m_ShotTimer = GetMax(this->m_ShotTimer - DrawParts->GetDeltaTime(), 0.f);
+						this->m_ShotTimer = GetMax(this->m_ShotTimer - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 					}
 				}
 				// 
@@ -493,7 +490,7 @@ namespace DXLIB_Sample {
 					this->m_LostTimer = 10.f;
 				}
 				else {
-					this->m_LostTimer = GetMax(this->m_LostTimer - DrawParts->GetDeltaTime(), 0.f);
+					this->m_LostTimer = GetMax(this->m_LostTimer - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 					if (this->m_LostTimer == 0.f) {
 						ChangeCautionPhase();
 					}
@@ -502,14 +499,13 @@ namespace DXLIB_Sample {
 				this->m_InputRad = -GetRadVec(this->m_LastFindPos - this->m_MyChara->GetPosition());
 			}
 		public:
-			void		Init(void) noexcept {
+			void		Initialize(void) noexcept {
 				auto* PlayerMngr = PlayerManager::Instance();
 				this->m_PathUpdateTimer = -static_cast<float>(this->m_MyChara->GetPlayerID()) / static_cast<float>(PlayerMngr->GetPlayerNum()) * 1.f;
-				this->m_PathChecker.Init();
+				this->m_PathChecker.Initialize();
 			}
 			void		Update() noexcept {
 				// return;
-				auto* DrawParts = DXDraw::Instance();
 				this->Update_Before();
 				switch (this->m_Phase) {
 				case ENUM_AI_PHASE::Normal:
@@ -530,7 +526,7 @@ namespace DXLIB_Sample {
 					break;
 				}
 				// 
-				this->m_GraphTimer = GetMax(this->m_GraphTimer - DrawParts->GetDeltaTime(), 0.f);
+				this->m_GraphTimer = GetMax(this->m_GraphTimer - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 				this->m_MyInput.SetyRad(this->m_InputRad);
 			}
 			void		Dispose(void) noexcept {
@@ -561,7 +557,7 @@ namespace DXLIB_Sample {
 			this->GetParam()->SetTargetCharacter(PlayerMngr->GetPlayer(TargetCharaID)->GetChara());
 		}
 		// 
-		void			AIControl::Init(void) noexcept { this->GetParam()->Init(); }
+		void			AIControl::Initialize(void) noexcept { this->GetParam()->Initialize(); }
 		void			AIControl::Update(void) noexcept { this->GetParam()->Update(); }
 		void			AIControl::Dispose(void) noexcept { this->GetParam()->Dispose(); }
 	}

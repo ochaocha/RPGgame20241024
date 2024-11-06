@@ -7,7 +7,7 @@ namespace DXLibRef {
 	// 作成されたオブジェクトをリストに追加
 	void			Object2DManager::AddObject(const std::shared_ptr<Base2DObject>& NewObj) noexcept {
 		// オブジェクトの初期化+UniqueIDの設定
-		NewObj->Init(this->m_LastUniqueID);
+		NewObj->Initialize(this->m_LastUniqueID);
 		this->m_LastUniqueID++;
 		this->m_Object.emplace_back(NewObj);
 	}

@@ -6,6 +6,9 @@
 
 namespace DXLIB_Sample {
 	namespace Sceneclass {
+		// --------------------------------------------------------------------------------------------------
+		//
+		// --------------------------------------------------------------------------------------------------
 		class AIControl {
 		private:
 			class Impl;
@@ -23,7 +26,7 @@ namespace DXLIB_Sample {
 		public:
 			void			SetCharacter(PlayerID MyCharaID, PlayerID TargetCharaID) noexcept;
 		public:
-			void			Init(void) noexcept;
+			void			Initialize(void) noexcept;
 			void			Update(void) noexcept;
 			void			Dispose(void) noexcept;
 		};

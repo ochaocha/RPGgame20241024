@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 // 共通で使うサイズを代入できるマクロ
-#define LineHeight	DXDraw::Instance()->GetUIY(18)
+constexpr auto LineHeight = (18);
 
 /*------------------------------------------------------------------------------------------------------------------------------------------*/
 // UI等の描画を行うための仕組みをそろえています
@@ -22,8 +22,6 @@ namespace DXLibRef {
 
 	static const unsigned int Yellow{ GetColor(255, 255, 0) };
 
-	static const unsigned int WhiteSel{ GetColor(216, 255, 216) };
-
 	static const unsigned int White{ GetColor(255, 255, 255) };
 	static const unsigned int Gray10{ GetColor(230, 230, 230) };
 	static const unsigned int Gray15{ GetColor(216, 216, 216) };
@@ -32,7 +30,6 @@ namespace DXLibRef {
 	static const unsigned int Gray65{ GetColor(96, 96, 96) };
 	static const unsigned int Gray75{ GetColor(64, 64, 64) };
 	static const unsigned int Black{ GetColor(0, 0, 0) };
-
 
 	/*------------------------------------------------------------------------------------------------------------------------------------------*/
 	// DXLIBに実装されていないタイプの描画関数類
@@ -435,10 +432,13 @@ namespace DXLibRef {
 		DxLib::DrawStringFToHandle(draw_area_x_left + padding, draw_area_y_top + current_y_relative, line_string.c_str(), color, font_handle, edge_color, false);
 		return current_y_relative + static_cast<float>(line_space);
 	}
-	/*------------------------------------------------------------------------------------------------------------------------------------------*/
-	// フォント
-	/*------------------------------------------------------------------------------------------------------------------------------------------*/
+
 	namespace UISystem {
+		//マウス学系の中に入っているか
+		extern bool GetMouseOver(int xp1, int yp1, int xp2, int yp2);
+		/*------------------------------------------------------------------------------------------------------------------------------------------*/
+		// フォント
+		/*------------------------------------------------------------------------------------------------------------------------------------------*/
 		enum class FontXCenter : int {
 			LEFT,
 			MIDDLE,
@@ -621,12 +621,9 @@ namespace DXLibRef {
 		public:
 			std::unique_ptr<Fonthave>& Get(FontType type, int fontSize, int edgeSize) noexcept { return this->m_Pools[Add(type, fontSize, edgeSize)]; }
 		};
-	}
-	/*------------------------------------------------------------------------------------------------------------------------------------------*/
-	// 描画
-	/*------------------------------------------------------------------------------------------------------------------------------------------*/
-	namespace UISystem {
-		// 
+		/*------------------------------------------------------------------------------------------------------------------------------------------*/
+		// 描画
+		/*------------------------------------------------------------------------------------------------------------------------------------------*/
 		enum class DrawType : int {
 			Alpha,
 			Add,
@@ -639,7 +636,6 @@ namespace DXLibRef {
 			StringAutoFit,
 			RotaGraph,
 			ExtendGraph,
-			CircleGauge,
 		};
 		class DrawData {
 			DrawType								m_type{ DrawType::Box };
@@ -693,11 +689,6 @@ namespace DXLibRef {
 
 			Max,
 		};
-		// 文字
-		template <typename... Args>
-		extern int GetMsgLen(int ySize, const std::string& String, Args&&... args) noexcept {
-			return UISystem::FontPool::Instance()->Get(UISystem::FontPool::FontType::MS_Gothic, ySize, 3)->GetStringWidth(InvalidID, ((std::string)String).c_str(), args...);
-		}
 		// 
 		class DrawControl : public SingletonBase<DrawControl> {
 		private:
@@ -793,7 +784,7 @@ namespace DXLibRef {
 				Back->InputintParam(4, Thickness);
 			}
 			// 
-			void SetDrawRotaGraph(DrawLayer Layer, const GraphHandle* pGraphHandle, int posx, int posy, float Exrate, float rad, bool trns) noexcept {
+			void	SetDrawRotaGraph(DrawLayer Layer, const GraphHandle* pGraphHandle, int posx, int posy, float Exrate, float rad, bool trns) noexcept {
 				DrawData* Back = GetBack(Layer);
 				Back->InputType(DrawType::RotaGraph);
 				Back->InputGraphHandleParam(0, pGraphHandle);
@@ -803,8 +794,7 @@ namespace DXLibRef {
 				Back->InputfloatParam(1, rad);
 				Back->InputboolParam(0, trns);
 			}
-			// 
-			void SetDrawExtendGraph(DrawLayer Layer, const GraphHandle* pGraphHandle, int x1, int y1, int x2, int y2, bool trns) noexcept {
+			void	SetDrawExtendGraph(DrawLayer Layer, const GraphHandle* pGraphHandle, int x1, int y1, int x2, int y2, bool trns) noexcept {
 				if (!IsDrawOnWindow(x1, y1, x2, y2)) { return; }				// 画面外は表示しない
 				DrawData* Back = GetBack(Layer);
 				Back->InputType(DrawType::ExtendGraph);
@@ -816,21 +806,10 @@ namespace DXLibRef {
 				Back->InputboolParam(0, trns);
 			}
 			// 
-			void SetDrawCircleGauge(DrawLayer Layer, const GraphHandle* pGraphHandle, int   CenterX, int   CenterY, float Percent, float StartPercent = 0.f, float Scale = 1.0f) noexcept {
-				DrawData* Back = GetBack(Layer);
-				Back->InputType(DrawType::CircleGauge);
-				Back->InputGraphHandleParam(0, pGraphHandle);
-				Back->InputintParam(0, CenterX);
-				Back->InputintParam(1, CenterY);
-				Back->InputfloatParam(0, Percent);
-				Back->InputfloatParam(1, StartPercent);
-				Back->InputfloatParam(2, Scale);
-			}
-			// 
 			template <typename... Args>
 			void	SetString(DrawLayer Layer, UISystem::FontPool::FontType type, int fontSize, UISystem::FontXCenter FontX, UISystem::FontYCenter FontY, int x, int y, unsigned int Color, unsigned int EdgeColor, const std::string& Str, Args&&... args) noexcept {
 				if (Str == "") { return; }
-				int xSize = UISystem::GetMsgLen(fontSize, Str.c_str(), args...);
+				int xSize = UISystem::FontPool::Instance()->Get(UISystem::FontPool::FontType::MS_Gothic, fontSize, 3)->GetStringWidth(InvalidID, Str.c_str(), args...);
 				switch (FontX) {
 				case UISystem::FontXCenter::LEFT:
 					if (!IsDrawOnWindow((x), (y - fontSize), (x + xSize), (y + fontSize))) { return; }				// 画面外は表示しない
@@ -866,7 +845,6 @@ namespace DXLibRef {
 				if (Str == "") { return 0.f; }
 				DrawData* Back = GetBack(Layer);
 				Back->InputType(DrawType::StringAutoFit);
-
 				Back->InputintParam(0, (int)type);
 				Back->InputintParam(1, fontSize);
 				Back->InputintParam(2, x1);
@@ -875,9 +853,7 @@ namespace DXLibRef {
 				Back->InputintParam(5, y2);
 				Back->InputUintParam(0, Color);
 				Back->InputUintParam(1, EdgeColor);
-
 				Back->InputStringParam(Str);
-
 				return UISystem::FontPool::Instance()->Get((UISystem::FontPool::FontType)type, fontSize, 3)->DrawStringAutoFit(
 					x1 + BaseScreenWidth, y1 + BaseScreenHeight,
 					x2 + BaseScreenWidth, y2 + BaseScreenHeight,
@@ -958,40 +934,6 @@ namespace DXLibRef {
 				this->m_PrevDrawDatas.clear();
 			}
 		};
-		// 箱
-		extern void SetBox(int xp1, int yp1, int xp2, int yp2, unsigned int colorSet) noexcept;
-		// マウスでクリックできるボタン
-		extern bool SetClickBox(int xp1, int yp1, int xp2, int yp2, unsigned int colorSet, bool IsRepeat, bool IsActive) noexcept;
-		// 文字
-		bool GetMsgPosOn(int* xp1, int* yp1, int ySize, int xSize, UISystem::FontXCenter FontX) noexcept;
-		// 文字の長さを取得
-		template <typename... Args>
-		extern void SetMsg(int xp1, int yp1, int ySize, UISystem::FontXCenter FontX, unsigned int Color, unsigned int EdleColor, const std::string& String, Args&&... args) noexcept {
-			if (String == "") { return; }
-			// if (!GetMsgPosOn(&xp1, &yp1, ySize, GetMsgLen(ySize, String, args...), FontX)) { return; }
-			DrawControl::Instance()->SetString(DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic, ySize,
-				FontX, UISystem::FontYCenter::MIDDLE, xp1, yp1, Color, EdleColor, ((std::string)String).c_str(), args...);
-		}
-		// クリックできる文字付のボックス
-		template <typename... Args>
-		extern bool SetMsgClickBox(int xp1, int yp1, int xp2, int yp2, int StringYSizeMax, unsigned int defaultcolor, bool IsRepeat, bool IsActive, const std::string& String, Args&&... args) noexcept {
-			bool ret = SetClickBox(xp1, yp1, xp2, yp2, defaultcolor, IsRepeat, IsActive);
-			SetMsg((xp1 + xp2) / 2, (yp1 + yp2) / 2, GetMin(StringYSizeMax, yp2 - yp1), UISystem::FontXCenter::MIDDLE, White, Black, String, args...);
-			return ret;
-		}
-		// 文字付のボックス
-		template <typename... Args>
-		extern void SetMsgBox(int xp1, int yp1, int xp2, int yp2, int StringYSizeMax, unsigned int defaultcolor, const std::string& String, Args&&... args) noexcept {
-			SetBox(xp1, yp1, xp2, yp2, defaultcolor);
-			SetMsg((xp1 + xp2) / 2, (yp1 + yp2) / 2, GetMin(StringYSizeMax, yp2 - yp1), UISystem::FontXCenter::MIDDLE, White, Black, String, args...);
-		}
-		// オンオフできるボタン
-		extern bool CheckBox(int xp1, int yp1, bool switchturn) noexcept;
-		// スライダー
-		extern int UpDownBar(int xmin, int xmax, int yp, int value, int valueMin, int valueMax) noexcept;
-		// 0~valueMaxの選択制ボタン集
-		extern int UpDownBox(int xmin, int xmax, int yp, int value, int valueMax) noexcept;
-
 		/*------------------------------------------------------------------------------------------------------------------------------------------*/
 		// ポップアップ
 		/*------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -1103,7 +1045,7 @@ namespace DXLibRef {
 					xsize = xs;
 					ysize = ys;
 				}
-				void Reset(void) noexcept { GuideImg.Dispose(); }
+				void Dispose(void) noexcept { GuideImg.Dispose(); }
 				int GetDrawSize(void) const noexcept;
 				int Draw(int x, int y) const noexcept;
 			};
@@ -1123,7 +1065,7 @@ namespace DXLibRef {
 					m_GuideGraph = pGuide;
 					GuideString = GuideStr;
 				}
-				void Reset(void) noexcept {
+				void Dispose(void) noexcept {
 					if (m_GuideGraph) {
 						m_GuideGraph.reset();
 					}
@@ -1133,12 +1075,12 @@ namespace DXLibRef {
 				int Draw(int x, int y) const noexcept;
 			};
 		private:
-			bool													m_IsUpdateGuide{ true };				// ガイドのコントロール
+			bool													m_IsFlipGuide{ true };				// ガイドのコントロール
 			GraphHandle												m_GuideBaseImage;						//分割前の画像
 			std::vector<std::shared_ptr<KeyGuideGraph>>				m_DerivationGuideImage;	//分割後の画像
 			std::vector<std::unique_ptr<KeyGuideOnce>>				m_Key;
 		public:
-			void SetGuideUpdate(void) noexcept { m_IsUpdateGuide = true; }
+			void SetGuideFlip(void) noexcept { m_IsFlipGuide = true; }
 		public:
 			const int GetIDtoOffset(int ID, ControlType ControlType) const noexcept {
 				switch (ControlType) {
@@ -1173,9 +1115,9 @@ namespace DXLibRef {
 				m_Key.emplace_back(std::make_unique<KeyGuideOnce>());
 				m_Key.back()->AddGuide((graphOffset != InvalidID) ? m_DerivationGuideImage.at(graphOffset) : nullptr, GuideStr);
 			}
-			void Reset(void) noexcept {
+			void Dispose(void) noexcept {
 				for (auto& k : m_Key) {
-					k->Reset();
+					k->Dispose();
 					k.reset();
 				}
 				m_Key.clear();

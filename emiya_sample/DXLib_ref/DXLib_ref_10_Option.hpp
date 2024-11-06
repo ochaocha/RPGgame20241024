@@ -150,7 +150,7 @@ namespace DXLibRef {
 			void GetOKPush(void) const noexcept { m_OKPush(); }
 			void GetAnyDoing(void) const noexcept { m_AnyDoing(); }
 		public:
-			void Init(const char* name, const char* infoText, std::function<void()> LeftPush, std::function<void()> RightPush, std::function<void()> OKPush,
+			void Initialize(const char* name, const char* infoText, std::function<void()> LeftPush, std::function<void()> RightPush, std::function<void()> OKPush,
 				std::function<void()> AnyDoing,
 				std::function<void(int xpos, int ypos, bool isMine)> draw) noexcept {
 				selanim = 0;
@@ -172,17 +172,17 @@ namespace DXLibRef {
 			std::string m_name;
 			std::vector<OptionElementsInfo> m_Elements;
 		protected:
-			virtual void Init_Sub(void) noexcept {}
+			virtual void Initialize_Sub(void) noexcept {}
 		public:
 			const auto& GetID(void) const noexcept { return m_id; }
 		public:
 			OptionTabsInfo(void) noexcept {}
 			virtual ~OptionTabsInfo(void) noexcept {}
 		public:
-			void Init(int ID, const char* name) noexcept {
+			void Initialize(int ID, const char* name) noexcept {
 				m_id = ID;
 				m_name = name;
-				Init_Sub();
+				Initialize_Sub();
 			}
 			void Update(int* select, bool CanPress) noexcept;
 			void Draw(int xpos, int ypos, bool isActive, int* TabSel, int* select) noexcept;
@@ -195,7 +195,7 @@ namespace DXLibRef {
 			SoundTabsInfo(void) noexcept {}
 			virtual ~SoundTabsInfo(void) noexcept {}
 		protected:
-			void Init_Sub(void) noexcept override;
+			void Initialize_Sub(void) noexcept override;
 		};
 		class GraphicTabsInfo :public OptionTabsInfo {
 			static const int	FrameLimitsNum = 10;
@@ -222,14 +222,14 @@ namespace DXLibRef {
 
 			virtual ~GraphicTabsInfo(void) noexcept {}
 		protected:
-			void Init_Sub(void) noexcept override;
+			void Initialize_Sub(void) noexcept override;
 		};
 		class ControlTabsInfo :public OptionTabsInfo {
 		public:
 			ControlTabsInfo(void) noexcept {}
 			virtual ~ControlTabsInfo(void) noexcept {}
 		protected:
-			void Init_Sub(void) noexcept override;
+			void Initialize_Sub(void) noexcept override;
 		private:
 			void KeyDraw(int xpos, int ypos, bool isMine, PADS Sel) noexcept;
 		};
@@ -238,7 +238,7 @@ namespace DXLibRef {
 			ElseTabsInfo(void) noexcept {}
 			virtual ~ElseTabsInfo(void) noexcept {}
 		protected:
-			void Init_Sub(void) noexcept override;
+			void Initialize_Sub(void) noexcept override;
 		};
 	private:
 		int m_tabsel{ 0 };
@@ -267,7 +267,7 @@ namespace DXLibRef {
 		OptionWindowClass& operator=(OptionWindowClass&& o) = delete;
 		// デストラクタはシングルトンなので呼ばれません
 	public:
-		void Init(void) noexcept;
+		void Initialize(void) noexcept;
 		void Update(void)noexcept;
 	};
 }

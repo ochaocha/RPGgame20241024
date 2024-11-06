@@ -68,9 +68,9 @@ namespace DXLIB_Sample {
 				return Obj;
 			}
 		protected:
-			void Update_OnHitObject(void) noexcept override;
+			void OnHitObject_Sub(void) noexcept override;
 		protected:
-			void Init_Sub(void) noexcept override;
+			void Initialize_Sub(void) noexcept override;
 			void Update_Sub(void) noexcept override;
 			void DrawShadow_Sub(void) noexcept override;
 			void Draw_Sub(void) noexcept override;

@@ -34,10 +34,10 @@ namespace DXLibRef {
 	inline float EasingMove(float* NowSpeed, float TargetSpeed, float ratio) noexcept;
 	//Vector2DX”Åoverload
 	inline Vector2DX EasingMove(Vector2DX* NowSpeed, Vector2DX TargetSpeed, float ratio) {
-		Vector2DX answer;
-		answer.x = EasingMove(&NowSpeed->x, TargetSpeed.x, ratio);
-		answer.y = EasingMove(&NowSpeed->y, TargetSpeed.y, ratio);
-		return answer;
+		Vector2DX Answer;
+		Answer.x = EasingMove(&NowSpeed->x, TargetSpeed.x, ratio);
+		Answer.y = EasingMove(&NowSpeed->y, TargetSpeed.y, ratio);
+		return Answer;
 	}
 	/*------------------------------------------------------------------------------------------------------------------------------------------*/
 	/*DXLIBƒ‰ƒbƒp[																																*/

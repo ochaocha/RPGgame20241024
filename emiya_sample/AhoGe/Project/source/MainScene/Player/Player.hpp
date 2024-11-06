@@ -5,6 +5,9 @@
 
 namespace DXLIB_Sample {
 	namespace Sceneclass {
+		// --------------------------------------------------------------------------------------------------
+		//
+		// --------------------------------------------------------------------------------------------------
 		class PlayerManager : public SingletonBase<PlayerManager> {
 		private:
 			friend class SingletonBase<PlayerManager>;
@@ -14,15 +17,13 @@ namespace DXLIB_Sample {
 				std::shared_ptr<CharacterObject>				m_Chara{ nullptr };
 				std::shared_ptr<AIControl>						m_AI{ nullptr };
 			public:
+				//コンストラクタ
 				PlayerControl(void) {}
-				PlayerControl(const PlayerControl&) = delete;
+				PlayerControl(const PlayerControl&) = delete;// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
 				PlayerControl(PlayerControl&& o) = delete;
 				PlayerControl& operator=(const PlayerControl&) = delete;
 				PlayerControl& operator=(PlayerControl&& o) = delete;
-
-				~PlayerControl(void) noexcept {
-					this->Dispose();
-				}
+				// デストラクタはシングルトンなので呼ばれません
 			public:
 				void		SetChara(const std::shared_ptr<CharacterObject>& pChara) noexcept { this->m_Chara = pChara; }
 				auto& GetChara(void) noexcept { return this->m_Chara; }
@@ -30,7 +31,7 @@ namespace DXLIB_Sample {
 				void		SetAI(const std::shared_ptr<AIControl>& pAI) noexcept { this->m_AI = pAI; }
 				auto& GetAI(void) noexcept { return this->m_AI; }
 			public:
-				void Init(void) noexcept {
+				void Initialize(void) noexcept {
 					this->m_Chara = nullptr;
 					this->m_AI = nullptr;
 				}
@@ -50,13 +51,14 @@ namespace DXLIB_Sample {
 			auto& GetPlayer(PlayerID ID) noexcept { return this->m_Player.at(static_cast<size_t>(ID)); }
 			const auto& GetPlayerNum(void) const noexcept { return this->m_PlayerNum; }
 		private:
+			//コンストラクタ
 			PlayerManager(void) {}
-			PlayerManager(const PlayerManager&) = delete;
+			PlayerManager(const PlayerManager&) = delete;// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
 			PlayerManager(PlayerManager&& o) = delete;
 			PlayerManager& operator=(const PlayerManager&) = delete;
 			PlayerManager& operator=(PlayerManager&& o) = delete;
 		public:
-			void Init(int playerNum) noexcept {
+			void Initialize(int playerNum) noexcept {
 				this->m_Player.clear();
 				for (int i = 0; i < playerNum; i++) {
 					this->m_Player.emplace_back(std::make_unique<PlayerControl>());

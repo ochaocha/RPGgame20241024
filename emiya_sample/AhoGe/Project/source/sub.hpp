@@ -31,12 +31,11 @@ namespace DXLIB_Sample {
 				const auto& GetEffectPos() const noexcept { return this->m_Pos; }
 				const auto& GetEffectType() const noexcept { return this->m_EffectType; }
 			public:
-				void			Init() noexcept {
+				void			Initialize() noexcept {
 					m_Per = 0.f;
 				}
 				void			Update() noexcept {
-					auto* DrawParts = DXDraw::Instance();
-					m_Per = GetMax(m_Per - DrawParts->GetDeltaTime() / 0.5f, 0.f);
+					m_Per = GetMax(m_Per - DXLib_ref::Instance()->GetDeltaTime() / 0.5f, 0.f);
 				}
 			};
 		private:
@@ -57,9 +56,9 @@ namespace DXLIB_Sample {
 				++m_GuardPosNum %= static_cast<int>(m_GuardPos.size());
 			}
 		public:
-			void			Init() noexcept {
+			void			Initialize() noexcept {
 				for (auto& g : m_GuardPos) {
-					g.Init();
+					g.Initialize();
 				}
 				m_GuardPosNum = 0;
 			}
@@ -88,8 +87,7 @@ namespace DXLIB_Sample {
 					this->m_Time = this->m_TimeMax;
 				}
 				void Update(void) noexcept {
-					auto* DrawParts = DXDraw::Instance();
-					this->m_Time = GetMax(this->m_Time - DrawParts->GetDeltaTime(), 0.f);
+					this->m_Time = GetMax(this->m_Time - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 				}
 			};
 		private:
@@ -100,9 +98,8 @@ namespace DXLIB_Sample {
 		public:
 			// ブラーをかける
 			void			AddBlur(float Blur, const Vector2DX& Pos, const Vector2DX& Vec) noexcept {
-				auto* DrawParts = DXDraw::Instance();
-				int Max = static_cast<int>(GetMax(1.f, 300.f / GetMax(30.f, DrawParts->GetFps())));
-				Vector2DX Goal = Pos - Vec * DrawParts->GetDeltaTime();
+				int Max = static_cast<int>(GetMax(1.f, 60.f * DXLib_ref::Instance()->GetDeltaTime()));
+				Vector2DX Goal = Pos - Vec * DXLib_ref::Instance()->GetDeltaTime();
 				for (int i = 0; i < Max; i++) {
 					this->m_Blur.at(static_cast<size_t>(this->m_BlurNow)).Set(Lerp(Goal, Pos, (static_cast<float>(i) / static_cast<float>(Max))), Blur);
 					++this->m_BlurNow %= static_cast<int>(this->m_Blur.size());
@@ -204,11 +201,13 @@ namespace DXLIB_Sample {
 			Vector2DX					m_CamShake1;
 			Vector2DX					m_CamShake2;				// 揺れを計算するための変数
 		private:
+			// コンストラクタ
 			Cam2DControl(void) {}
-			Cam2DControl(const Cam2DControl&) = delete;
+			Cam2DControl(const Cam2DControl&) = delete;// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
 			Cam2DControl(Cam2DControl&& o) = delete;
 			Cam2DControl& operator=(const Cam2DControl&) = delete;
 			Cam2DControl& operator=(Cam2DControl&& o) = delete;
+			// デストラクタはシングルトンなので呼ばれません
 		public:
 			const Vector2DX GetCamPos(void) const noexcept { return this->m_Pos + m_CamShake2; }				// 見ている座標＋揺れた結果
 		public:
@@ -227,22 +226,24 @@ namespace DXLIB_Sample {
 			}
 		public:
 			// 空間座標から画面上への変換
-			static void			ConvertTiletoDisp(const Vector2DX& Pos2D, Vector2DX* pRet) noexcept {
-				auto* DrawParts = DXDraw::Instance();
+			static Vector2DX	ConvertTiletoDisp(const Vector2DX& Pos2D) noexcept {
+				auto* DrawParts = WindowSizeControl::Instance();
+				auto* Cam2D = Cam2DControl::Instance();
 				//空間座標とカメラ座標との座標差分を取得
-				auto CamOffset = Pos2D - Cam2DControl::Instance()->GetCamPos();
+				auto CamOffset = Pos2D - Cam2D->GetCamPos();
 				//画面上の差分に変換後、中央からの移動差分として出力
-				pRet->x = static_cast<float>(DrawParts->GetScreenY(1920 / 2)) + Cam2DControl::GetTileToDispSize(CamOffset.x);
-				pRet->y = static_cast<float>(DrawParts->GetScreenY(1080 / 2)) - Cam2DControl::GetTileToDispSize(CamOffset.y);
+				return Vector2DX::vget(
+					static_cast<float>(DrawParts->GetScreenY(BaseScreenWidth / 2)) + Cam2DControl::GetTileToDispSize(CamOffset.x),
+					static_cast<float>(DrawParts->GetScreenY(BaseScreenHeight / 2)) - Cam2DControl::GetTileToDispSize(CamOffset.y)
+				);
 			}
 			// 空間座標系でのサイズから画面上のサイズを取得
 			static int			GetTileToDispSize(float value) noexcept {
-				auto* DrawParts = DXDraw::Instance();
+				auto* DrawParts = WindowSizeControl::Instance();
 				return DrawParts->GetScreenY(static_cast<int>(value * Tile_DispSize));
 			}
 		public:
 			void			Update(void) noexcept {
-				auto* DrawParts = DXDraw::Instance();
 				//揺れパワーが残存している場合
 				if (this->m_ShakeTotalTime > 0.f) {
 					// この範囲でランダムな地点を取得し、その方向に毎フレームm_CamShakeを動かす
@@ -251,9 +252,17 @@ namespace DXLIB_Sample {
 					Easing(&this->m_CamShake1, Vector2DX::vget(GetRandf(RandRange), GetRandf(RandRange)), 0.8f, EasingType::OutExpo);
 					Easing(&this->m_CamShake2, this->m_CamShake1, 0.8f, EasingType::OutExpo);
 					// 時間経過で弱まるようにするため時間を計測して減らします
-					this->m_ShakeTime = GetMax(this->m_ShakeTime - DrawParts->GetDeltaTime(), 0.f);
+					this->m_ShakeTime = GetMax(this->m_ShakeTime - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 				}
 			}
 		};
+
+		static bool IsOnScreen(const Vector2DX& DispPos, int Radius) {
+			auto* DrawParts = WindowSizeControl::Instance();
+			// 範囲外
+			return HitPointToRectangle(
+				static_cast<int>(DispPos.x), static_cast<int>(DispPos.y),
+				-Radius, -Radius, DrawParts->GetScreenY(BaseScreenWidth) + Radius, DrawParts->GetScreenY(BaseScreenHeight) + Radius);
+		}
 	}
 }

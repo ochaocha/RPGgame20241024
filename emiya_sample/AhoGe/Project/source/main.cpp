@@ -20,6 +20,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	DXLIB_Sample::Sceneclass::EventDataBase::Create();				// 背景マネージャー
 
 	DXLIB_Sample::UI::ButtonControl::Create();						// UI用ボタンマネージャー
+	DXLIB_Sample::UI::FadeControl::Create();						// UI用フェードインマネージャー
 
 	DXLIB_Sample::Sceneclass::Effect2DControl::Create();			// 2Dエフェクトマネージャー
 

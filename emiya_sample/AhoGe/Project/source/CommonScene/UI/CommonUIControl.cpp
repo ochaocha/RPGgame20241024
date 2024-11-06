@@ -1,6 +1,9 @@
 #include	"CommonUIControl.hpp"
 
+// シングルトンの実態定義
 const DXLIB_Sample::UI::ButtonControl* SingletonBase<DXLIB_Sample::UI::ButtonControl>::m_Singleton = nullptr;
+const DXLIB_Sample::UI::FadeControl* SingletonBase<DXLIB_Sample::UI::FadeControl>::m_Singleton = nullptr;
+
 namespace DXLIB_Sample {
 	namespace UI {
 		// 
@@ -12,12 +15,8 @@ namespace DXLIB_Sample {
 			this->m_SelectBackImage.Load("data/UI/select.png");
 			ResetSel();
 		}
-		ButtonControl::~ButtonControl(void) noexcept {
-			Dispose();
-			this->m_SelectBackImage.Dispose();
-		}
 		void ButtonControl::UpdateInput(void) noexcept {
-			auto* SoundParts = SoundPool::Instance();
+			auto* SoundParts = SoundSystem::SoundPool::Instance();
 			auto* Pad = PadControl::Instance();
 
 			int preselect = select;
@@ -59,7 +58,7 @@ namespace DXLIB_Sample {
 						y->SetNone();
 					}
 					ButtonSel.at(static_cast<size_t>(select))->SetFocus();
-					SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+					SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 				}
 				else {
 					for (auto& y : ButtonSel) {
@@ -95,14 +94,12 @@ namespace DXLIB_Sample {
 			this->m_BlackOutAlpha = 0.f;
 		}
 		void FadeControl::Update(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			this->m_BlackOutAlpha = std::clamp(this->m_BlackOutAlpha + (this->m_IsBlackOut ? 1.f : -1.f) * DrawParts->GetDeltaTime() / 0.5f, 0.f, 1.f);
+			this->m_BlackOutAlpha = std::clamp(this->m_BlackOutAlpha + (this->m_IsBlackOut ? 1.f : -1.f) * DXLib_ref::Instance()->GetDeltaTime() / 0.5f, 0.f, 1.f);
 		}
 		void FadeControl::DrawFade(void) const noexcept {
 			auto* DrawCtrls = UISystem::DrawControl::Instance();
-			auto* DrawParts = DXDraw::Instance();
 			DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_BlackOutAlpha), 0, 255));
-			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Black, TRUE);
+			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, BaseScreenWidth, BaseScreenHeight, Black, TRUE);
 			DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 		}
 	}

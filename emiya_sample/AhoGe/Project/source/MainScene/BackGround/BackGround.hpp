@@ -4,7 +4,9 @@
 
 namespace DXLIB_Sample {
 	namespace Sceneclass {
-
+		// --------------------------------------------------------------------------------------------------
+		//
+		// --------------------------------------------------------------------------------------------------
 		enum class EventType {
 			Entry,
 			CutScene,
@@ -21,11 +23,13 @@ namespace DXLIB_Sample {
 		private:
 			friend class SingletonBase<EventDataBase>;
 		private:
+			//コンストラクタ
 			EventDataBase(void) {}
-			EventDataBase(const EventDataBase&) = delete;
+			EventDataBase(const EventDataBase&) = delete;// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
 			EventDataBase(EventDataBase&& o) = delete;
 			EventDataBase& operator=(const EventDataBase&) = delete;
 			EventDataBase& operator=(EventDataBase&& o) = delete;
+			// デストラクタはシングルトンなので呼ばれません
 		private:
 			// CPUに巡回させるルート
 			struct PlayerPatrol {
@@ -71,7 +75,7 @@ namespace DXLIB_Sample {
 						this->m_paletteNum = pal;
 						this->m_ZRad = ZRad;
 					}
-					void Reset() noexcept {
+					void Dispose() noexcept {
 						this->m_paletteNum = InvalidID;
 						this->m_ZRad = 0.f;
 					}
@@ -114,7 +118,7 @@ namespace DXLIB_Sample {
 				void SetBasePalette(int pal, bool IsWall) noexcept {
 					this->m_Palette.at(0).Set(pal, 0.f);
 					for (int i = 0; i < 4; i++) {
-						this->m_Palette.at(static_cast<size_t>(i + 1)).Reset();
+						this->m_Palette.at(static_cast<size_t>(i + 1)).Dispose();
 					}
 					this->m_IsWall = IsWall;
 					this->m_IsCheckWall = this->m_IsWall;
@@ -250,13 +254,15 @@ namespace DXLIB_Sample {
 			}
 			void			SetPointLight(const Vector2DX& Pos) noexcept { this->m_PointLightPos = Pos; }
 		private:
+			//コンストラクタ
 			BackGroundClassBase(void) {}
-			BackGroundClassBase(const BackGroundClassBase&) = delete;
+			BackGroundClassBase(const BackGroundClassBase&) = delete;// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
 			BackGroundClassBase(BackGroundClassBase&& o) = delete;
 			BackGroundClassBase& operator=(const BackGroundClassBase&) = delete;
 			BackGroundClassBase& operator=(BackGroundClassBase&& o) = delete;
+			// デストラクタはシングルトンなので呼ばれません
 		public:
-			void			Init(const std::string& MapPath) noexcept;
+			void			Initialize(const std::string& MapPath) noexcept;
 			void			Update() noexcept;
 			void			Draw(void) noexcept;
 			void			DrawFront(void) noexcept;

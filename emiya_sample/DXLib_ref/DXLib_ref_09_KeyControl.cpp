@@ -8,7 +8,6 @@ namespace DXLibRef {
 	const PadControl* SingletonBase<PadControl>::m_Singleton = nullptr;
 	// 入力処理に基づいて更新
 	void			switchs::Update(bool key) noexcept {
-		auto* DrawParts = DXDraw::Instance();
 		//押したと記録
 		m_press = key;
 		//押したらカウントアップ、離したらカウントダウン
@@ -17,7 +16,7 @@ namespace DXLibRef {
 		m_repeat = trigger();//押した瞬間か、もしくは...
 		//押してから一定時間後、一定間隔でtrueに
 		if (m_press) {
-			m_repeatcount -= DrawParts->GetDeltaTime();
+			m_repeatcount -= DXLib_ref::Instance()->GetDeltaTime();
 			if (m_repeatcount <= 0.f) {
 				m_repeatcount += m_RepeatTime;
 				m_repeat = true;
@@ -65,7 +64,7 @@ namespace DXLibRef {
 	}
 	void PadControl::Update(void) noexcept {
 		auto* SceneParts = SceneControl::Instance();
-		auto* DrawParts = DXDraw::Instance();
+		auto* WindowSizeParts = WindowSizeControl::Instance();
 		auto* OptionParts = OPTION::Instance();
 		// コントロールタイプ決定
 		{
@@ -81,17 +80,21 @@ namespace DXLibRef {
 				Save();									//元のコントロールパッドの設定を保存
 				m_ControlType = NextControlType;		//変更
 				Load();									//次のコントロールパッドの情報をロード
-				UISystem::KeyGuide::Instance()->SetGuideUpdate();	//ガイド表示をアップデート
+				UISystem::KeyGuide::Instance()->SetGuideFlip();	//ガイド表示をアップデート
 			}
 		}
+		//マウス座標を取得しておく
+		int PrevX = MouseX;
+		int PrevY = MouseY;
+		//マウス座標を取得しておく
+		GetMousePoint(&MouseX, &MouseY);
+		MouseX = MouseX * 1000 / WindowSizeParts->GetUIY(1000);//UI座標系に合わせて変換
+		MouseY = MouseY * 1000 / WindowSizeParts->GetUIY(1000);//UI座標系に合わせて変換
 		// タイプに合わせた操作
 		switch (m_ControlType) {
 		case ControlType::XBox:
 		{
-			//マウス座標を取得しておく
-			DrawParts->GetMousePosition(&MouseX, &MouseY);
-			SetMouseDispFlag(TRUE);
-
+			SetMouseDispFlag(TRUE);//マウスは必ず表示
 			XINPUT_STATE input;
 			GetJoypadXInputState(DX_INPUT_PAD1, &input);
 			// 左スティック
@@ -149,9 +152,7 @@ namespace DXLibRef {
 		break;
 		case ControlType::PS4:
 		{
-			//マウス座標を取得しておく
-			DrawParts->GetMousePosition(&MouseX, &MouseY);
-			SetMouseDispFlag(TRUE);
+			SetMouseDispFlag(TRUE);//マウスは必ず表示
 			DINPUT_JOYSTATE input;
 			GetJoypadDirectInputState(DX_INPUT_PAD1, &input);
 			// 左スティック
@@ -200,10 +201,6 @@ namespace DXLibRef {
 		break;
 		case ControlType::PC:
 		{
-			int PrevX = MouseX;
-			int PrevY = MouseY;
-			//マウス座標を取得しておく
-			DrawParts->GetMousePosition(&MouseX, &MouseY);
 			// 視点移動は前フレームからの移動量
 			Look_XradAdd = static_cast<float>(MouseX - PrevX) * 2.f * OptionParts->GetParamFloat(EnumSaveParam::Xsensing);
 			Look_YradAdd = -static_cast<float>(MouseY - PrevY) * 2.f * OptionParts->GetParamFloat(EnumSaveParam::Ysensing);
@@ -212,7 +209,7 @@ namespace DXLibRef {
 				//最前面でポーズ中でない場合
 				if ((GetMainWindowHandle() == GetForegroundWindow()) && !SceneParts->IsPause()) {
 					//移動をリセット
-					SetMousePoint(DrawParts->GetUIXMax() / 2, DrawParts->GetUIYMax() / 2);
+					SetMousePoint(BaseScreenWidth / 2, BaseScreenHeight / 2);
 					//マウスを表示しない
 					SetMouseDispFlag(FALSE);
 				}

@@ -4,6 +4,9 @@
 
 namespace DXLIB_Sample {
 	namespace Sceneclass {
+		// --------------------------------------------------------------------------------------------------
+		//
+		// --------------------------------------------------------------------------------------------------
 		enum class GunType {
 			None,
 			Handgun,
@@ -33,12 +36,13 @@ namespace DXLIB_Sample {
 			GunType						m_GunType{ GunType::None };
 			Blur2DControl				m_Blur;
 		public:
+			//コンストラクタ
 			CharacterObject(void) noexcept;
-			CharacterObject(const CharacterObject&) = delete;
+			CharacterObject(const CharacterObject&) = delete;// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
 			CharacterObject(CharacterObject&& o) = delete;
 			CharacterObject& operator=(const CharacterObject&) = delete;
 			CharacterObject& operator=(CharacterObject&& o) = delete;
-
+			//デストラクタ 継承オブジェクトである為デストラクタにvirtualを指定
 			virtual ~CharacterObject(void) noexcept{}
 		private:
 			void		UpdateInputVector(const InputControl& MyInput) noexcept;
@@ -54,9 +58,9 @@ namespace DXLIB_Sample {
 			const auto& GetHitPoint(void) const noexcept { return this->m_HitPoint; }
 			const auto& GetHitPointMax(void) const noexcept { return m_MaxHitPoint; }
 		public:
-			void Update_OnHitObject(void) noexcept override;
+			void OnHitObject_Sub(void) noexcept override;
 		public:
-			void Init_Sub(void) noexcept override;
+			void Initialize_Sub(void) noexcept override;
 			void Update_Sub(void) noexcept override;
 			void DrawShadow_Sub(void) noexcept override;
 			void Draw_Sub(void) noexcept override;

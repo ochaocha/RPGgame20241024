@@ -37,18 +37,18 @@ namespace DXLibRef {
 				Load_Sub();
 			}
 		}
-		void Set(void) noexcept {
+		void Initialize(void) noexcept {
 			this->m_Next_Select = 0;
-			Set_Sub();
+			Initialize_Sub();
 			m_IsFirstLoop = true;
 		}
 		bool Update(void) noexcept {
-			auto ans = Update_Sub();
+			auto Answer = Update_Sub();
 			m_IsFirstLoop = false;
-			return ans;
+			return Answer;
 		}
 		// 
-		void MainDraw(void) const noexcept { MainDraw_Sub(); }
+		void DrawMain(void) const noexcept { DrawMain_Sub(); }
 		void DrawUI_Base(void) const noexcept { DrawUI_Base_Sub(); }
 		void DrawUI_In(void) const noexcept { DrawUI_In_Sub(); }
 		// 描画
@@ -61,10 +61,10 @@ namespace DXLibRef {
 		}
 	protected:// 継承物 継承先のシーンではこれらをoverrideさせる
 		virtual void Load_Sub(void) noexcept {}
-		virtual void Set_Sub(void) noexcept {}
+		virtual void Initialize_Sub(void) noexcept {}
 		virtual bool Update_Sub(void) noexcept { return true; }
 
-		virtual void MainDraw_Sub(void) const noexcept {}
+		virtual void DrawMain_Sub(void) const noexcept {}
 		virtual void DrawUI_Base_Sub(void) const noexcept {}
 		virtual void DrawUI_In_Sub(void) const noexcept {}
 
@@ -85,15 +85,15 @@ namespace DXLibRef {
 			float						m_FPSAvg{ 0.f };
 		public:
 			// FPS表示
-			void	InitFPSCounter(void) noexcept;
-			void	UpdateFPSCounter(void) noexcept;
+			void	Initialize(void) noexcept;
+			void	Update(void) noexcept;
 			void	DrawFPSCounter(void) const noexcept;
 		};
 		// ポーズ画面表示用クラス
 		class PauseDrawer {
 			float						m_PauseFlashCount{ 0.f };
 		public:
-			void	UpdatePause(void) noexcept;
+			void	Update(void) noexcept;
 			void	DrawPause(void) const noexcept;
 		};
 	private:
@@ -127,8 +127,8 @@ namespace DXLibRef {
 	public:
 		//最初に進むシーンを設定
 		void			SetFirstScene(const std::shared_ptr<TEMPSCENE>& ptr) noexcept { m_NowScenesPtr = ptr; }
-		void			InitMainLoop(void) noexcept;
-		void			UpdateMainLoop(void) noexcept;
+		void			Initialize(void) noexcept;
+		void			Update(void) noexcept;
 		void			DrawMainLoop(void) const noexcept;
 		void			ExitMainLoop(void) noexcept;
 	};
