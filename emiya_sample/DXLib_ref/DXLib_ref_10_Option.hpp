@@ -5,12 +5,11 @@ namespace DXLibRef {
 	enum class EnumSaveParam {
 		GraphicsPreset,
 		DirectXVer,
-		bloom,
-		shadow,
-		vsync,
+		Bloom,
+		Shadow,
+		VSync,
 		FpsLimit,
 		SE,
-		VOICE,
 		BGM,
 		WindowMode,
 		ScreenEffect,
@@ -23,12 +22,11 @@ namespace DXLibRef {
 	static const char* OptionStr[static_cast<int>(EnumSaveParam::Max)] = {
 		"GraphicsPreset",
 		"DirectXVer",
-		"bloom",
-		"shadow",
-		"vsync",
+		"Bloom",
+		"Shadow",
+		"VSync",
 		"FpsLimit",
 		"SE",
-		"VOICE",
 		"BGM",
 		"WindowMode",
 		"ScreenEffect",
@@ -106,9 +104,9 @@ namespace DXLibRef {
 		std::array<SaveParams, static_cast<int>(EnumSaveParam::Max)> m_SaveParams;
 		std::array<SaveParams, static_cast<int>(EnumProjectSettingParam::Max)> m_ProjectSettingParams;
 	public:
-		auto		GetParamBoolean(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetBoolean(); }
-		auto		GetParamInt(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetInt(); }
-		auto		GetParamFloat(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetFloat(); }
+		auto			GetParamBoolean(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetBoolean(); }
+		auto			GetParamInt(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetInt(); }
+		auto			GetParamFloat(EnumSaveParam id)const noexcept { return m_SaveParams.at(static_cast<size_t>(id)).GetFloat(); }
 	public:
 		void			SetParamBoolean(EnumSaveParam id, bool use) noexcept { m_SaveParams.at(static_cast<size_t>(id)).SetBoolean(use); }
 		void			ChangeParamBoolean(EnumSaveParam id) noexcept { m_SaveParams.at(static_cast<size_t>(id)).ChangeBoolean(); }
@@ -116,9 +114,9 @@ namespace DXLibRef {
 		void			SetParamInt(EnumSaveParam id, int use) noexcept { m_SaveParams.at(static_cast<size_t>(id)).SetInt(use); }
 		void			SetParamFloat(EnumSaveParam id, float use) noexcept { m_SaveParams.at(static_cast<size_t>(id)).SetFloat(use); }
 	public:
-		auto		GetParamBoolean(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetBoolean(); }
-		auto		GetParamInt(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetInt(); }
-		auto		GetParamFloat(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetFloat(); }
+		auto			GetParamBoolean(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetBoolean(); }
+		auto			GetParamInt(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetInt(); }
+		auto			GetParamFloat(EnumProjectSettingParam id)const noexcept { return m_ProjectSettingParams.at(static_cast<size_t>(id)).GetFloat(); }
 	public:
 		void			SetParamBoolean(EnumProjectSettingParam id, bool use) noexcept { m_ProjectSettingParams.at(static_cast<size_t>(id)).SetBoolean(use); }
 		void			SetParamInt(EnumProjectSettingParam id, int use) noexcept { m_ProjectSettingParams.at(static_cast<size_t>(id)).SetInt(use); }
@@ -152,7 +150,7 @@ namespace DXLibRef {
 			void GetOKPush(void) const noexcept { m_OKPush(); }
 			void GetAnyDoing(void) const noexcept { m_AnyDoing(); }
 		public:
-			void Init(const char* name, const char* infoText, std::function<void()> LeftPush, std::function<void()> RightPush, std::function<void()> OKPush,
+			void Initialize(const char* name, const char* infoText, std::function<void()> LeftPush, std::function<void()> RightPush, std::function<void()> OKPush,
 				std::function<void()> AnyDoing,
 				std::function<void(int xpos, int ypos, bool isMine)> draw) noexcept {
 				selanim = 0;
@@ -174,19 +172,19 @@ namespace DXLibRef {
 			std::string m_name;
 			std::vector<OptionElementsInfo> m_Elements;
 		protected:
-			virtual void Init_Sub(void) noexcept {}
+			virtual void Initialize_Sub(void) noexcept {}
 		public:
 			const auto& GetID(void) const noexcept { return m_id; }
 		public:
 			OptionTabsInfo(void) noexcept {}
 			virtual ~OptionTabsInfo(void) noexcept {}
 		public:
-			void Init(int ID, const char* name) noexcept {
+			void Initialize(int ID, const char* name) noexcept {
 				m_id = ID;
 				m_name = name;
-				Init_Sub();
+				Initialize_Sub();
 			}
-			void Execute(int* select, bool CanPress) noexcept;
+			void Update(int* select, bool CanPress) noexcept;
 			void Draw(int xpos, int ypos, bool isActive, int* TabSel, int* select) noexcept;
 
 			void DrawInfo(int xpos, int ypos, int select) noexcept;
@@ -197,7 +195,7 @@ namespace DXLibRef {
 			SoundTabsInfo(void) noexcept {}
 			virtual ~SoundTabsInfo(void) noexcept {}
 		protected:
-			void Init_Sub(void) noexcept override;
+			void Initialize_Sub(void) noexcept override;
 		};
 		class GraphicTabsInfo :public OptionTabsInfo {
 			static const int	FrameLimitsNum = 10;
@@ -224,14 +222,14 @@ namespace DXLibRef {
 
 			virtual ~GraphicTabsInfo(void) noexcept {}
 		protected:
-			void Init_Sub(void) noexcept override;
+			void Initialize_Sub(void) noexcept override;
 		};
 		class ControlTabsInfo :public OptionTabsInfo {
 		public:
 			ControlTabsInfo(void) noexcept {}
 			virtual ~ControlTabsInfo(void) noexcept {}
 		protected:
-			void Init_Sub(void) noexcept override;
+			void Initialize_Sub(void) noexcept override;
 		private:
 			void KeyDraw(int xpos, int ypos, bool isMine, PADS Sel) noexcept;
 		};
@@ -240,7 +238,7 @@ namespace DXLibRef {
 			ElseTabsInfo(void) noexcept {}
 			virtual ~ElseTabsInfo(void) noexcept {}
 		protected:
-			void Init_Sub(void) noexcept override;
+			void Initialize_Sub(void) noexcept override;
 		};
 	private:
 		int m_tabsel{ 0 };
@@ -269,7 +267,7 @@ namespace DXLibRef {
 		OptionWindowClass& operator=(OptionWindowClass&& o) = delete;
 		// デストラクタはシングルトンなので呼ばれません
 	public:
-		void Init(void) noexcept;
+		void Initialize(void) noexcept;
 		void Update(void)noexcept;
 	};
 }

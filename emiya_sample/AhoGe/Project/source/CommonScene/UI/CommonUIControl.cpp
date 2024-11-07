@@ -1,28 +1,27 @@
 #include	"CommonUIControl.hpp"
 
-const FPS_n2::Sceneclass::ButtonControl* SingletonBase<FPS_n2::Sceneclass::ButtonControl>::m_Singleton = nullptr;
-namespace FPS_n2 {
-	namespace Sceneclass {
+// シングルトンの実態定義
+const DXLIB_Sample::UI::ButtonControl* SingletonBase<DXLIB_Sample::UI::ButtonControl>::m_Singleton = nullptr;
+const DXLIB_Sample::UI::FadeControl* SingletonBase<DXLIB_Sample::UI::FadeControl>::m_Singleton = nullptr;
+
+namespace DXLIB_Sample {
+	namespace UI {
 		// 
 		bool ButtonControl::GetTriggerButton(void) const noexcept {
 			auto* Pad = PadControl::Instance();
-			return (select != InvalidID) && (this->m_MouseSelMode ? Pad->GetMouseClick().trigger() : Pad->GetKey(PADS::INTERACT).trigger());
+			return (select != InvalidID) && (this->m_MouseSelMode ? Pad->GetMouseClick().trigger() : Pad->GetPadsInfo(PADS::INTERACT).GetKey().trigger());
 		}
 		ButtonControl::ButtonControl(void) noexcept {
 			this->m_SelectBackImage.Load("data/UI/select.png");
 			ResetSel();
 		}
-		ButtonControl::~ButtonControl(void) noexcept {
-			Dispose();
-			this->m_SelectBackImage.Dispose();
-		}
 		void ButtonControl::UpdateInput(void) noexcept {
-			auto* SoundParts = SoundPool::Instance();
+			auto* SoundParts = SoundSystem::SoundPool::Instance();
 			auto* Pad = PadControl::Instance();
 
 			int preselect = select;
 			bool preMouseSel = this->m_MouseSelMode;
-			if (Pad->GetKey(PADS::MOVE_W).trigger() || Pad->GetKey(PADS::MOVE_A).trigger()) {
+			if (Pad->GetPadsInfo(PADS::MOVE_W).GetKey().trigger() || Pad->GetPadsInfo(PADS::MOVE_A).GetKey().trigger()) {
 				if (select != InvalidID) {
 					--select;
 					if (select < 0) { select = static_cast<int>(ButtonSel.size()) - 1; }
@@ -32,7 +31,7 @@ namespace FPS_n2 {
 				}
 				this->m_MouseSelMode = false;
 			}
-			if (Pad->GetKey(PADS::MOVE_S).trigger() || Pad->GetKey(PADS::MOVE_D).trigger()) {
+			if (Pad->GetPadsInfo(PADS::MOVE_S).GetKey().trigger() || Pad->GetPadsInfo(PADS::MOVE_D).GetKey().trigger()) {
 				if (select != InvalidID) {
 					++select;
 					if (select > static_cast<int>(ButtonSel.size()) - 1) { select = 0; }
@@ -59,7 +58,7 @@ namespace FPS_n2 {
 						y->SetNone();
 					}
 					ButtonSel.at(static_cast<size_t>(select))->SetFocus();
-					SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
+					SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_Select))->Play(DX_PLAYTYPE_BACK, TRUE);
 				}
 				else {
 					for (auto& y : ButtonSel) {
@@ -86,53 +85,22 @@ namespace FPS_n2 {
 			ButtonSel.clear();
 		}
 		// 
-		void CreditControl::Init(void) noexcept {
-			this->m_CreditCoulm = 0;
-			FileStreamDX FileStream("data/Credit.txt");
-			while (true) {
-				if (FileStream.ComeEof()) { break; }
-				auto ALL = FileStream.SeekLineAndGetStr();
-				if (ALL.find('=') != std::string::npos) {
-					auto LEFT = FileStreamDX::getleft(ALL);
-					auto RIGHT = FileStreamDX::getright(ALL);
-					sprintfDx(this->m_CreditStr.at(static_cast<size_t>(this->m_CreditCoulm)).first, LEFT.c_str());
-					sprintfDx(this->m_CreditStr.at(static_cast<size_t>(this->m_CreditCoulm)).second, RIGHT.c_str());
-				}
-				else {
-					sprintfDx(this->m_CreditStr.at(static_cast<size_t>(this->m_CreditCoulm)).first, ALL.c_str());
-					sprintfDx(this->m_CreditStr.at(static_cast<size_t>(this->m_CreditCoulm)).second, "");
-				}
-				this->m_CreditCoulm++;
-			}
+		void FadeControl::SetFadeIn(void) noexcept {
+			this->m_IsBlackOut = false;
+			this->m_BlackOutAlpha = 1.f;
 		}
-		void CreditControl::Draw(int xmin, int ymin, int xmax) const noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			auto* Fonts = FontSystem::FontPool::Instance();
-
-			int xp1, yp1;
-
-			xp1 = xmin + DrawParts->GetUIY(24);
-			yp1 = ymin + LineHeight;
-			int Height = DrawParts->GetUIY(12);
-			for (auto& c : this->m_CreditStr) {
-				if (this->m_CreditCoulm < static_cast<int>(&c - &this->m_CreditStr.front())) { break; }
-				int xpos = xp1 + DrawParts->GetUIY(6);
-				int ypos = yp1 + Height / 2;
-				Fonts->Get(FontSystem::FontPool::FontType::DIZ_UD_Gothic, Height, 3)->DrawString(InvalidID, FontSystem::FontXCenter::LEFT, FontSystem::FontYCenter::MIDDLE,
-					xpos, ypos, White, Black, c.first);
-
-				xpos = xmax - DrawParts->GetUIY(24);
-				Fonts->Get(FontSystem::FontPool::FontType::DIZ_UD_Gothic, Height, 3)->DrawString(InvalidID, FontSystem::FontXCenter::RIGHT, FontSystem::FontYCenter::MIDDLE,
-					xpos, ypos, White, Black, c.second);
-				yp1 += Height;
-			}
+		void FadeControl::SetFadeOut(void) noexcept {
+			this->m_IsBlackOut = true;
+			this->m_BlackOutAlpha = 0.f;
 		}
-		void CreditControl::Dispose(void) noexcept {
-			this->m_CreditCoulm = 0;
-			for (auto& c : this->m_CreditStr) {
-				sprintfDx(c.first, "");
-				sprintfDx(c.second, "");
-			}
+		void FadeControl::Update(void) noexcept {
+			this->m_BlackOutAlpha = std::clamp(this->m_BlackOutAlpha + (this->m_IsBlackOut ? 1.f : -1.f) * DXLib_ref::Instance()->GetDeltaTime() / 0.5f, 0.f, 1.f);
 		}
-	};
-};
+		void FadeControl::DrawFade(void) const noexcept {
+			auto* DrawCtrls = UISystem::DrawControl::Instance();
+			DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_BlackOutAlpha), 0, 255));
+			DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, BaseScreenWidth, BaseScreenHeight, Black, TRUE);
+			DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
+		}
+	}
+}

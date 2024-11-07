@@ -7,7 +7,7 @@ namespace DXLibRef {
 	// 作成されたオブジェクトをリストに追加
 	void			Object2DManager::AddObject(const std::shared_ptr<Base2DObject>& NewObj) noexcept {
 		// オブジェクトの初期化+UniqueIDの設定
-		NewObj->Init(this->m_LastUniqueID);
+		NewObj->Initialize(this->m_LastUniqueID);
 		this->m_LastUniqueID++;
 		this->m_Object.emplace_back(NewObj);
 	}
@@ -71,7 +71,7 @@ namespace DXLibRef {
 				if (ot == o) { continue; }
 				// 自分が当たったら押し出し(質量差を換算)
 				SEGMENT_SEGMENT_RESULT Result;
-				GetSegmenttoSegment(o->GetPrevPos(), o->GetPos(), ot->GetPrevPos(), ot->GetPos(), &Result);// 線分の当たり判定を計算し
+				GetSegmenttoSegment(o->GetPrevPos(), o->GetPosition(), ot->GetPrevPos(), ot->GetPosition(), &Result);// 線分の当たり判定を計算し
 				// 結果が半径の合計よりも小さい場合
 				float Distance = (std::sqrt(Result.SegA_SegB_MinDist_Square)) - (o->GetSize() / 2.f + ot->GetSize() / 2.f);
 				if (Distance < 0.f) {
@@ -83,10 +83,10 @@ namespace DXLibRef {
 						pos += Result.SegB_MinDist_Pos;
 						pos /= 2.f;
 						// 相手を押し出すベクトルを計算し
-						Vector2DX vec = (ot->GetPos() - pos).normalized() * Distance;
+						Vector2DX vec = (ot->GetPosition() - pos).normalized() * Distance;
 						// 双方に力をかける(重いほうがその場にとどまるように計算)
-						ot->SetPos(ot->GetPos() - vec * (o->GetMass() / (o->GetMass() + ot->GetMass())));
-						o->SetPos(o->GetPos() + vec * (ot->GetMass() / (o->GetMass() + ot->GetMass())));
+						ot->SetPosition(ot->GetPosition() - vec * (o->GetMass() / (o->GetMass() + ot->GetMass())));
+						o->SetPosition(o->GetPosition() + vec * (ot->GetMass() / (o->GetMass() + ot->GetMass())));
 					}
 					// 当たったものとして通知
 					o->SetHitUniqueID(ot->GetUniqueID());

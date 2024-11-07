@@ -37,18 +37,18 @@ namespace DXLibRef {
 				Load_Sub();
 			}
 		}
-		void Set(void) noexcept {
+		void Initialize(void) noexcept {
 			this->m_Next_Select = 0;
-			Set_Sub();
+			Initialize_Sub();
 			m_IsFirstLoop = true;
 		}
 		bool Update(void) noexcept {
-			auto ans = Update_Sub();
+			auto Answer = Update_Sub();
 			m_IsFirstLoop = false;
-			return ans;
+			return Answer;
 		}
 		// 
-		void MainDraw(void) const noexcept { MainDraw_Sub(); }
+		void DrawMain(void) const noexcept { DrawMain_Sub(); }
 		void DrawUI_Base(void) const noexcept { DrawUI_Base_Sub(); }
 		void DrawUI_In(void) const noexcept { DrawUI_In_Sub(); }
 		// 描画
@@ -61,10 +61,10 @@ namespace DXLibRef {
 		}
 	protected:// 継承物 継承先のシーンではこれらをoverrideさせる
 		virtual void Load_Sub(void) noexcept {}
-		virtual void Set_Sub(void) noexcept {}
+		virtual void Initialize_Sub(void) noexcept {}
 		virtual bool Update_Sub(void) noexcept { return true; }
 
-		virtual void MainDraw_Sub(void) const noexcept {}
+		virtual void DrawMain_Sub(void) const noexcept {}
 		virtual void DrawUI_Base_Sub(void) const noexcept {}
 		virtual void DrawUI_In_Sub(void) const noexcept {}
 
@@ -78,8 +78,44 @@ namespace DXLibRef {
 	private:
 		friend class SingletonBase<SceneControl>;
 	private:
-		std::vector<std::shared_ptr<TEMPSCENE>> m_ScenesPtr{};	// 全シーンのリスト
-		std::shared_ptr<TEMPSCENE>	m_NowScenesPtr;				// 今行っているシーン
+		// FPS表示用クラス
+		class FPSDrawer {
+			std::array<float, 60>		FPSAvgs{};
+			size_t						m_FPSAvgCount{ 0 };
+			float						m_FPSAvg{ 0.f };
+		public:
+			// FPS表示
+			void	Initialize(void) noexcept;
+			void	Update(void) noexcept;
+			void	DrawFPSCounter(void) const noexcept;
+		};
+		// ポーズ画面表示用クラス
+		class PauseDrawer {
+			float						m_PauseFlashCount{ 0.f };
+		public:
+			void	Update(void) noexcept;
+			void	DrawPause(void) const noexcept;
+		};
+	private:
+		bool						m_IsEndScene{ false };		// 現在のシーンが終了したフラグ
+		bool						m_IsEndGame{ false };		// ゲーム終了フラグ
+		bool						m_IsExitSelect{ false };		// 終了ポップアップが開いているかのフラグ
+		bool						m_IsRestartSelect{ false };		// 再起動ポップアップが開いているかのフラグ
+
+		FPSDrawer					m_FPSDrawer;		// FPS表示用クラスの実体
+		PauseDrawer					m_PauseDrawer;		// ポーズ画面表示用クラスの実体
+		std::shared_ptr<TEMPSCENE>	m_NowScenesPtr;		// 今行っているシーン
+		// ポーズ中かどうかのフラグ
+		bool						m_IsPauseActive{ false };
+	public:
+		const auto		IsEndScene(void) const noexcept { return m_IsEndScene || m_IsEndGame; }
+		const auto		IsEndGame(void) const noexcept { return m_IsEndGame; }
+		// ポーズの有効無効を取得
+		const auto		IsPause(void) const noexcept { return m_IsPauseActive; }
+		void			ChangePause(bool value) noexcept;
+		// 終了、再起動フラグが立っているか外から確認できます
+		const auto&		IsExit(void) const noexcept { return m_IsExitSelect; }
+		const auto&		IsRestart(void) const noexcept { return m_IsRestartSelect; }
 	private:
 		// コンストラクタ
 		SceneControl(void) noexcept {}// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
@@ -89,30 +125,11 @@ namespace DXLibRef {
 		SceneControl& operator=(SceneControl&& o) = delete;
 		// デストラクタはシングルトンなので呼ばれません
 	public:
-		// 今実行しているシーンを取得
-		const auto& GetNowScene(void) const noexcept { return this->m_NowScenesPtr; }
-	public:
-		// シーンをリストに追加
-		void	AddList(const std::shared_ptr<TEMPSCENE>& ptr) noexcept {
-			this->m_ScenesPtr.emplace_back(ptr);
-			// ついでに初回の場合はそのシーンから再生することとする
-			if (this->m_ScenesPtr.size() == 1) {
-				this->m_NowScenesPtr = this->m_ScenesPtr.back();
-			}
-		}
-	public:
-		// 次のシーンへ転換する
-		void	NextScene(void) noexcept {
-			GetNowScene()->Dispose();							// 今のシーンからの解放
-			if (GetNowScene() != GetNowScene()->Get_Next()) {	// 今のシーンと次のシーンとが別のシーンなら
-				GetNowScene()->Dispose_Load();					// ロードしていたデータを破棄
-			}
-			this->m_NowScenesPtr = GetNowScene()->Get_Next();	// 次のシーンへ遷移
-		}
-		void	Dispose(void) noexcept {
-			for (auto& s : this->m_ScenesPtr) {
-				s->Dispose();
-			}
-		}
+		//最初に進むシーンを設定
+		void			SetFirstScene(const std::shared_ptr<TEMPSCENE>& ptr) noexcept { m_NowScenesPtr = ptr; }
+		void			Initialize(void) noexcept;
+		void			Update(void) noexcept;
+		void			DrawMainLoop(void) const noexcept;
+		void			ExitMainLoop(void) noexcept;
 	};
 };

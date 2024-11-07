@@ -28,9 +28,6 @@
     <Filter Include="ソース ファイル\CommonScene">
       <UniqueIdentifier>{31c94280-5ffc-4bc8-b089-54c54968d7cc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\CommonScene\Object">
-      <UniqueIdentifier>{ff44695c-5ce8-4529-b654-a6bdb9eec2d5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\CommonScene\UI">
       <UniqueIdentifier>{7aaa1d2a-1d70-4d92-9079-12f1474a38f4}</UniqueIdentifier>
     </Filter>
@@ -72,9 +69,6 @@
     <ClInclude Include="source\MainScene\BackGround\BackGround.hpp">
       <Filter>ソース ファイル\MainScene\BackGround</Filter>
     </ClInclude>
-    <ClInclude Include="source\CommonScene\Object\Base2DObject.hpp">
-      <Filter>ソース ファイル\CommonScene\Object</Filter>
-    </ClInclude>
     <ClInclude Include="source\MainScene\Object\Bullet.hpp">
       <Filter>ソース ファイル\MainScene\Object</Filter>
     </ClInclude>
@@ -106,9 +100,6 @@
     </ClCompile>
     <ClCompile Include="source\MainScene\BackGround\BackGround.cpp">
       <Filter>ソース ファイル\MainScene\BackGround</Filter>
-    </ClCompile>
-    <ClCompile Include="source\CommonScene\Object\Base2DObject.cpp">
-      <Filter>ソース ファイル\CommonScene\Object</Filter>
     </ClCompile>
     <ClCompile Include="source\CommonScene\UI\CommonUIControl.cpp">
       <Filter>ソース ファイル\CommonScene\UI</Filter>

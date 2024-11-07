@@ -2,59 +2,51 @@
 
 #include	"Player/Player.hpp"
 
-namespace FPS_n2 {
+namespace DXLIB_Sample {
 	namespace Sceneclass {
-		void PauseMenuControl::LoadPause(void) noexcept {
-			auto* ButtonParts = ButtonControl::Instance();
+		void PauseMenuControl::Load(void) noexcept {
+			auto* ButtonParts = UI::ButtonControl::Instance();
 			ButtonParts->ResetSel();
-			ButtonParts->AddStringButton("Retire", 48, true, 1920 - 64, 1080 - 84 - 64 * 2, FontSystem::FontXCenter::RIGHT, FontSystem::FontYCenter::BOTTOM);
-			ButtonParts->AddStringButton("Option", 48, true, 1920 - 64, 1080 - 84 - 64 * 1, FontSystem::FontXCenter::RIGHT, FontSystem::FontYCenter::BOTTOM);
-			ButtonParts->AddStringButton("Return Game", 48, true, 1920 - 64, 1080 - 84 - 64 * 0, FontSystem::FontXCenter::RIGHT, FontSystem::FontYCenter::BOTTOM);
+			ButtonParts->AddStringButton("Retire", 48, true, BaseScreenWidth - 64, BaseScreenHeight - 84 - 64 * 2, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
+			ButtonParts->AddStringButton("Option", 48, true, BaseScreenWidth - 64, BaseScreenHeight - 84 - 64 * 1, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
+			ButtonParts->AddStringButton("Return Game", 48, true, BaseScreenWidth - 64, BaseScreenHeight - 84 - 64 * 0, UISystem::FontXCenter::RIGHT, UISystem::FontYCenter::BOTTOM);
 		}
-		void PauseMenuControl::SetPause(void) noexcept {
+		void PauseMenuControl::Set(void) noexcept {
 			this->m_IsRetire = false;
 		}
-		void PauseMenuControl::UpdatePause(void) noexcept {
-			auto* SoundParts = SoundPool::Instance();
+		void PauseMenuControl::Update(void) noexcept {
+			auto* SoundParts = SoundSystem::SoundPool::Instance();
 			auto* Pad = PadControl::Instance();
-			auto* ButtonParts = ButtonControl::Instance();
-			auto* DXLib_refParts = DXLib_ref::Instance();
-			if (DXLib_refParts->IsPause()) {
-				if (!DXLib_refParts->IsExit() && !DXLib_refParts->IsRestart()) {
-					Pad->SetMouseMoveEnable(false);
-					Pad->ChangeGuide(
-						[]() {
-							auto* Pad = PadControl::Instance();
-							Pad->AddGuide(PADS::INTERACT, "決定");
-							Pad->AddGuide(PADS::RELOAD, "戻る");
-							Pad->AddGuide(PADS::MOVE_W, "");
-							Pad->AddGuide(PADS::MOVE_S, "");
-							Pad->AddGuide(PADS::MOVE_STICK, "選択");
-						});
-					if (!OptionWindowClass::Instance()->IsActive()) {
+			auto* ButtonParts = UI::ButtonControl::Instance();
+			auto* SceneParts = SceneControl::Instance();
+			auto* OptionWindowParts = OptionWindowClass::Instance();
+
+			if (SceneParts->IsPause()) {
+				if (!SceneParts->IsExit() && !SceneParts->IsRestart()) {
+					if (!OptionWindowParts->IsActive()) {
 						ButtonParts->UpdateInput();
 						// 選択時の挙動
 						if (ButtonParts->GetTriggerButton()) {
 							switch (ButtonParts->GetSelect()) {
 							case 0:
 								this->m_IsRetire = true;
-								DXLib_refParts->ChangePause(false);
+								SceneParts->ChangePause(false);
 								break;
 							case 1:
-								OptionWindowClass::Instance()->SetActive();
+								OptionWindowParts->SetActive();
 								break;
 							case 2:
-								DXLib_refParts->ChangePause(false);
+								SceneParts->ChangePause(false);
 								break;
 							default:
-								DXLib_refParts->ChangePause(false);
+								SceneParts->ChangePause(false);
 								break;
 							}
-							SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_OK))->Play(DX_PLAYTYPE_BACK, TRUE);
+							SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_OK))->Play(DX_PLAYTYPE_BACK, TRUE);
 						}
-						if (Pad->GetKey(PADS::RELOAD).trigger()) {
-							SoundParts->Get(SoundType::SE, static_cast<int>(SoundSelectCommon::UI_CANCEL))->Play(DX_PLAYTYPE_BACK, TRUE);
-							DXLib_refParts->ChangePause(false);
+						if (Pad->GetPadsInfo(PADS::RELOAD).GetKey().trigger()) {
+							SoundParts->Get(SoundSystem::SoundType::SE, static_cast<int>(SoundSystem::SoundSelectCommon::UI_CANCEL))->Play(DX_PLAYTYPE_BACK, TRUE);
+							SceneParts->ChangePause(false);
 						}
 						// 
 						ButtonParts->Update();
@@ -65,95 +57,26 @@ namespace FPS_n2 {
 				ButtonParts->ResetSel();
 			}
 		}
-		void PauseMenuControl::DrawPause(void) const noexcept {
-			auto* ButtonParts = ButtonControl::Instance();
-			auto* DXLib_refParts = DXLib_ref::Instance();
+		void PauseMenuControl::Draw(void) const noexcept {
+			auto* ButtonParts = UI::ButtonControl::Instance();
+			auto* SceneParts = SceneControl::Instance();
 			// ポーズ
-			if (DXLib_refParts->IsPause() && (!DXLib_refParts->IsExit() && !DXLib_refParts->IsRestart())) {
+			if (SceneParts->IsPause() && (!SceneParts->IsExit() && !SceneParts->IsRestart())) {
 				ButtonParts->Draw();
 			}
 		}
-		void PauseMenuControl::DisposePause(void) noexcept {
-			auto* ButtonParts = ButtonControl::Instance();
+		void PauseMenuControl::DisposeLoad(void) noexcept {
+			auto* ButtonParts = UI::ButtonControl::Instance();
 			ButtonParts->Dispose();
 		}
-		// UI
-		void InGameUIControl::DrawCharaUI_Back(PlayerID value) noexcept {
-			auto* PlayerMngr = PlayerManager::Instance();
-			auto& p = PlayerMngr->GetPlayer(value);
-			if (p->GetChara()) {
-				int Radius = GetDispSize(10.f);
-				if (!Is2DPositionInDisp(p->GetChara()->GetPos(), Radius)) { return; }
-				Vector2DX DispPos;
-				Convert2DtoDisp(p->GetChara()->GetPos(), &DispPos);
-				double Deg = (double)p->GetChara()->GetViewRad() / (DX_PI * 2.0) * 100.0;
-				double Watch;
-				if (value == 0) {
-					SetDrawBright(0, 0, 216);
-					Watch = 15.0 / 360.0 * 100.0;
-				}
-				else {
-					if (p->GetAI()->IsAlert()) {
-						SetDrawBright(216, 0, 0);// 
-					}
-					else if (p->GetAI()->IsCaution()) {
-						SetDrawBright(216, 216, 0);// 
-					}
-					else {
-						SetDrawBright(0, 216, 0);// 
-					}
-					Watch = 45.0 / 360.0 * 100.0;
-				}
-				DrawCircleGauge(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), Deg + Watch, this->m_Watch.get(), Deg - Watch, (double)Radius / 64.0);
-			}
-		}
-		void InGameUIControl::DrawCharaUI_Front(PlayerID value) const noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			auto* PlayerMngr = PlayerManager::Instance();
-			auto& p = PlayerMngr->GetPlayer(value);
-			if (p->GetChara() && p->GetChara()->CanLookPlayer0()) {
-				if (p->GetAI()->GetGraphAlpha() <= 0.f) { return; }
-				if (!Is2DPositionInDisp(p->GetChara()->GetPos(), GetDispSize(1.f))) { return; }
-				Vector2DX DispPos;
-				Convert2DtoDisp(p->GetChara()->GetPos(), &DispPos);
-				int ShadowOfset = DrawParts->GetScreenY(3);
-				float Scale = static_cast<float>(DrawParts->GetScreenY(128)) / 128.0f * p->GetAI()->GetGraphAlpha();
-				if (p->GetAI()->IsAlert()) {
-					SetDrawBright(0, 0, 0);// 
-					this->m_Alert.DrawRotaGraph(static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32) + ShadowOfset, Scale, 0.f, true);
-					SetDrawBright(255, 0, 0);// 
-					this->m_Alert.DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32), Scale, 0.f, true);
-				}
-				else if (p->GetAI()->IsCaution()) {
-					SetDrawBright(0, 0, 0);// 
-					this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32) + ShadowOfset, Scale, 0.f, true);
-					SetDrawBright(255, 255, 0);// 
-					this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32), Scale, 0.f, true);
-				}
-				else {
-					SetDrawBright(0, 0, 0);// 
-					this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32) + ShadowOfset, Scale, 0.f, true);
-					SetDrawBright(0, 255, 0);// 
-					this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32), Scale, 0.f, true);
-				}
-			}
-		}
-		void InGameUIControl::LoadUI(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			this->m_Watch.Load("data/UI/Watch.png");
-			this->m_Caution.Load("data/UI/Caution.png");
-			this->m_Alert.Load("data/UI/Alert.png");
-			this->m_Goal.Load("data/UI/baserad.png");
 
-			this->m_ViewHandle.Make(DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), true);
-		}
-		void InGameUIControl::SetUI(void) noexcept {
+		void MapNameDrawControl::Set(void) noexcept {
+			auto* BackGround = BackGroundClassBase::Instance();
 			this->m_MapDrawTime = 5.f;
+			this->m_MapTextID = BackGround->GetMapTextID();
 		}
-		void InGameUIControl::UpdateUI(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
-
-			this->m_MapDrawTime = std::max(this->m_MapDrawTime - DrawParts->GetDeltaTime(), 0.f);
+		void MapNameDrawControl::Update(void) noexcept {
+			this->m_MapDrawTime = GetMax(this->m_MapDrawTime - DXLib_ref::Instance()->GetDeltaTime(), 0.f);
 			float Per = 1.f;
 			float StartTimer = 0.5f;
 			if (this->m_MapDrawTime > 5.f - StartTimer) {
@@ -165,158 +88,15 @@ namespace FPS_n2 {
 			}
 			this->m_MapDrawPer = std::clamp(Per, 0.f, 1.f);
 		}
-		void InGameUIControl::Dispose_LoadUI(void) noexcept {
-			this->m_ViewHandle.Dispose();
-			this->m_Watch.Dispose();
-			this->m_Caution.Dispose();
-			this->m_Alert.Dispose();
-		}
-		void InGameUIControl::SetupWatchScreen(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			auto* BackGround = BackGroundClassBase::Instance();
-			auto* PlayerMngr = PlayerManager::Instance();
-			auto* OptionParts = OPTION::Instance();
-			this->m_ViewHandle.SetDraw_Screen(false);
-			{
-				DrawBox(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), White, true);
-				// 視界
-				for (int loop = 0; loop < 4; loop++) {
-					for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
-						auto& p = PlayerMngr->GetPlayer((PlayerID)i);
-						if (p->GetChara()) {
-							if (i == 0) {
-								if (loop == 3) {
-									DrawCharaUI_Back((PlayerID)i);
-								}
-							}
-							else {
-								if (p->GetAI()->IsAlert()) {
-									if (loop == 2) {
-										DrawCharaUI_Back((PlayerID)i);
-									}
-								}
-								else if (p->GetAI()->IsCaution()) {
-									if (loop == 1) {
-										DrawCharaUI_Back((PlayerID)i);
-									}
-								}
-								else {
-									if (loop == 0) {
-										DrawCharaUI_Back((PlayerID)i);
-									}
-								}
-							}
-						}
-					}
-				}
-				SetDrawBright(255, 255, 255);
-				if (OptionParts->GetParamInt(EnumSaveParam::shadow) > 0 || (GetUseDirect3DVersion() == DX_DIRECT3D_11)) {
-					SetDrawBlendMode(DX_BLENDMODE_MULA, 255);
-					BackGround->GetShadowGraph().DrawExtendGraph(0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080), false);
-					SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-				}
-			}
-		}
-		void InGameUIControl::DrawUI_Back(void) const noexcept {
-			SetDrawBlendMode(DX_BLENDMODE_MULA, 92);
-			this->m_ViewHandle.DrawGraph(0, 0, false);
-			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		}
-		void InGameUIControl::DrawUI_Front(void) const noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			auto* BackGround = BackGroundClassBase::Instance();
-			auto* PlayerMngr = PlayerManager::Instance();
-			for (int i = 0; i < PlayerMngr->GetPlayerNum(); i++) {
-				auto& p = PlayerMngr->GetPlayer((PlayerID)i);
-				if (p->GetChara()) {
-					if (p->GetChara()->CanLookPlayer0()) {
-						if (!Is2DPositionInDisp(p->GetChara()->GetPos(), GetDispSize(1.f))) { continue; }
-						SetDrawBright(255, 255, 255);
-						p->GetChara()->DrawHPBer();
-					}
-					// !マーク
-					if (i != 0) {
-						DrawCharaUI_Front((PlayerID)i);
-					}
-					// ID用デバッグ描画
-					if (false) {
-						SetDrawBright(255, 255, 255);
-						PlayerMngr->GetPlayer((PlayerID)i)->GetAI()->Draw();
-					}
-				}
-			}
-			SetDrawBright(255, 255, 255);
-			// 
-			if (this->m_GoalPos.x != -1.f && this->m_GoalPos.y != -1.f) {
-				int ShadowOfset = DrawParts->GetScreenY(3);
-				auto& p = PlayerMngr->GetPlayer((PlayerID)0);
-				if (p->GetChara()) {
-					float Len = (this->m_GoalPos - p->GetChara()->GetPos()).magnitude() / Get2DSize(1.f);
-					float Rad = GetRadVec2Vec(this->m_GoalPos, p->GetChara()->GetPos());
-					if (Len > 1.f / 255.f) {
-						SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * Len), 0, 255));
-						SetDrawBright(0, 0, 0);
-						this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2) + ShadowOfset, DrawParts->GetScreenY(1080 / 2) + ShadowOfset, static_cast<float>(DrawParts->GetScreenY(1024)) / 400.f, Rad, true);
-						SetDrawBright(255, 255, 255);
-						this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2), DrawParts->GetScreenY(1080 / 2), static_cast<float>(DrawParts->GetScreenY(1024)) / 400.f, Rad, true);
-						SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-					}
-				}
-			}
-			for (auto& e : BackGround->GetEventChip()) {
-				// 次マップへの遷移
-				if (e.m_EventType == EventType::CutScene) {
-					if (static_cast<int>(m_StartTime) < e.m_ActiveDelaySec) {
-						continue;
-					}
-					auto* SaveDataParts = SaveDataClass::Instance();
-					std::string SaveStr = "Cut_" + std::to_string(e.m_CutSceneID);
-					if (SaveDataParts->GetParam(SaveStr) == -1) {
-						int ShadowOfset = DrawParts->GetScreenY(3);
-						auto& p = PlayerMngr->GetPlayer((PlayerID)0);
-
-						Vector2DX Pos = BackGround->GetFloorData(e.m_index)->GetPos();
-
-						Vector2DX DispPos;
-						Convert2DtoDisp(Pos, &DispPos);
-
-						if (!HitPointToRectangle(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y), 0, 0, DrawParts->GetScreenY(1920), DrawParts->GetScreenY(1080))) {
-							if (p->GetChara()) {
-								float Len = (Pos - p->GetChara()->GetPos()).magnitude() / Get2DSize(1.f);
-								float Rad = GetRadVec2Vec(Pos, p->GetChara()->GetPos());
-								if (Len > 1.f / 255.f) {
-									SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * std::clamp(Len, 0.f, 1.f)), 0, 255));
-									SetDrawBright(0, 0, 0);
-									this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2) + ShadowOfset, DrawParts->GetScreenY(1080 / 2) + ShadowOfset, static_cast<float>(DrawParts->GetScreenY(768)) / 400.f, Rad, true);
-									SetDrawBright(255, 255, 255);
-									this->m_Goal.DrawRotaGraph(DrawParts->GetScreenY(1920 / 2), DrawParts->GetScreenY(1080 / 2), static_cast<float>(DrawParts->GetScreenY(768)) / 400.f, Rad, true);
-									SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-								}
-							}
-						}
-						else {
-							float Scale = static_cast<float>(DrawParts->GetScreenY(64)) / 128.0f;
-
-							SetDrawBright(0, 0, 0);// 
-							this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x) + ShadowOfset, static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32) + ShadowOfset, Scale, 0.f, true);
-							SetDrawBright(255, 128, 0);// 
-							this->m_Caution.DrawRotaGraph(static_cast<int>(DispPos.x), static_cast<int>(DispPos.y) - DrawParts->GetScreenY(32), Scale, 0.f, true);
-							SetDrawBright(255, 255, 255);
-						}
-					}
-				}
-			}
-
-		}
-		void InGameUIControl::DrawUI_MapName(void) const noexcept {
-			auto* DrawParts = DXDraw::Instance();
+		void MapNameDrawControl::Draw(void) const noexcept {
+			auto* DrawCtrls = UISystem::DrawControl::Instance();
 			if (this->m_MapDrawPer > 1.f / 255.f) {
-				auto* Fonts = FontSystem::FontPool::Instance();
-				auto* LocalizeParts = LocalizePool::Instance();
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_MapDrawPer), 0, 255));
-				Fonts->Get(FontSystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(64), 0)->DrawString(InvalidID, FontSystem::FontXCenter::LEFT, FontSystem::FontYCenter::TOP,
-					DrawParts->GetUIY(64), DrawParts->GetUIY(128), White, Black, LocalizeParts->Get(this->m_MapTextID));
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				auto* LocalizeParts = StoryTextDataBase::Instance();
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_MapDrawPer), 0, 255));
+				DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+					64, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+					64, 128, White, Black, LocalizeParts->Get(this->m_MapTextID));
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 		}
 		// カットシーン制御
@@ -371,33 +151,23 @@ namespace FPS_n2 {
 			this->m_IsCutScene = true;
 			this->m_CutSceneSeek = 0;
 		}
-		void CutSceneControl::SetCut(void) noexcept {
+		void CutSceneControl::Set(void) noexcept {
 			this->m_IsCutScene = false;
 			this->m_CutSceneAlpha = 0.f;
 			this->m_MsgBoxSeek = 0.f;
 			this->m_WaitMS = 0.f;
 			this->m_CGFade = 0.f;
 		}
-		void CutSceneControl::UpdateCut(void) noexcept {
+		void CutSceneControl::Update(void) noexcept {
 			auto* Pad = PadControl::Instance();
-			auto* DrawParts = DXDraw::Instance();
-
-			if (this->m_IsCutScene) {
-				Pad->SetMouseMoveEnable(false);
-				Pad->ChangeGuide(
-					[]() {
-						auto* Pad = PadControl::Instance();
-						Pad->AddGuide(PADS::INTERACT, "読み進める");
-					});
-			}
 			// カットシーン全体
-			this->m_CutSceneAlpha = std::clamp(this->m_CutSceneAlpha + (this->m_IsCutScene ? 1.f : -1.f) * DrawParts->GetDeltaTime() / 0.5f, 0.f, 1.f);
+			this->m_CutSceneAlpha = std::clamp(this->m_CutSceneAlpha + (this->m_IsCutScene ? 1.f : -1.f) * DXLib_ref::Instance()->GetDeltaTime() / 0.5f, 0.f, 1.f);
 			// メッセージシーク
-			this->m_MsgBoxAlpha = std::clamp(this->m_MsgBoxAlpha + (this->m_IsMsgBox ? 1.f : -1.f) * DrawParts->GetDeltaTime() / 0.1f, 0.f, 1.f);
+			this->m_MsgBoxAlpha = std::clamp(this->m_MsgBoxAlpha + (this->m_IsMsgBox ? 1.f : -1.f) * DXLib_ref::Instance()->GetDeltaTime() / 0.1f, 0.f, 1.f);
 			if (this->m_MsgBoxAlpha >= 1.f) {
-				this->m_MsgBoxSeek += DrawParts->GetDeltaTime() / 0.1f;
+				this->m_MsgBoxSeek += DXLib_ref::Instance()->GetDeltaTime() / 0.1f;
 			}
-			this->m_CGFade = std::clamp(this->m_CGFade + ((this->m_CGSel != InvalidID) ? 1.f : -1.f) * DrawParts->GetDeltaTime() / 1.f, 0.f, 1.f);
+			this->m_CGFade = std::clamp(this->m_CGFade + ((this->m_CGSel != InvalidID) ? 1.f : -1.f) * DXLib_ref::Instance()->GetDeltaTime() / 1.f, 0.f, 1.f);
 			// カットシーン中のボタン制御
 			if (this->m_CutSceneAlpha >= 1.f) {
 				if (0 <= this->m_CutSceneSeek && this->m_CutSceneSeek < static_cast<int>(this->m_CutSceneData.size())) {
@@ -418,7 +188,7 @@ namespace FPS_n2 {
 						break;
 					case CutSceneType::WaitMilSec:
 						IsGoNext = static_cast<int>(this->m_WaitMS * 1000.f) > Data.m_WatiMS;
-						this->m_WaitMS += DrawParts->GetDeltaTime();
+						this->m_WaitMS += DXLib_ref::Instance()->GetDeltaTime();
 						break;
 					case CutSceneType::CG:
 						this->m_CGSel = Data.m_CGSel;
@@ -435,10 +205,10 @@ namespace FPS_n2 {
 					default:
 						break;
 					}
-					if (Pad->GetKey(PADS::INTERACT).trigger() || (IsGoNext)) {
+					if (Pad->GetPadsInfo(PADS::INTERACT).GetKey().trigger() || (IsGoNext)) {
 						if (!IsGoNext) {
-							auto* SoundParts = SoundPool::Instance();
-							SoundParts->Get(SoundType::SE, (int)SoundSelectCommon::UI_OK)->Play(DX_PLAYTYPE_BACK, TRUE);
+							auto* SoundParts = SoundSystem::SoundPool::Instance();
+							SoundParts->Get(SoundSystem::SoundType::SE, (int)SoundSystem::SoundSelectCommon::UI_OK)->Play(DX_PLAYTYPE_BACK, TRUE);
 						}
 						for (auto& m : this->m_MsgString) {
 							m = "";
@@ -460,8 +230,8 @@ namespace FPS_n2 {
 
 			// 文字表示変数系の更新
 			if (this->m_MsgBoxAlpha > 1.f / 255.f) {
-				int x1 = DrawParts->GetUIY(64);
-				int x2 = DrawParts->GetUIY(1920 - 48);
+				int x1 = 64;
+				int x2 = BaseScreenWidth - 48;
 
 				if (this->m_MsgBoxAlpha >= 1.f) {
 					int NameID = 0;
@@ -472,14 +242,13 @@ namespace FPS_n2 {
 						MsgID = Data.m_MsgID;
 					}
 					if (MsgID != 0) {
-						auto* Fonts = FontSystem::FontPool::Instance();
-						auto* LocalizeParts = LocalizePool::Instance();
+						auto* LocalizeParts = StoryTextDataBase::Instance();
 
 						int NowC = static_cast<int>(this->m_MsgBoxSeek);
 						if (this->m_PrevMsgBoxSeek != NowC) {
 							this->m_PrevMsgBoxSeek = NowC;
 							std::string NowMsg; NowMsg.reserve(512);
-							strncpy2_sDx(NowMsg.data(), 512, LocalizeParts->Get(MsgID), std::min(512, NowC));
+							strncpy2_sDx(NowMsg.data(), 512, LocalizeParts->Get(MsgID), GetMin(512, NowC));
 							NowMsg = NowMsg.c_str();
 							for (auto& m : this->m_MsgString) {
 								m = "";
@@ -488,15 +257,16 @@ namespace FPS_n2 {
 								if (NowMsg == "") { break; }
 								std::string Tmp; Tmp.reserve(512);
 
-								int Limit = ((x2 - x1) - DrawParts->GetUIY(64) * 2);
-								int column = Limit / DrawParts->GetUIY(32);// 超えない範囲
+								int Limit = ((x2 - x1) - 64 * 2);
+								int column = Limit / 32;// 超えない範囲
 								while (true) {
 									if (NowC <= column) {
 										column = NowC;
 										break;
 									}
 									strncpy2_sDx(Tmp.data(), 512, NowMsg.c_str(), column); Tmp = Tmp.c_str();
-									if (Fonts->Get(FontSystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(32), 0)->GetStringWidth(InvalidID, Tmp) < Limit) {
+
+									if (UISystem::FontPool::Instance()->Get(UISystem::FontPool::FontType::MS_Gothic, 32, 3)->GetStringWidth(InvalidID, Tmp) < Limit) {
 										column++;
 									}
 									else {
@@ -531,29 +301,29 @@ namespace FPS_n2 {
 			}
 		}
 		void CutSceneControl::DrawCut(void) const noexcept {
-			auto* DrawParts = DXDraw::Instance();
+			auto* DrawCtrls = UISystem::DrawControl::Instance();
 
 			if (this->m_CGFade > 1.f / 255.f) {
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(128.f * this->m_CGFade), 0, 255));
-				DrawBox(0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Black, TRUE);
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(128.f * this->m_CGFade), 0, 255));
+				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, BaseScreenWidth, BaseScreenHeight, Black, TRUE);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 			if (this->m_CutSceneAlpha > 1.f / 255.f) {
 				auto Color = GetColor(16, 16, 16);
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_CutSceneAlpha), 0, 255));
-				DrawBox(0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(120), Color, TRUE);
-				DrawBox(0, DrawParts->GetUIY(1080 - 120), DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Color, TRUE);
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_CutSceneAlpha), 0, 255));
+				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, 0, BaseScreenWidth, 120, Color, TRUE);
+				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, 0, BaseScreenHeight - 120, BaseScreenWidth, BaseScreenHeight, Color, TRUE);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 			if (this->m_MsgBoxAlpha > 1.f / 255.f) {
 				float Per = Lerp(0.5f, 1.f, this->m_MsgBoxAlpha);
-				int x1 = DrawParts->GetUIY(64);
-				int y1 = DrawParts->GetUIY((1080 - 64) - static_cast<int>((320 - 64) * Per));
-				int x2 = DrawParts->GetUIY(1920 - 48);
-				int y2 = DrawParts->GetUIY(1080 - 64 - static_cast<int>((320 - 64) * (1.f - Per)));
+				int x1 = 64;
+				int y1 = (BaseScreenHeight - 64) - static_cast<int>((320 - 64) * Per);
+				int x2 = BaseScreenWidth - 48;
+				int y2 = BaseScreenHeight - 64 - static_cast<int>((320 - 64) * (1.f - Per));
 
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_MsgBoxAlpha), 0, 255));
-				DrawBox(x1, y1, x2, y2, Gray50, TRUE);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_MsgBoxAlpha), 0, 255));
+				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, x1, y1, x2, y2, Gray50, TRUE);
 				if (this->m_MsgBoxAlpha >= 1.f) {
 					int NameID = 0;
 					int MsgID = 0;
@@ -563,46 +333,32 @@ namespace FPS_n2 {
 						MsgID = Data.m_MsgID;
 					}
 					if (MsgID != 0) {
-						auto* Fonts = FontSystem::FontPool::Instance();
-						auto* LocalizeParts = LocalizePool::Instance();
-						Fonts->Get(FontSystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(18), 0)->DrawString(InvalidID, FontSystem::FontXCenter::LEFT, FontSystem::FontYCenter::TOP,
-							x1 + DrawParts->GetUIY(32), y1 + DrawParts->GetUIY(32), White, Black, LocalizeParts->Get(NameID));
+						auto* LocalizeParts = StoryTextDataBase::Instance();
+						DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+							LineHeight, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+							x1 + 32, y1 + 32, White, Black, LocalizeParts->Get(NameID));
 						for (auto& m : this->m_MsgString) {
 							if (m == "") { continue; }
 							int i = static_cast<int>(&m - &this->m_MsgString.front());
-							Fonts->Get(FontSystem::FontPool::FontType::MS_Gothic, DrawParts->GetUIY(32), 0)->DrawString(InvalidID, FontSystem::FontXCenter::LEFT, FontSystem::FontYCenter::TOP,
-								x1 + DrawParts->GetUIY(64), y1 + DrawParts->GetUIY(64) + DrawParts->GetUIY(32 * i), White, Black, m);
+							DrawCtrls->SetString(UISystem::DrawLayer::Normal, UISystem::FontPool::FontType::MS_Gothic,
+								32, UISystem::FontXCenter::LEFT, UISystem::FontYCenter::TOP,
+								x1 + 64, y1 + 64 + (32 * i), White, Black, m);
 						}
 					}
 				}
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 
 			if (this->m_CGFade > 1.f / 255.f) {
-				int x1 = DrawParts->GetUIY(960 - 960 / 2);
-				int y1 = DrawParts->GetUIY(400 - 540 / 2);
-				int x2 = DrawParts->GetUIY(960 + 960 / 2);
-				int y2 = DrawParts->GetUIY(400 + 540 / 2);
-				SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_CGFade), 0, 255));
-				DrawBox(x1, y1, x2, y2, Gray50, TRUE);
-				m_CGGraph.DrawExtendGraph(x1, y1, x2, y2, false);
-				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+				int x1 = (BaseScreenWidth / 2 - BaseScreenWidth / 4);
+				int y1 = (400 - BaseScreenHeight / 4);
+				int x2 = (BaseScreenWidth / 2 + BaseScreenWidth / 4);
+				int y2 = (400 + BaseScreenHeight / 4);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, std::clamp(static_cast<int>(255.f * this->m_CGFade), 0, 255));
+				DrawCtrls->SetDrawBox(UISystem::DrawLayer::Normal, x1, y1, x2, y2, Gray50, TRUE);
+				DrawCtrls->SetDrawExtendGraph(UISystem::DrawLayer::Normal, &m_CGGraph, x1, y1, x2, y2, false);
+				DrawCtrls->SetAlpha(UISystem::DrawLayer::Normal, 255);
 			}
 		}
-		// 
-		void FadeControl::SetFade(void) noexcept {
-			this->m_IsBlackOut = false;
-			this->m_BlackOutAlpha = 1.f;
-		}
-		void FadeControl::UpdateFade(void) noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			this->m_BlackOutAlpha = std::clamp(this->m_BlackOutAlpha + (this->m_IsBlackOut ? 1.f : -1.f) * DrawParts->GetDeltaTime() / 0.5f, 0.f, 1.f);
-		}
-		void FadeControl::DrawFade(void) const noexcept {
-			auto* DrawParts = DXDraw::Instance();
-			SetDrawBlendMode(DX_BLENDMODE_ALPHA, std::clamp(static_cast<int>(255.f * this->m_BlackOutAlpha), 0, 255));
-			DrawBox(0, 0, DrawParts->GetUIY(1920), DrawParts->GetUIY(1080), Black, TRUE);
-			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-		}
-	};
-};
+	}
+}

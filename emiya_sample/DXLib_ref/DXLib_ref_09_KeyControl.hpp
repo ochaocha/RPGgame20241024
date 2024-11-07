@@ -3,8 +3,9 @@
 
 namespace DXLibRef {
 	// --------------------------------------------------------------------------------------------------
-	// 対応するゲームパッド、キーアサイン
+	// PadControlにて使用する、各パッドに対応するゲームパッド、キーアサイン
 	// --------------------------------------------------------------------------------------------------
+	//対応するコントロールタイプの一覧
 	enum class ControlType :int {
 		XBox,
 		PS4,
@@ -16,7 +17,7 @@ namespace DXLibRef {
 		"PS4",
 		"PC",
 	};
-
+	//受付するアサインの一覧
 	enum class PADS :int {
 		MOVE_W,
 		MOVE_A,
@@ -65,7 +66,7 @@ namespace DXLibRef {
 		"AIM",
 		"ESCAPE",
 	};
-
+	//キーボードの入力一覧
 	static const size_t KeyNum = 109 + 3;
 	static const int KeyID[KeyNum] = {
 		KEY_INPUT_BACK,
@@ -430,7 +431,7 @@ namespace DXLibRef {
 		"RM",
 		"MM",
 	};
-
+	//PS4の入力一覧(DirectInput)
 	static const size_t DS4Num = 12 - 1 + 2 + 4;
 	static const int DS4ID[DS4Num] = {
 		0,
@@ -489,7 +490,7 @@ namespace DXLibRef {
 		"right",
 		"down",
 	};
-
+	//XBoxの入力一覧(XInput)
 	static const size_t XBoxNum = 12 - 1 + 2 + 4;
 	static const int XBoxID[XBoxNum] = {
 		14,
@@ -559,132 +560,157 @@ namespace DXLibRef {
 		"down",
 	};
 	/*------------------------------------------------------------------------------------------------------------------------------------------*/
-	// ウィンドウアクティブチェック付きキー操作
+	// キー押し判定(押した瞬間やリピート、離した瞬間などにも対応)
 	/*------------------------------------------------------------------------------------------------------------------------------------------*/
-	static int CheckHitKeyWithCheck(int KeyCode) noexcept {
-		if (GetWindowActiveFlag()) {
-			return CheckHitKey(KeyCode);
-		}
-		else {
-			return 0;
-		}
-	}
-	static int GetMouseInputWithCheck(void) noexcept {
-		if (GetWindowActiveFlag()) {
-			return GetMouseInput();
-		}
-		else {
-			return 0;
-		}
-	}
-	static int GetMouseWheelRotVolWithCheck(int CounterReset = TRUE) noexcept {
-		if (GetWindowActiveFlag()) {
-			return GetMouseWheelRotVol(CounterReset);
-		}
-		else {
-			GetMouseWheelRotVol(CounterReset);
-			return 0;
-		}
-	}
-
-	// キー押し判定
 	class switchs {
-		bool		m_on{ false };// オンオフ判定
-		bool		m_press{ false };// オンオフ判定
-		bool		m_repeat{ false };// オンオフ判定
-		int8_t		m_presscount{ 0 };// プッシュ判定
-		float		m_repeatcount{ FrameRate / 2.f };// プッシュ判定
+		const float m_RepeatWaitTime = 0.5f;			//リピート時の1～2打間の時間間隔
+		const float m_RepeatTime = 0.04f;				//リピート時の2打以降の判定間隔
+	private:
+		bool		m_press{ false };					// 押し続けたかどうかの判定判定
+		int8_t		m_presscount{ 0 };					// 押し続けたフレーム数を記憶しておく　おしたら2までカウントアップ、離したら0までカウントダウン
+		bool		m_repeat{ false };					// 押し続けた際の繰り返し判定
+		float		m_repeatcount{ m_RepeatWaitTime };	// 繰り返し判定に使うタイマー
 	public:
+		//コンストラクタ
 		switchs(void) noexcept {
-			Set(false);
 			m_presscount = 0;
-			m_repeatcount = FrameRate / 2.f;
+			m_repeatcount = m_RepeatWaitTime;
 			m_press = false;
 		}
+		//デストラクタ
 		~switchs(void) noexcept {}
-		// 使用前の用意
-		void			Set(bool on) noexcept { m_on = on; }
+	public:
 		// 更新
-		void			Execute(bool key) noexcept;
-		// オンオフの取得
-		bool			on(void) const noexcept { return m_on; }
+		void			Update(bool key) noexcept;
 		// 押した瞬間
-		bool			trigger(void) const noexcept { return m_press && (m_presscount == 1); }
+		bool			trigger(void) const noexcept { return m_press && (m_presscount == 1); }//押していて、尚且つカウントが1のフレーム
 		// 押している間
 		bool			press(void) const noexcept { return m_press; }
-		// 押している間(30F+2F毎)
+		// 押している間リピート
 		bool			repeat(void) const noexcept { return m_repeat; }
 		// 離した瞬間
-		bool			release_trigger(void) const noexcept { return (!m_press) && (m_presscount == 1); }
+		bool			release_trigger(void) const noexcept { return (!m_press) && (m_presscount == 1); }//離していて、尚且つカウントが1のフレーム
 		// 離している間
 		bool			release(void) const noexcept { return !m_press; }
 	};
 	// --------------------------------------------------------------------------------------------------
-	// 
+	// キーコンフィグを加味した各キー、パッド判定
 	// --------------------------------------------------------------------------------------------------
-
 	class PadControl : public SingletonBase<PadControl> {
 	private:
 		friend class SingletonBase<PadControl>;
 	private:
-		class KeyGuideGraphs {
-		public:
-			int xsize{ 0 }, ysize{ 0 };
-			GraphHandle* pGuideImg{ nullptr };
-			std::string GuideString;
-		public:
-			KeyGuideGraphs(void) noexcept {}
-			KeyGuideGraphs(const KeyGuideGraphs&) = delete;
-			KeyGuideGraphs(KeyGuideGraphs&& o) = delete;
-			KeyGuideGraphs& operator=(const KeyGuideGraphs&) = delete;
-			KeyGuideGraphs& operator=(KeyGuideGraphs&& o) = delete;
-
-			~KeyGuideGraphs(void) noexcept {}
-		public:
-			void AddGuideXBox(GraphHandle* pGuide, const std::string& GuideStr) noexcept;
-			void AddGuideDS4(GraphHandle* pGuide, const std::string& GuideStr) noexcept;
-			void AddGuidePC(GraphHandle* pGuide, const std::string& GuideStr) noexcept;
-			void Reset(void) noexcept {
-				pGuideImg = nullptr;
-				GuideString = "";
-			}
-			int GetDrawSize(void) const noexcept;
-			int Draw(int x, int y) const noexcept;
-		};
-
 		class PadsInfo {
-		public:
 			switchs m_Key;
 			int		m_assign = 0;
 			int		m_reserve = 0;
 			bool	m_IsUse{ true };
+		public:
+			void SetAssign(int select) noexcept {
+				this->m_assign = select;
+				this->m_reserve = this->m_assign;
+			}
+			void SetReserve(int select) noexcept { this->m_reserve = select; }
+			void ResetAssign(void) noexcept { this->m_reserve = this->m_assign; }
+			void FlipAssign(void) noexcept { this->m_assign = this->m_reserve; }
+			void Update(bool Press) noexcept { this->m_Key.Update(Press); }
+		public:
+			const auto& GetReserve(void) const noexcept { return this->m_reserve; }
+			const auto& GetAssign(void) const noexcept { return this->m_assign; }
+			const auto& IsUse(void) const noexcept { return this->m_IsUse; }
+			const auto& GetKey(void) const noexcept { return this->m_Key; }
+			const auto IsEnableSelectReserve() const noexcept { return this->m_reserve != InvalidID; }
 		};
 	private:
-		// ボタン
-		std::array<PadsInfo, static_cast<int>(PADS::MAX)> m_PadsInfo;
-		// 右スティック
-		float Look_XradAdd{ 0.f };
-		float Look_YradAdd{ 0.f };
+		std::array<PadsInfo, static_cast<int>(PADS::MAX)>		m_PadsInfo;						// ボタン入力を保持
+		float													Look_XradAdd{ 0.f };			// 右スティック入力を保持
+		float													Look_YradAdd{ 0.f };			// 右スティック入力を保持
+		int														MouseX{ 0 };					//マウスのDXLIBからの値を保持しておく
+		int														MouseY{ 0 };					//マウスのDXLIBからの値を保持しておく
+		switchs													MouseClick;						//左クリック
+		int														MouseWheelRot{ 0 };				//マウスホイールの回転量を保持しておく
 		// 
-		int MouseX{ 0 };
-		int MouseY{ 0 };
-		switchs MouseClick;
-		switchs KeyEsc;
-		switchs KeyBSorDel;
-		int MouseWheelRot{ 0 };
-		// 
-		std::array<switchs, 26>	m_AtoZKey;
-		std::array<switchs, 10>	m_NumKey;
-		// 
-		GraphHandle GuideBase;
-		std::vector<GraphHandle> GuideRect;
-		// ガイド等のコントロール
-		bool		m_IsUpdate{ true };
-		bool		m_MouseMoveEnable{ true };
-		ControlType	m_ControlType{ ControlType::PC };
+		bool													m_MouseMoveEnable{ false };		//FPSなどのマウスを表示しない操作方法を用いるかどうか
+		ControlType												m_ControlType{ ControlType::PC };//現在のコントロールタイプ
 	private:
-		std::vector<std::unique_ptr<KeyGuideGraphs>>	Key;
+		// コンストラクタ
+		PadControl(void) noexcept { Load(); }
+		PadControl(const PadControl&) = delete;		// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
+		PadControl(PadControl&& o) = delete;
+		PadControl& operator=(const PadControl&) = delete;
+		PadControl& operator=(PadControl&& o) = delete;
+		// デストラクタはシングルトンなので呼ばれません
 	public:
+		//今認識しているコントロールタイプを得る
+		const auto& GetControlType(void) const noexcept { return m_ControlType; }
+		//視点移動に相当する入力を得る
+		const auto& GetLS_X(void) const noexcept { return Look_XradAdd; }
+		const auto& GetLS_Y(void) const noexcept { return Look_YradAdd; }
+		//マウスの位置や入力を返す(UIのクリックなど専用)
+		const auto& GetMS_X(void) const noexcept { return MouseX; }
+		const auto& GetMS_Y(void) const noexcept { return MouseY; }
+		const auto& GetMouseClick(void) const noexcept { return MouseClick; }
+		const auto& GetMouseWheelRot(void) const noexcept { return MouseWheelRot; }
+		//各キーコンフィグに対応した入力を入れる
+		const auto& GetPadsInfo(PADS select) const noexcept { return m_PadsInfo.at(static_cast<size_t>(select)); }
+	private:
+		//セーブデータが入る場所を占めるパス
+		const char* GetSavePath(void) const noexcept {
+			switch (m_ControlType) {
+			case ControlType::XBox:
+				return "Save/KeyConfig_XBox.txt";
+			case ControlType::PS4:
+				return "Save/KeyConfig_DS4.txt";
+			case ControlType::PC:
+				return "Save/KeyConfig_PC.txt";
+			default:
+				break;
+			}
+			return "NONE";
+		};
+		const char* GetBasePath(void) const noexcept {
+			switch (m_ControlType) {
+			case ControlType::XBox:
+				return "data/KeyConfigBase_XBox.txt";
+			case ControlType::PS4:
+				return "data/KeyConfigBase_DS4.txt";
+			case ControlType::PC:
+				return "data/KeyConfigBase_PC.txt";
+			default:
+				break;
+			}
+			return "NONE";
+		};
+		//文字からKEY_INPUT_BACKなどのIDを取得
+		const auto GetStrtoID(const char* Str) const noexcept {
+			switch (m_ControlType) {
+			case ControlType::XBox:
+				for (size_t i = 0; i < static_cast<size_t>(XBoxNum); ++i) {
+					if (strcmpDx(XBoxStr[i], Str) == 0) {
+						return XBoxID[i];
+					}
+				}
+				break;
+			case ControlType::PS4:
+				for (size_t i = 0; i < static_cast<size_t>(DS4Num); ++i) {
+					if (strcmpDx(DS4Str[i], Str) == 0) {
+						return DS4ID[i];
+					}
+				}
+				break;
+			case ControlType::PC:
+				for (size_t i = 0; i < static_cast<size_t>(KeyNum); ++i) {
+					if (strcmpDx(KeyStr[i], Str) == 0) {
+						return KeyID[i];
+					}
+				}
+				break;
+			default:
+				break;
+			}
+			return InvalidID;
+		}
+		//KEY_INPUT_BACKなどのIDから文字を取得
 		const std::string	GetIDtoStr(int ID) const noexcept {
 			switch (m_ControlType) {
 			case ControlType::XBox:
@@ -713,195 +739,173 @@ namespace DXLibRef {
 			}
 			return "NONE";
 		};
-	private:
-		int			GetStrtoID(const char* Str) const noexcept {
+		bool GetButtonPress(int ID) noexcept {
 			switch (m_ControlType) {
 			case ControlType::XBox:
-				for (size_t i = 0; i < static_cast<size_t>(XBoxNum); ++i) {
-					if (strcmpDx(XBoxStr[i], Str) == 0) {
-						return XBoxID[i];
+			{
+				XINPUT_STATE input;
+				GetJoypadXInputState(DX_INPUT_PAD1, &input);
+				// ボタン
+				if (ID >= 0xF100) {
+					switch (ID) {
+					case 0xF100:
+						return input.LeftTrigger > 0;
+					case 0xF200:
+						return input.RightTrigger > 0;
+					default:
+						break;
 					}
 				}
-				break;
+				else if (0 <= ID && ID < 16) {
+					return (input.Buttons[ID] != 0);
+				}
+			}
+			break;
 			case ControlType::PS4:
-				for (size_t i = 0; i < static_cast<size_t>(DS4Num); ++i) {
-					if (strcmpDx(DS4Str[i], Str) == 0) {
-						return DS4ID[i];
+			{
+				DINPUT_JOYSTATE input;
+				GetJoypadDirectInputState(DX_INPUT_PAD1, &input);
+				// ボタン
+				if (ID >= 0xF010) {
+					// 十字キー
+					float deg = static_cast<float>(input.POV[0]) / 100.f;
+					bool w_key = false;
+					bool s_key = false;
+					bool a_key = false;
+					bool d_key = false;
+					if (input.POV[0] != 0xffffffff) {
+						w_key = (310.f <= deg || deg <= 50.f);
+						s_key = (130.f <= deg && deg <= 230.f);
+						a_key = (220.f <= deg && deg <= 320.f);
+						d_key = (40.f <= deg && deg <= 140.f);
+					}
+					switch (ID) {
+					case 0xF010:
+						return a_key;
+					case 0xF020:
+						return w_key;
+					case 0xF040:
+						return d_key;
+					case 0xF080:
+						return s_key;
+					default:
+						break;
 					}
 				}
-				break;
+				else if (0 <= ID && ID < 32) {
+					return (input.Buttons[ID] != 0);
+				}
+			}
+			break;
 			case ControlType::PC:
-				for (size_t i = 0; i < static_cast<size_t>(KeyNum); ++i) {
-					if (strcmpDx(KeyStr[i], Str) == 0) {
-						return KeyID[i];
+				// ボタン
+				if (0 <= ID) {
+					if ((ID & 0xF00) != 0) {
+						if (GetWindowActiveFlag()) {
+							return ((GetMouseInput() & (ID & 0xFF)) != 0);
+						}
+						else {
+							return 0;
+						}
+					}
+					else {
+						if (GetWindowActiveFlag()) {
+							return (CheckHitKey(ID) != 0);
+						}
+						else {
+							return 0;
+						}
 					}
 				}
 				break;
 			default:
 				break;
 			}
-			return InvalidID;
+			return false;
 		}
-		const char* GetSavePath(void) const noexcept {
-			switch (m_ControlType) {
-			case ControlType::XBox:
-				return "Save/KeyConfig_XBox.txt";
-			case ControlType::PS4:
-				return "Save/KeyConfig_DS4.txt";
-			case ControlType::PC:
-				return "Save/KeyConfig_PC.txt";
-			default:
-				break;
+		//キーコンフィグの各ボタンの設定
+		void ChangeConfigOnce(PADS select, int SetID) noexcept {
+			// 既に適用済のものがあった場合そいつを無効化してやる
+			for (size_t p = 0; p < static_cast<size_t>(PADS::MAX); ++p) {
+				if (m_PadsInfo.at(p).GetReserve() == SetID) {
+					m_PadsInfo.at(p).SetReserve(InvalidID);
+					break;
+				}
 			}
-			return "NONE";
-		};
-		const char* GetBasePath(void) const noexcept {
-			switch (m_ControlType) {
-			case ControlType::XBox:
-				return "data/KeyConfigBase_XBox.txt";
-			case ControlType::PS4:
-				return "data/KeyConfigBase_DS4.txt";
-			case ControlType::PC:
-				return "data/KeyConfigBase_PC.txt";
-			default:
-				break;
-			}
-			return "NONE";
-		};
-	private:
-		// コンストラクタ
-		PadControl(void) noexcept;// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
-		PadControl(const PadControl&) = delete;
-		PadControl(PadControl&& o) = delete;
-		PadControl& operator=(const PadControl&) = delete;
-		PadControl& operator=(PadControl&& o) = delete;
-		// デストラクタはシングルトンなので呼ばれません
+			//設定
+			m_PadsInfo.at(static_cast<size_t>(select)).SetReserve(SetID);
+		}
 	public:
-		const auto& GetLS_X(void) const noexcept { return Look_XradAdd; }
-		const auto& GetLS_Y(void) const noexcept { return Look_YradAdd; }
-
-		const auto& GetMS_X(void) const noexcept { return MouseX; }
-		const auto& GetMS_Y(void) const noexcept { return MouseY; }
-		const auto& GetMouseClick(void) const noexcept { return MouseClick; }
-		const auto& GetEsc(void) const noexcept { return KeyEsc; }
-		const auto& GetBSorDel(void) const noexcept { return KeyBSorDel; }
-		const auto& GetMouseWheelRot(void) const noexcept { return MouseWheelRot; }
-
-		const auto& IsUseButton(PADS select) const noexcept { return m_PadsInfo.at(static_cast<size_t>(select)).m_IsUse; }
-		const auto& GetKey(PADS select) const noexcept { return m_PadsInfo.at(static_cast<size_t>(select)).m_Key; }
-		const auto& GetAtoZKey(char AtoZ) const noexcept {
-			if ('A' <= AtoZ && AtoZ <= 'Z') {
-				return this->m_AtoZKey.at(static_cast<size_t>(AtoZ - 'A'));
-			}
-			if ('a' <= AtoZ && AtoZ <= 'z') {
-				return this->m_AtoZKey.at(static_cast<size_t>(AtoZ - 'a'));
-			}
-			return this->m_AtoZKey.at(0);
-		}
-		const auto& GetNumKey(int Num) const noexcept {
-			if (0 <= Num && Num <= 9) {
-				return this->m_NumKey.at(Num);
-			}
-			return this->m_NumKey.at(0);
-		}
-		const auto& GetKeyassign(PADS select) const noexcept { return m_PadsInfo.at(static_cast<size_t>(select)).m_assign; }
-		const auto GetKeyStr(PADS select) const noexcept { return GetIDtoStr(m_PadsInfo.at(static_cast<size_t>(select)).m_assign); }
-		const auto& GetKeyReserve(PADS select) const noexcept { return m_PadsInfo.at(static_cast<size_t>(select)).m_reserve; }
-
-		void SetIsUseButton(PADS select, bool value) noexcept { m_PadsInfo.at(static_cast<size_t>(select)).m_IsUse = value; }
-		void SetKeyReserve(PADS select, int assign) noexcept { m_PadsInfo.at(static_cast<size_t>(select)).m_reserve = assign; }
-
-		bool GetButtonPress(int ID) noexcept;
-		void GetPushAnySwitch(PADS select) noexcept;
-
-		bool GetPushAnySwitchLocal(PADS select, int ID) noexcept;
-	public:
+		//FPSなどのマウスを表示しない操作方法を用いるかどうか指定
 		void SetMouseMoveEnable(bool value) noexcept { m_MouseMoveEnable = value; }
-		void SetGuideUpdate(void) noexcept { m_IsUpdate = true; }
+		//キーコンフィグとしてReserveに暫定値を入れる処理
+		//これを通る間、同じキーを押すと自身のキーを外す。キーアサインが外れているか違うキーを押すとそのキーを設定する
+		bool ChangeConfig(PADS select) noexcept {
+			auto Prev = GetPadsInfo(select).GetReserve();
 
-		void Save(void) noexcept;
-		void Load(void) noexcept;
-
-		void ResetAssign(void) noexcept;
-		void FlipAssign(void) noexcept;
-
-		void ChangeGuide(std::function<void()>Guide_Pad) noexcept;
-
-		void AddGuide(PADS select, const std::string& GuideStr, ControlType FixedControlType = ControlType::Max) noexcept {
-			Key.emplace_back(std::make_unique<KeyGuideGraphs>());
-			switch ((FixedControlType != ControlType::Max) ? m_ControlType : FixedControlType) {
+			//変更前と同じキーを押してる
+			if (GetPadsInfo(select).GetKey().press()) {
+				if (GetPadsInfo(select).GetKey().trigger()) {//押した瞬間だけ
+					// SetIDとselectで設定しているボタンが同じだったら=> SetID==Assign
+					// Reserveに何か入っていたら空に、入っていなかったらAssignとする
+					m_PadsInfo.at(static_cast<size_t>(select)).SetReserve(GetPadsInfo(select).IsEnableSelectReserve() ? InvalidID : GetPadsInfo(select).GetAssign());
+					//元と違う設定になっていたらtrue
+					return true;
+				}
+				//押し続けている場合は以下の処理を通さない
+				return false;
+			}
+			//押されていたらそのキーに設定する
+			switch (m_ControlType) {
 			case ControlType::XBox:
 				for (size_t i = 0; i < static_cast<size_t>(XBoxNum); ++i) {
-					if (XBoxID[i] == m_PadsInfo.at(static_cast<size_t>(select)).m_assign) {
-						Key.back()->AddGuideXBox(&GuideRect.at(i + KeyNum + XBoxNum), GuideStr);
-						return;
+					if (GetButtonPress(XBoxID[i])) {
+						ChangeConfigOnce(select, XBoxID[i]);
+						break;
 					}
 				}
 				break;
 			case ControlType::PS4:
 				for (size_t i = 0; i < static_cast<size_t>(DS4Num); ++i) {
-					if (DS4ID[i] == m_PadsInfo.at(static_cast<size_t>(select)).m_assign) {
-						Key.back()->AddGuideDS4(&GuideRect.at(i + KeyNum), GuideStr);
-						return;
+					if (GetButtonPress(DS4ID[i])) {
+						ChangeConfigOnce(select, DS4ID[i]);
+						break;
 					}
 				}
 				break;
 			case ControlType::PC:
 				for (size_t i = 0; i < static_cast<size_t>(KeyNum); ++i) {
-					if (KeyID[i] == m_PadsInfo.at(static_cast<size_t>(select)).m_assign) {
-						Key.back()->AddGuidePC(&GuideRect.at(i), GuideStr);
-						return;
+					if (GetButtonPress(KeyID[i])) {
+						ChangeConfigOnce(select, KeyID[i]);
+						break;
 					}
 				}
 				break;
 			default:
 				break;
 			}
-			Key.back()->AddGuidePC(nullptr, GuideStr);
+			//元と違う設定になっていたらtrue
+			return (Prev != GetPadsInfo(select).GetReserve());
 		}
-		void Reset(void) noexcept {
-			for (auto& k : Key) {
-				k->Reset();
-				k.reset();
+		//適用していない変更のリセット
+		void ResetAssign(void) noexcept {
+			for (size_t i = 0; i < static_cast<size_t>(PADS::MAX); ++i) {
+				this->m_PadsInfo.at(i).ResetAssign();
 			}
-			Key.clear();
+		}
+		//適用していない変更を適用
+		void FlipAssign(void) noexcept {
+			for (size_t i = 0; i < static_cast<size_t>(PADS::MAX); ++i) {
+				this->m_PadsInfo.at(i).FlipAssign();
+			}
 		}
 	public:
+		//所定のファイルから今設定されているキーコンフィグを読み取る
+		void Load(void) noexcept;
+		//今設定している状態をファイルに保存
+		void Save(void) const noexcept;
+	public:
+		//入力処理とコントロールタイプの更新
 		void Update(void) noexcept;
-		void Draw(void) const noexcept;
-	};
-
-	// 入力
-	class InputControl {
-	private:
-		float			m_yRad{ 0.f };
-		unsigned long long	m_Flags{ 0 };
-	public:
-		InputControl(void) noexcept {}
-		InputControl(const InputControl& tgt) noexcept {
-			this->m_yRad = tgt.m_yRad;
-			this->m_Flags = tgt.m_Flags;
-		}
-		InputControl(InputControl&& tgt) noexcept {
-			this->m_yRad = tgt.m_yRad;
-			this->m_Flags = tgt.m_Flags;
-		}
-		// InputControl& operator=(const InputControl&) = delete;
-		// InputControl& operator=(InputControl&& o) = delete;
-
-		virtual ~InputControl(void) noexcept {}
-	public:
-		void			ResetAllInput(void) noexcept {
-			this->m_yRad = 0.f;
-			this->m_Flags = 0;
-		}
-		void			SetyRad(float yRad) noexcept { this->m_yRad = yRad; }
-		void			SetInputPADS(PADS select, bool value) noexcept {
-			if (value) { this->m_Flags |= ((unsigned long long)1 << (0 + static_cast<int>(select))); }
-			else{ this->m_Flags &= ~((unsigned long long)1 << (0 + static_cast<int>(select))); }
-		}
-	public:
-		const auto& GetyRad(void) const noexcept { return this->m_yRad; }
-		auto		GetPADSPress(PADS select) const noexcept { return (this->m_Flags & ((unsigned long long)1 << (0 + static_cast<int>(select)))) != 0; }
 	};
 };

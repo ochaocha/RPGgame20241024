@@ -107,10 +107,6 @@ namespace DXLibRef {
 
 			return;
 		}
-		// 画像をテクスチャとして読み込み(普通の画像と違い拡縮に強くなりますが制限がいくつかつきます)
-		void Load_Tex(const std::basic_string<TCHAR>& FileName) noexcept {
-			DXHandle::SetHandleDirect(DxLib::MV1LoadTextureWithStrLen(FileName.data(), FileName.length()));
-		}
 		// 渡された画像ハンドルの一部を切り抜いた画像ハンドルを作成
 		void DerivationGraph(int x, int y, int xsize, int ysize, const GraphHandle& baseImage) noexcept {
 			DXHandle::SetHandleDirect(DxLib::DerivationGraph(x, y, xsize, ysize, baseImage.get()));

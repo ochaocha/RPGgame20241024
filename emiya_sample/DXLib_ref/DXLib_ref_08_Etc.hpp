@@ -34,10 +34,10 @@ namespace DXLibRef {
 	inline float EasingMove(float* NowSpeed, float TargetSpeed, float ratio) noexcept;
 	//Vector2DX版overload
 	inline Vector2DX EasingMove(Vector2DX* NowSpeed, Vector2DX TargetSpeed, float ratio) {
-		Vector2DX answer;
-		answer.x = EasingMove(&NowSpeed->x, TargetSpeed.x, ratio);
-		answer.y = EasingMove(&NowSpeed->y, TargetSpeed.y, ratio);
-		return answer;
+		Vector2DX Answer;
+		Answer.x = EasingMove(&NowSpeed->x, TargetSpeed.x, ratio);
+		Answer.y = EasingMove(&NowSpeed->y, TargetSpeed.y, ratio);
+		return Answer;
 	}
 	/*------------------------------------------------------------------------------------------------------------------------------------------*/
 	/*DXLIBラッパー																																*/
@@ -81,39 +81,5 @@ namespace DXLibRef {
 		static std::string getleft(std::string tempname) noexcept { return tempname.substr(0, tempname.find('=')); }
 		// 文字列から=より右の値取得
 		static std::string getright(std::string tempname) noexcept { return tempname.substr(tempname.find('=') + 1); }
-	};
-
-	/*------------------------------------------------------------------------------------------------------------------------------------------*/
-	// カメラシェイク
-	/*------------------------------------------------------------------------------------------------------------------------------------------*/
-	class CameraShake : public SingletonBase<CameraShake> {
-	private:
-		friend class SingletonBase<CameraShake>;
-	private:
-		float						m_ShakePower{ 0.f };		//揺れの強さ
-		float						m_ShakeTotalTime{ 0.f };	//揺れを起こすトータル時間
-		float						m_ShakeTime{ 0.f };			//揺れの経過時間(0秒に向けて減っていきます)
-		Vector2DX					m_CamShake1;
-		Vector2DX					m_CamShake2;				//揺れを計算するための変数
-	public:
-		//揺れた結果を取得します
-		const auto& GetCamShake(void) const noexcept { return m_CamShake2; }
-	public:
-		//揺れを設定します。　揺れる時間と揺れの力の2点です
-		void			SetCamShake(float time, float power) noexcept {
-			this->m_ShakeTotalTime = time;
-			this->m_ShakePower = power;
-			this->m_ShakeTime = this->m_ShakeTotalTime;
-		}
-	private:
-		// コンストラクタ
-		CameraShake(void) noexcept {}// コピーしてはいけないので通常のコンストラクタ以外をすべてdelete
-		CameraShake(const CameraShake&) = delete;
-		CameraShake(CameraShake&& o) = delete;
-		CameraShake& operator=(const CameraShake&) = delete;
-		CameraShake& operator=(CameraShake&& o) = delete;
-		// デストラクタはシングルトンなので呼ばれません
-	public:
-		void Update(void) noexcept;
 	};
 }

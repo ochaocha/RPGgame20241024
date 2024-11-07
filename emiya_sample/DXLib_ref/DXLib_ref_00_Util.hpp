@@ -93,11 +93,11 @@ namespace DXLibRef {
 		// wstring → SJIS
 		WideCharToMultiByte(CP_OEMCP, 0, oWString.data(), int(oWString.size() + 1), cpMultiByte, iBufferSize, NULL, NULL);
 		// stringの生成
-		std::string oRet(cpMultiByte, cpMultiByte + iBufferSize - 1);
+		std::string oAnswer(cpMultiByte, cpMultiByte + iBufferSize - 1);
 		// バッファの破棄
 		delete[] cpMultiByte;
 		// 変換結果を返す
-		return oRet;
+		return oAnswer;
 	}
 	/*stringをwstringへ変換する*/
 	static std::wstring StringToWString(const std::string& oString) noexcept {
@@ -108,10 +108,10 @@ namespace DXLibRef {
 		// SJIS → wstring
 		MultiByteToWideChar(CP_ACP, 0, oString.data(), int(oString.size() + 1), cpUCS2, iBufferSize);
 		// stringの生成
-		std::wstring oRet(cpUCS2, cpUCS2 + iBufferSize - 1);
+		std::wstring oAnswer(cpUCS2, cpUCS2 + iBufferSize - 1);
 		// バッファの破棄
 		delete[] cpUCS2;
 		// 変換結果を返す
-		return oRet;
+		return oAnswer;
 	}
 }
