@@ -23,15 +23,21 @@ void MeinScreenChanger::ScreenInit()
 /// @param MeinscreenHorizontal 
 void MeinScreenChanger::Draw(int* screenchange)
 {
+	
+	//////////////////////////////////////////////////////////////////////////////////////////
+	//////////////音量設定
+	//////////////////////////////////////////////////////////////////////////////////////////
+	ChangeVolumeSoundMem(50, StartSound);
+	ChangeVolumeSoundMem(100, StartDesition);
+	//////////////////////////////////////////////////////////////////////////////////////////
+	//////////////色設定と画像設定
+	//////////////////////////////////////////////////////////////////////////////////////////
 	//スタートの文字の色
 	unsigned int StatrString = GetColor(ColorHandle, ColorHandle, ColorHandle);
-
 	//オプションの文字の色
 	unsigned int OptionString = GetColor(ColorHandle, ColorHandle, ColorHandle);
-
 	//スタート画面の背景画像ハンドル
 	int startHandle = LoadGraph("Data/img/pipo-bg004b.png");
-
 	//スタート画面の枠画像ハンドル
 	int Hnadle = LoadGraph("Data/img/R.png", TRUE);
 
@@ -42,20 +48,34 @@ void MeinScreenChanger::Draw(int* screenchange)
 	SetFontSize(34);
 
 	//スタート画面背景の描画
-		DrawExtendGraph(0, 0,1920,1080,startHandle, TRUE);
+	DrawExtendGraph(0, 0,1920,1080,startHandle, TRUE);
 	//スタート画面の枠を描画
-		DrawExtendGraph(graphX, graphY, graph2X, graph2Y, Hnadle, TRUE);
+	DrawExtendGraph(graphX, graphY, graph2X, graph2Y, Hnadle, TRUE);
 
+	DrawString(graphX + 285, graphY + 100, "スタート", StatrString);
 
-		//スタートの文字の範囲に入った時のif文
+	DrawString(graphX + 270, graphY + 150, "オプション", OptionString);
+
+	bool kurikkusound = NULL;
+
+	//スタートの文字の範囲に入った時のif文
 
 		if (mauseX >= graphX+285 && mauseX <= graphX + 420 && mauseY >= graphY+100&& mauseY <= graphY+ 134)
 		{
-			ChangeVolumeSoundMem(50, StartSound);
-			PlaySoundMem(StartSound, DX_PLAYTYPE_NORMAL, TRUE);
+			
+
+			if(PlaySoundMem(StartSound, DX_PLAYTYPE_BACK)&&kurikkusound==true)
+			{
+				kurikkusound = false;
+			}
+			else if(PlaySoundMem)
+			{
+				
+			}
+
 			//エフェクトの描画
 		
-			time += 1.0f / 10.f;				
+			time += 1.0f / 5.f;
 			
 			//範囲に行ったときにエフェクトの出現
 			if (time > 1.0f) {							
@@ -63,7 +83,7 @@ void MeinScreenChanger::Draw(int* screenchange)
 				EfectNowIndex += 1;						
 				if (EfectNowIndex >= StartEfectXNum)
 				{
-					EfectNowIndex -= StartEfectXNum;		
+					EfectNowIndex -= StartEfectXNum;	
 				}
 			}
 			
@@ -73,14 +93,13 @@ void MeinScreenChanger::Draw(int* screenchange)
 
 			if ((GetMouseInput() & MOUSE_INPUT_LEFT) == 1)
 			{
-				
-				
-
+		
+				PlaySoundMem(StartDesition, DX_PLAYTYPE_NORMAL, TRUE);
 				*screenchange = 2;
 			}
 			if ((GetMouseInput() & MOUSE_INPUT_LEFT) == 0)
 			{
-	
+			
 			}
 		}
 		if (mauseX >= graphX + 270 && mauseX <= graphX + 436 && mauseY >= graphY + 150 && mauseY <= graphY + 184)
@@ -96,17 +115,9 @@ void MeinScreenChanger::Draw(int* screenchange)
 			}
 		}
 		
-		DrawString(graphX + 285, graphY + 100, "スタート", StatrString);
-
-		DrawString(graphX + 270, graphY + 150, "オプション", OptionString);
-
-}
-
-
-
-void BattleScreenChanger::Scene()
-{
-	DrawExtendGraph(0, 0, 1920, 1080, BattleScreenHandle, TRUE);
 	
 }
+
+
+
 

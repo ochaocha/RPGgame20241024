@@ -30,7 +30,7 @@ int displayhigthY = 0;
 #else
 	MapData MapDataOll;
 #endif
-	
+
 	BattleScreenChanger battlescreen;
 
 	BattleData battledata;
@@ -72,6 +72,8 @@ int displayhigthY = 0;
 	FPSCtrl.Initialize();
 	int Exchange = 0;
 
+	MeinScreenChanger Mein;
+
 	Mein.ScreenInit();
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
@@ -85,16 +87,17 @@ int displayhigthY = 0;
 
 		switch (Exchange)
 		{
-		case 0://メインスクリーン
-			
+		case 0://ゲームスタートシーン
+
 			Mein.Draw(&Exchange);
 			break;
-			
-		case 1:
-			//オプション画面
+
+		case 1://オプションシーン
+
 			//しっかりとここに行っていることの確認済み
-		case 2:
-			
+
+		case 2://メニューシーン
+
 			ClearDrawScreen();		//マップの描画
 			//MapEngine();		//マップの動き
 			MapDataOllPtr->Update();			//マップの動き
@@ -111,7 +114,7 @@ int displayhigthY = 0;
 					CheckHitKey(KEY_INPUT_W)
 				);
 				battledata.InputEncounterCheck
-				(   BattleEncounterFlag,
+				(BattleEncounterFlag,
 					CheckHitKey(KEY_INPUT_A),
 					CheckHitKey(KEY_INPUT_D),
 					CheckHitKey(KEY_INPUT_S),
@@ -146,10 +149,19 @@ int displayhigthY = 0;
 			MapDataOllPtr->Draw();
 			//画面更新処理
 			CharacterManager::Instance()->Draw();			//プレイヤー描画
+			
+			break;
+
+
+			//バトルシーン
+		case 3:
 
 			break;
 
-		}
+
+
+		};
+		
 
 		// ヒットしたか?を画面表示
 

@@ -88,6 +88,7 @@ public:
 			return LerpUnclamped(A, B, Per);
 		}
 	}
+
 	//ベクトルどうしのxyで大きい方を選択して取得
 	inline static Vector2DX		Max(const Vector2DX& A, const Vector2DX& B) noexcept { return vget((A.x > B.x) ? A.x : B.x, (A.y > B.y) ? A.y : B.y); }
 	//ベクトルどうしのxyで小さい方を選択して取得
@@ -98,7 +99,8 @@ public:
 	inline static Vector2DX		Reflect(const Vector2DX& inDirection, const Vector2DX& inNormal) noexcept { return inDirection + inNormal * (Dot(inNormal, inDirection * -1.f)) * 2.f; }
 	//ベクトルとベクトルとでのスケーリングを行う
 	inline static Vector2DX		Scale(const Vector2DX& A, const Vector2DX& B) noexcept { return vget((A.x * B.x), (A.y * B.y)); }
-
+	
+	//inline static Vector2DX     Bezier(const Vector2DX& A const Vector2DX& B)
 	//以下、Unityにはあるが使用頻度が多少低いのでオミットした関数
 	/*
 	// MoveTowards

@@ -9,7 +9,8 @@
 
 class MeinScreenChanger
 {
-
+private:
+	 int StartSound = LoadSoundMem("Sound/kurikku.mp3");
 public:
 	 int StartEfectNum = 89;
 	static const int StartEfectXNum = 10;
@@ -19,8 +20,10 @@ public:
 	int EfectNowIndex = 0;
 	int EfectImg[StartEfectXNum * StartEfectYNum] = { 0 };
 	float time = 0.f;
-	int StartSound = LoadSoundMem("Sound/カーソル移動6.mp3");
+	
 
+	 
+	int StartDesition = LoadSoundMem("Sound/決定ボタンを押す36.mp3");
 	
 
 	int mauseX=0, mauseY=0;
@@ -29,7 +32,6 @@ public:
 	int ColorHandle = 255;
 
 	int ColorHandleChange = 255;
-
 
 	void ScreenInit();
 	/// @brief スタート画面関数
@@ -40,25 +42,4 @@ public:
 	
 };
 
-static MeinScreenChanger Mein;
 
-class BattleScreenChanger
-{
-private:
-	int BattleProbability;
-	bool BattlePlayFlag = false;
-	int BattleScreenHandle = LoadGraph("Data/img/pipo-bg004c.png");
-	
-public:
-	/// @brief バトル画面の描画
-	void Scene();
-	/// @brief キャラクターの描画
-	void PlayerDraw();
-	/// @brief キャラクターのステータスなどの情報を描画
-	void PlayerInfomationDraw();
-	/// @brief 敵キャラクターの描画
-	void EnemyDraw();
-
-};
-
-static BattleScreenChanger Battle;
