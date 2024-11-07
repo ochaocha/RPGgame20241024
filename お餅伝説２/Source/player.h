@@ -47,8 +47,6 @@ public:
 		MoveDown = moveDown;
 		MoveUp = moveUp;
 	}
-	
-	
 public:
 	bool IsMoveLeft() { return MoveLeft; }
 	bool IsMoveRight() { return MoveRight; }

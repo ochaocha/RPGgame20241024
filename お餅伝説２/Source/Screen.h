@@ -9,19 +9,29 @@
 
 class MeinScreenChanger
 {
+
 public:
-	
-	static const int startefectheight = 18;
-	static const int startefectwidht = 26;
+	 int StartEfectNum = 89;
+	static const int StartEfectXNum = 10;
+	static const int StartEfectYNum = 9;
+	 int StartEfectXSize = 64;
+	 int StartEfectYSize = 64;
+	int EfectNowIndex = 0;
+	int EfectImg[StartEfectXNum * StartEfectYNum] = { 0 };
+	float time = 0.f;
+	int StartSound = LoadSoundMem("Sound/カーソル移動6.mp3");
 
 	
 
 	int mauseX=0, mauseY=0;
 
 
-	int ColorHandle = 100;
+	int ColorHandle = 255;
 
 	int ColorHandleChange = 255;
+
+
+	void ScreenInit();
 	/// @brief スタート画面関数
 	/// @param change 
 	/// @param MeinscreenVertical 

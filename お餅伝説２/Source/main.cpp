@@ -49,6 +49,8 @@ int displayhigthY = 0;
 	//SetGraphMode(displaywidth, displayhight, 16);
 	camera.Screen(displaywidhtX, displayhigthY, displaywidth2X,displayhight2Y);
 
+	
+
 	if (DxLib_Init() == -1)
 	{
 		return -1;
@@ -69,6 +71,8 @@ int displayhigthY = 0;
 	//FPS‰Šú‰»
 	FPSCtrl.Initialize();
 	int Exchange = 0;
+
+	Mein.ScreenInit();
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
 		FPSCtrl.StartMeasureTime(); //FPSŒv‘ª‚ğŠJn
