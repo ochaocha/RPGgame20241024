@@ -11,7 +11,8 @@ bool GetHitLineToLine(
 	float* pLine1AcrossPer	// 交点のLine1上の割合 (交点-Line11)/(Line12-Line11)
 ) {
 	//完全に平行な場合は除外
-	if (std::fabsf(Vector2DX::Cross(Line12 - Line11, Line22 - Line21)) <= 0.001f) {
+	if (std::fabsf(Vector2DX::Cross(Line12 - Line11, Line22 - Line21)) <= 0.001f)
+	{
 		return false;
 	}
 

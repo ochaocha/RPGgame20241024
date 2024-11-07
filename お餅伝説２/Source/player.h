@@ -5,38 +5,58 @@
 
 //種族 職業
 enum class GROUP {
-	SOULDER,
+	SOULDIER,
 	WITCH,
 };
 
 class CharacterStatus {
 	std::string Name;
 	GROUP       MyGroup{};
+	int CharacterHP=0;
+	int CharacterATK=0;
+	int CharacterMP=0;
+	int CharacterDEF=0;
+	int CharacterLUCK=0;
+	int CharacterAGI=0;
 public:
+	
+
 };
 
-class Input {
+
+class Input
+{
+public:
+
 	bool MoveLeft = false;
 	bool MoveRight = false;
 	bool MoveDown = false;
 	bool MoveUp = false;
 public:
-	void SetInput(
-		bool moveLeft,
+
+	void SetInput
+	(
+	bool moveLeft,
 	bool moveRight,
 	bool moveDown,
 	bool moveUp
-	) {
+	) 
+	{
 		MoveLeft = moveLeft;
 		MoveRight = moveRight;
 		MoveDown = moveDown;
 		MoveUp = moveUp;
 	}
+	
+	
 public:
 	bool IsMoveLeft() { return MoveLeft; }
 	bool IsMoveRight() { return MoveRight; }
 	bool IsMoveDown() { return MoveDown; }
 	bool IsMoveUp() { return MoveUp; }
+public:
+	
+		
 };
 
 class OllCharacterData {
@@ -54,7 +74,6 @@ class OllCharacterData {
 	bool AnimStopLeftFlag = false;
 	bool AnimStopUnderFlag = false;
 	bool AnimStopTopFlag = false;
-
 	bool charaMove = false;						//プレイヤーが動いているかどうか
 	static const int animPatternNum = 8;		// アニメーションのパターン数		
 	static const int animTypeNum = 6;			// アニメーションの種類		
@@ -130,4 +149,3 @@ public:
 		PlayerFunctionOll.clear();
 	}
 };
-

@@ -42,13 +42,16 @@
     <ClInclude Include="Source\fps.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MainScreen.h">
+    <ClInclude Include="Source\Screen.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\map.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\player.h">
+      <Filter>ソース ファイル\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Battle.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,7 +62,7 @@
     <ClCompile Include="Source\fps.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MainScreen.cpp">
+    <ClCompile Include="Source\Screen.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\map.cpp">
@@ -69,6 +72,9 @@
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\main.cpp">
+      <Filter>ソース ファイル\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Battle.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
   </ItemGroup>

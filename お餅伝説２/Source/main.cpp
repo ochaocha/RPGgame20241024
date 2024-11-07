@@ -2,10 +2,10 @@
 #include "player.h"
 #include "map.h"
 #include "fps.h"
-#include "MainScreen.h"
+#include "Screen.h"
 #include "camera2D.h"
 #include <Windows.h>
-
+#include "Battle.h"
 
 int displaywidhtX = 0;
 int displayhigthY = 0;
@@ -15,6 +15,8 @@ int displayhigthY = 0;
 
  int MeinscreenVertical = 1080;
  int MeinscreenHorizontal = 1920;
+
+
  
 
 
@@ -29,6 +31,9 @@ int displayhigthY = 0;
 	MapData MapDataOll;
 #endif
 	
+	BattleScreenChanger battlescreen;
+
+	BattleData battledata;
 
 	ScreenCamera camera;
 	//FPS制御オブジェクトとしてローカル変数を作成
@@ -36,6 +41,9 @@ int displayhigthY = 0;
 
 	// DxLib初期化
 	ChangeWindowMode(TRUE);
+
+	//バトルのエンカウント処理
+	bool BattleEncounterFlag = false;
 
 	//スクリーンがあった場所
 	//SetGraphMode(displaywidth, displayhight, 16);
@@ -64,23 +72,24 @@ int displayhigthY = 0;
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
 		FPSCtrl.StartMeasureTime(); //FPS計測を開始
-
 		// deltaTime計測
 		float deltaTime;
-		nowCount = GetNowCount();
-		deltaTime = (nowCount - prevCount) / 1000.0f;
 
-		
+		nowCount = GetNowCount();
+
+		deltaTime = (nowCount - prevCount) / 1000.0f;
 
 		switch (Exchange)
 		{
 		case 0://メインスクリーン
 			
 			Mein.Draw(&Exchange);
-				
 			break;
 			
 		case 1:
+			//オプション画面
+			//しっかりとここに行っていることの確認済み
+		case 2:
 			
 			ClearDrawScreen();		//マップの描画
 			//MapEngine();		//マップの動き
@@ -90,20 +99,35 @@ int displayhigthY = 0;
 			{
 				Input Player;
 
-				Player.SetInput(
+				Player.SetInput
+				(
 					CheckHitKey(KEY_INPUT_A),
 					CheckHitKey(KEY_INPUT_D),
 					CheckHitKey(KEY_INPUT_S),
 					CheckHitKey(KEY_INPUT_W)
 				);
+				battledata.InputEncounterCheck
+				(   BattleEncounterFlag,
+					CheckHitKey(KEY_INPUT_A),
+					CheckHitKey(KEY_INPUT_D),
+					CheckHitKey(KEY_INPUT_S),
+					CheckHitKey(KEY_INPUT_W)
+				);
+				if (BattleEncounterFlag == TRUE)
+				{
+					battlescreen.Scene();
 
+				}
+				else
+				{
+					BattleEncounterFlag = false;
+				}
 				CharacterManager::Instance()->GetChara(0).CalcInput(Player);
 			}
 
 			//NPCの入力処理
 			{
 				Input Player;
-
 				Player.SetInput(
 					1,
 					0,

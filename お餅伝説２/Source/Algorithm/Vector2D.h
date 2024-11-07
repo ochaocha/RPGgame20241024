@@ -5,7 +5,8 @@
 // ---------------------------------------------------------------------------------------------
 // 2次元ベクトルの演算クラス
 // ---------------------------------------------------------------------------------------------
-class Vector2DX {
+class Vector2DX
+{
 public:
 	float x{ 0 };
 	float y{ 0 };
@@ -27,7 +28,7 @@ public:
 	static const Vector2DX right(void) noexcept { return vget(1.f, 0.f); }
 	static const Vector2DX left(void) noexcept { return vget(-1.f, 0.f); }
 	static const Vector2DX up(void) noexcept { return vget(0.f, 1.f); }
-	static const Vector2DX down(void) noexcept { return vget(0.f, -1.f); }
+	static const Vector2DX down(void)noexcept { return vget(0.f, 1.f); }
 
 	static const Vector2DX one(void) noexcept { return vget(1.f, 1.f); }
 	static const Vector2DX zero(void) noexcept { return vget(0.f, 0.f); }
@@ -82,7 +83,8 @@ public:
 		else if (Per >= 1.f) {
 			return B;
 		}
-		else {
+		else 
+		{
 			return LerpUnclamped(A, B, Per);
 		}
 	}
