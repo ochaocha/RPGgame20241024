@@ -169,3 +169,14 @@ void OllCharacterData::PlayerFinalize()
 		}
 	}
 }
+
+void CharacterStatus::playerstatusInit()
+{
+	srand((unsigned int)time(NULL));
+	CharacterAGI = rand() % 5;
+	CharacterATK = rand() % 5;
+	CharacterDEF = rand() % 5;
+	CharacterHP = rand() % 10;
+	CharacterLUCK = rand() % 10;
+	CharacterMP = rand()%20;
+}

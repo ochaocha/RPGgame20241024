@@ -2,6 +2,11 @@
 #include <vector>
 #include <string>
 #include "Algorithm/Vector2D.h"
+#include <ctime>
+#include <cstdlib>
+
+
+
 
 //種族 職業
 enum class GROUP {
@@ -12,14 +17,19 @@ enum class GROUP {
 class CharacterStatus {
 	std::string Name;
 	GROUP       MyGroup{};
-	int CharacterHP=0;
-	int CharacterATK=0;
-	int CharacterMP=0;
-	int CharacterDEF=0;
-	int CharacterLUCK=0;
-	int CharacterAGI=0;
 public:
-	
+
+	int CharacterHP;
+	int CharacterATK;
+	int CharacterMP;
+	int CharacterDEF;
+	int CharacterLUCK;
+	int CharacterAGI;
+public:
+
+	 
+	void playerstatusInit();
+
 
 };
 
@@ -62,7 +72,6 @@ class OllCharacterData {
 	CharacterStatus characterStatus;
 
 	Vector2DX PlayerVelocity;
-
 
 	Vector2DX PlayerPos;						//プレイヤーの初期座標
 	int animNowType=0;							//プレイヤーの配列の縦要素数

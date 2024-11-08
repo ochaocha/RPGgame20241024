@@ -22,19 +22,26 @@ int displayhigthY = 0;
 
  int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 {
+	 //キャラクターのオブジェクト生成
 	CharacterManager::Create();
 
 #if SINGLETON
+	//マップデータのオブジェクト生成
 	MapData::Create();
+	//マップデータのシングルトン生成
 	MapData* MapDataOllPtr = MapData::Instance();
 #else
+
 	MapData MapDataOll;
 #endif
-
+	//バトル画面のインターフェース
 	BattleScreenChanger battlescreen;
-
+	
+	//バトルのデータ構造を所有
 	BattleData battledata;
 
+
+	//スクロールのカメラを生成
 	ScreenCamera camera;
 	//FPS制御オブジェクトとしてローカル変数を作成
 	FPSControl FPSCtrl;
@@ -42,20 +49,26 @@ int displayhigthY = 0;
 	// DxLib初期化
 	ChangeWindowMode(TRUE);
 
-	//バトルのエンカウント処理
-	bool BattleEncounterFlag = false;
-
-	//スクリーンがあった場所
 	//SetGraphMode(displaywidth, displayhight, 16);
 	camera.Screen(displaywidhtX, displayhigthY, displaywidth2X,displayhight2Y);
 
 	
-
+	//エラー処理
 	if (DxLib_Init() == -1)
 	{
 		return -1;
 	}
+
+
+	//playerステータスのオブジェクト生成
 	
+	CharacterStatus obj;
+	obj.playerstatusInit();
+	CharacterStatus* playerstatus;
+	playerstatus = &obj;
+
+
+	//NPCのオブジェクト生成
 	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);
 	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);
 	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);
@@ -64,20 +77,28 @@ int displayhigthY = 0;
 	MapDataOllPtr->Engine();//マップの読み込み
 	MapDataOllPtr->Init();//マップの初期化
 	
-
 	int nowCount, prevCount;
+
 	nowCount = prevCount = GetNowCount();
 	// ゲームループ
 	//FPS初期化
 	FPSCtrl.Initialize();
+	//スクリーンの変数
 	int Exchange = 0;
-
+	
+	//バトルのエンカウント処理
+	bool BattleEncounterFlag = false;
+	//メインクラスを実態として定義
 	MeinScreenChanger Mein;
-
+	battlescreen.Imginitialize();
+	//メイン画面の描画入力処理をさせている
 	Mein.ScreenInit();
+	
+
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
-		FPSCtrl.StartMeasureTime(); //FPS計測を開始
+		//FPS計測を開始
+		FPSCtrl.StartMeasureTime(); 
 		// deltaTime計測
 		float deltaTime;
 
@@ -114,20 +135,19 @@ int displayhigthY = 0;
 					CheckHitKey(KEY_INPUT_W)
 				);
 				battledata.InputEncounterCheck
-				(BattleEncounterFlag,
+				(
+					BattleEncounterFlag,
+					&Exchange,
 					CheckHitKey(KEY_INPUT_A),
 					CheckHitKey(KEY_INPUT_D),
 					CheckHitKey(KEY_INPUT_S),
 					CheckHitKey(KEY_INPUT_W)
-				);
-				if (BattleEncounterFlag == TRUE)
-				{
-					battlescreen.Scene();
 
-				}
-				else
+				);
+				if (Exchange == 3)
 				{
-					BattleEncounterFlag = false;
+					
+					break;
 				}
 				CharacterManager::Instance()->GetChara(0).CalcInput(Player);
 			}
@@ -155,7 +175,26 @@ int displayhigthY = 0;
 
 			//バトルシーン
 		case 3:
+			//エンカウントの実装を確認しました
+	
+			ClearDrawScreen();
+			//バトル中の背景画像
+			battlescreen.Scene();
+			//バトル中のplayerを描画
+			battlescreen.PlayerDraw();
+			//バトル中のEnemyを描画
+			battlescreen.EnemyDraw();
+			//バトル中のplayerのデータを格納
+			battledata.StatusUI(
+				playerstatus->CharacterHP,
+				playerstatus->CharacterATK,
+				playerstatus->CharacterMP,
+				playerstatus->CharacterDEF,
+				playerstatus->CharacterLUCK,
+				playerstatus->CharacterAGI
+			);
 
+			
 			break;
 
 
