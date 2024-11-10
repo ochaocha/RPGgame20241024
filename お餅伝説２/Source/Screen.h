@@ -10,8 +10,10 @@
 class MeinScreenChanger
 {
 private:
-	 int StartSound = LoadSoundMem("Sound/kurikku.mp3");
+	 int StartSound = LoadSoundMem("Sound/UIsound_10.mp3");
 public:
+	bool ClickStartSound = false;
+	bool ClickOptionSound =false;
 	 int StartEfectNum = 89;
 	static const int StartEfectXNum = 10;
 	static const int StartEfectYNum = 9;
@@ -31,7 +33,8 @@ public:
 
 	int ColorHandle = 255;
 
-	int ColorHandleChange = 255;
+
+	int ColorHandleChange = 0;
 
 	void ScreenInit();
 	/// @brief スタート画面関数

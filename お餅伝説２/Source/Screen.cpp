@@ -10,7 +10,6 @@ void MeinScreenChanger::ScreenInit()
 {
 	EfectNowIndex = 0;
 	LoadDivGraph("Data/Free/startscreenfile/233.png",StartEfectNum,StartEfectXNum,StartEfectYNum, StartEfectXSize, StartEfectYSize, EfectImg);
-	
 
 }
 
@@ -56,61 +55,73 @@ void MeinScreenChanger::Draw(int* screenchange)
 
 	DrawString(graphX + 270, graphY + 150, "オプション", StatrString);
 
-	bool kurikkusound = NULL;
+	
 
-	//スタートの文字の範囲に入った時のif文
-
+		//スタートの文字の範囲に入った時のif文
 		if (mauseX >= graphX+285 && mauseX <= graphX + 420 && mauseY >= graphY+100&& mauseY <= graphY+ 134)
 		{
-			
-
-			if(PlaySoundMem(StartSound, DX_PLAYTYPE_BACK)&&kurikkusound==true)
+			//範囲に入って音が出力されていない時
+			if (ClickStartSound == false)
 			{
-				kurikkusound = false;
+				//範囲の外に出るまで音を鳴らさないようにする
+				ClickStartSound = true;
+				//sound再生
+				PlaySoundMem(StartSound, DX_PLAYTYPE_BACK);
 			}
-			else if (PlaySoundMem){ }
-
-			//エフェクトの描画
-		
-			time += 1.0f / 5.f;
 			
+			time += 1.0f / 3.f;
+
 			//範囲に行ったときにエフェクトの出現
-			if (time > 1.0f) {							
-				time -= 1.0f;							
-				EfectNowIndex += 1;						
+			if (time > 1.0f)
+			{
+				time -= 1.0f;
+				EfectNowIndex += 1;
 				if (EfectNowIndex >= StartEfectXNum)
 				{
-					EfectNowIndex -= StartEfectXNum;	
+					EfectNowIndex -= StartEfectXNum;
 				}
 			}
-			
+			DrawExtendGraph(graphX + 220, graphY + 100, graphX + 480, graphY + 160, EfectImg[EfectNowIndex], TRUE);
 			//スタートの範囲に入るとエフェクトが出力される
-			DrawExtendGraph(graphX + 220, graphY + 100, graphX + 480, graphY + 160, EfectImg[EfectNowIndex],TRUE);
-			StatrString = GetColor(ColorHandleChange, ColorHandleChange, ColorHandleChange);
-
+			
+			StatrString = GetColor(ColorHandleChange, ColorHandle, ColorHandleChange);
+			DrawString(graphX + 285, graphY + 100, "スタート", StatrString);
 			if ((GetMouseInput() & MOUSE_INPUT_LEFT) == 1)
-			{
-		
+			{//エフェクトのフレーム数
+				
 				PlaySoundMem(StartDesition, DX_PLAYTYPE_NORMAL, TRUE);
 				*screenchange = 2;
 			}
-			if ((GetMouseInput() & MOUSE_INPUT_LEFT) == 0)
-			{
-			
-			}
 		}
+		else
+		{
+			ClickStartSound = false;
+		}
+	
+
 		if (mauseX >= graphX + 270 && mauseX <= graphX + 436 && mauseY >= graphY + 150 && mauseY <= graphY + 184)
 		{
+			StatrString = GetColor(ColorHandleChange, ColorHandle, ColorHandleChange);
+			DrawString(graphX + 270, graphY + 150, "オプション", StatrString);
+			if (ClickOptionSound == false)
+			{
+				ClickOptionSound = true;
+				PlaySoundMem(StartSound, DX_PLAYTYPE_BACK);
+			}
+
+
 			GreenString = GetColor(ColorHandleChange, ColorHandleChange, ColorHandleChange);
 			if ((GetMouseInput() & MOUSE_INPUT_LEFT) == 1)
 			{
 				*screenchange = 1;
 			}
-			if ((GetMouseInput() & MOUSE_INPUT_LEFT) == 0)
-			{
-
-			}
 		}
+		else
+		{
+
+			ClickOptionSound =false;
+		}
+
 		
 	
 }

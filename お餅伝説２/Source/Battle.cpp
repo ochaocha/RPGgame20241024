@@ -45,8 +45,6 @@ void BattleScreenChanger::Scene()
 	DrawExtendGraph(1000, 800, 1800, 1000, BattleUIHandle, TRUE);
 	DrawExtendGraph(1000, 800, 1800, 1000, BattleUIHandle, TRUE);
 	DrawExtendGraph(1000, 800, 1800, 1000, BattleUIHandle, TRUE);
-
-
 }
 
 
