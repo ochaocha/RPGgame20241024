@@ -24,18 +24,18 @@
     <ClInclude Include="Source\Battle.h" />
     <ClInclude Include="Source\camera2D.h" />
     <ClInclude Include="Source\fps.h" />
-    <ClInclude Include="Source\Screen.h" />
     <ClInclude Include="Source\map.h" />
     <ClInclude Include="Source\player.h" />
+    <ClInclude Include="Source\Screen.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Battle.cpp" />
     <ClCompile Include="Source\camera2D.cpp" />
     <ClCompile Include="Source\fps.cpp" />
     <ClCompile Include="Source\main.cpp" />
-    <ClCompile Include="Source\Screen.cpp" />
     <ClCompile Include="Source\map.cpp" />
     <ClCompile Include="Source\player.cpp" />
+    <ClCompile Include="Source\Screen.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

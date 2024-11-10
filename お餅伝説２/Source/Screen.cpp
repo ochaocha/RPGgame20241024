@@ -35,7 +35,7 @@ void MeinScreenChanger::Draw(int* screenchange)
 	//スタートの文字の色
 	unsigned int StatrString = GetColor(ColorHandle, ColorHandle, ColorHandle);
 	//オプションの文字の色
-	unsigned int OptionString = GetColor(ColorHandle, ColorHandle, ColorHandle);
+	unsigned int GreenString= GetColor(0, ColorHandle, 0);
 	//スタート画面の背景画像ハンドル
 	int startHandle = LoadGraph("Data/img/pipo-bg004b.png");
 	//スタート画面の枠画像ハンドル
@@ -54,7 +54,7 @@ void MeinScreenChanger::Draw(int* screenchange)
 
 	DrawString(graphX + 285, graphY + 100, "スタート", StatrString);
 
-	DrawString(graphX + 270, graphY + 150, "オプション", OptionString);
+	DrawString(graphX + 270, graphY + 150, "オプション", StatrString);
 
 	bool kurikkusound = NULL;
 
@@ -68,10 +68,7 @@ void MeinScreenChanger::Draw(int* screenchange)
 			{
 				kurikkusound = false;
 			}
-			else if(PlaySoundMem)
-			{
-				
-			}
+			else if (PlaySoundMem){ }
 
 			//エフェクトの描画
 		
@@ -104,7 +101,7 @@ void MeinScreenChanger::Draw(int* screenchange)
 		}
 		if (mauseX >= graphX + 270 && mauseX <= graphX + 436 && mauseY >= graphY + 150 && mauseY <= graphY + 184)
 		{
-			OptionString = GetColor(ColorHandleChange, ColorHandleChange, ColorHandleChange);
+			GreenString = GetColor(ColorHandleChange, ColorHandleChange, ColorHandleChange);
 			if ((GetMouseInput() & MOUSE_INPUT_LEFT) == 1)
 			{
 				*screenchange = 1;

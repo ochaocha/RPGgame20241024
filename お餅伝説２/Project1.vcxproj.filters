@@ -36,13 +36,13 @@
     <ClInclude Include="Source\Algorithm\Vector2D.h">
       <Filter>ソース ファイル\Source\Algorithm</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Battle.h">
+      <Filter>ソース ファイル\Source</Filter>
+    </ClInclude>
     <ClInclude Include="Source\camera2D.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\fps.h">
-      <Filter>ソース ファイル\Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Screen.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\map.h">
@@ -51,30 +51,30 @@
     <ClInclude Include="Source\player.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Battle.h">
+    <ClInclude Include="Source\Screen.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Battle.cpp">
+      <Filter>ソース ファイル\Source</Filter>
+    </ClCompile>
     <ClCompile Include="Source\camera2D.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\fps.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Screen.cpp">
+    <ClCompile Include="Source\main.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\map.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Screen.cpp">
+      <Filter>ソース ファイル\Source</Filter>
+    </ClCompile>
     <ClCompile Include="Source\player.cpp">
-      <Filter>ソース ファイル\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\main.cpp">
-      <Filter>ソース ファイル\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Battle.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
   </ItemGroup>

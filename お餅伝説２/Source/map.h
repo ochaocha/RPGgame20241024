@@ -18,7 +18,7 @@ private:                                        // Emiya:ƒƒ“ƒo•Ï”‚ÍŠO‚Éo‚³‚È‚
     Vector2DX MaxPos;		//¶ã‚ÌÀ•W        // Emiya:rx,ry‚ğÅ‘åƒTƒCƒY‚Æ‚µ‚Ä•ÏX
     //int w;		//•                        // Emiya:‚½‚Ô‚ñg‚Á‚Ä‚È‚¢‚Ì‚ÅÁ‚µ‚Ü‚·
     //int h;		//•                        // Emiya:‚½‚Ô‚ñg‚Á‚Ä‚È‚¢‚Ì‚ÅÁ‚µ‚Ü‚·
-    
+
     int graphID = 0;        //‰æ‘œID            // Emiya:’Ç‰Á
     bool isWall = false;    //•Ç‚©‚Ç‚¤‚©        // Emiya:’Ç‰Á
 
@@ -29,7 +29,7 @@ public://ã‹L‚Ìƒ[ƒJƒ‹•Ï”‚ğ•K—v‚Èî•ñ‚¾‚¯ŠJ¦‚·‚éƒƒ“ƒoŠÖ”
     const bool IsWall() const { return isWall; }
 
 public://ƒƒ“ƒoŠÖ”
-   
+
     void Setup(int xchip, int ychip, int DataByCSV) { // Emiya:–á‚Á‚½ƒf[ƒ^‚ğ‚à‚Æ‚ÉŠe•Ï”‚ğŒˆ‚ß‚éƒƒ“ƒoŠÖ”
         if (DataByCSV >= 0xFFFF)         //0xFFFF(65535)ˆÈã‚È‚ç•Ç‚Æ”»•Ê‚µ‚Ü‚·
         {
@@ -96,9 +96,9 @@ private:
 
     std::vector<std::vector<Location>>  Maploca;
 
-    int mapChipImg[88] = {0}; // ‰æ‘œƒnƒ“ƒhƒ‹”z—ñ
+    int mapChipImg[88] = { 0 }; // ‰æ‘œƒnƒ“ƒhƒ‹”z—ñ
 
-    int riverChipImg[5] = {0};//ì‚Ì‰æ‘œƒ`ƒbƒv
+    int riverChipImg[5] = { 0 };//ì‚Ì‰æ‘œƒ`ƒbƒv
 private:
 
 public:

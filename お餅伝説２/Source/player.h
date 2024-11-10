@@ -27,7 +27,7 @@ public:
 	int CharacterAGI;
 public:
 
-	 
+
 	void playerstatusInit();
 
 
@@ -46,11 +46,11 @@ public:
 
 	void SetInput
 	(
-	bool moveLeft,
-	bool moveRight,
-	bool moveDown,
-	bool moveUp
-	) 
+		bool moveLeft,
+		bool moveRight,
+		bool moveDown,
+		bool moveUp
+	)
 	{
 		MoveLeft = moveLeft;
 		MoveRight = moveRight;
@@ -63,8 +63,8 @@ public:
 	bool IsMoveDown() { return MoveDown; }
 	bool IsMoveUp() { return MoveUp; }
 public:
-	
-		
+
+
 };
 
 class OllCharacterData {
@@ -74,9 +74,9 @@ class OllCharacterData {
 	Vector2DX PlayerVelocity;
 
 	Vector2DX PlayerPos;						//プレイヤーの初期座標
-	int animNowType=0;							//プレイヤーの配列の縦要素数
-	int animNowIndex=0;							//プレイヤーの現在のアニメーション
-	int animDirectionOffset=0;					//アニメーションの方向を変えるための変数
+	int animNowType = 0;							//プレイヤーの配列の縦要素数
+	int animNowIndex = 0;							//プレイヤーの現在のアニメーション
+	int animDirectionOffset = 0;					//アニメーションの方向を変えるための変数
 	bool AnimStopRighttFlag = false;
 	bool AnimStopLeftFlag = false;
 	bool AnimStopUnderFlag = false;
@@ -86,13 +86,13 @@ class OllCharacterData {
 	static const int animTypeNum = 6;			// アニメーションの種類		
 	const int animSizeX = 48;					//プレイヤーのアニメーションサイズ
 	const int animSizeY = 64;					//プレイヤーのアニメーションサイ
-	const int hitSizeX = 40;											
-	const int hitSizeY = 60;				
+	const int hitSizeX = 40;
+	const int hitSizeY = 60;
 	Input MyInput;
-	int drawOffsetX=0;								//プレイヤーの大きさを変える変数
-	int drawOffsetY=0;
+	int drawOffsetX = 0;								//プレイヤーの大きさを変える変数
+	int drawOffsetY = 0;
 
-	int charaimg[animPatternNum * animTypeNum] = {0};			//キャラクターのアニメーション要素数
+	int charaimg[animPatternNum * animTypeNum] = { 0 };			//キャラクターのアニメーション要素数
 
 	float time = 0.f;
 public:
@@ -125,8 +125,8 @@ public:
 		return (CharacterManager*)s_Singleton;
 	}
 private:
-	CharacterManager(){}
-	~CharacterManager(){}
+	CharacterManager() {}
+	~CharacterManager() {}
 private:
 	std::vector<OllCharacterData> PlayerFunctionOll;
 public:
