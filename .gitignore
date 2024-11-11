@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿################################################################################
 # この .gitignore ファイルは Microsoft(R) Visual Studio によって自動的に作成されました。
 ################################################################################
@@ -22,3 +23,30 @@
 /emiya_sample/DXLib_ref/DXLib_ref2D.sln
 /.gitignore
 /.gitignore
+=======
+﻿################################################################################
+# この .gitignore ファイルは Microsoft(R) Visual Studio によって自動的に作成されました。
+################################################################################
+
+/お餅伝説２/.vs/
+/お餅伝説２/x64/
+/お餅伝説２/Project1/
+/.vs
+/お餅伝説２/Log.txt
+/emiya_sample/AhoGe/Project/x64
+/emiya_sample/AhoGe/.vs/AhoGe
+/emiya_sample/AhoGe/Project/Game.pdb
+/emiya_sample/AhoGe/Project/Log.txt
+/emiya_sample/AhoGe/x64/Debug
+/emiya_sample/DXLib_ref/.vs/DXLib_ref
+/emiya_sample/DXLib_ref/DXLib_ref/x64
+/emiya_sample/DXLib_ref/DXLib_ref.idb
+/emiya_sample/DXLib_ref/DXLib_ref.lib
+/emiya_sample/DXLib_ref/DXLib_ref.pdb
+/emiya_sample/DXLib_ref/.vs/DXLib_ref2D
+/emiya_sample/DXLib_ref/DXLib_ref2D/x64/Debug
+/emiya_sample/DXLib_ref/DXLib_ref2D.idb
+/emiya_sample/DXLib_ref/DXLib_ref2D.lib
+/emiya_sample/DXLib_ref/DXLib_ref2D.pdb
+>>>>>>> 82caa378efb9d93b66b26f56736f8563d035b647
+/emiya_sample/AhoGe/Project/source/MainScene/Object/Character.cpp
