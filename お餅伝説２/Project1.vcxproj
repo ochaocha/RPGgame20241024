@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="option.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Source\Algorithm\Vector2D.h" />
     <ClInclude Include="Source\Battle.h" />
@@ -29,6 +30,7 @@
     <ClInclude Include="Source\Screen.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="option.cpp" />
     <ClCompile Include="Source\Battle.cpp" />
     <ClCompile Include="Source\camera2D.cpp" />
     <ClCompile Include="Source\fps.cpp" />

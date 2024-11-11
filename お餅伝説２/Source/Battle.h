@@ -12,8 +12,6 @@ class BattleData
 public:
 	/// @brief キャラクターのステータスなどの情報を描画
 	void PlayerInfomationDraw();
-	void PlayerEncounterCheck(int* battlescreen);
-
 	void PlayerStatusInit();
 	/// @brief 
 	void StatusUI(int& CharacterHP,

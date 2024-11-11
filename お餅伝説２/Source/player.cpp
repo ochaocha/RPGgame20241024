@@ -21,7 +21,6 @@ void OllCharacterData::PlayerInit(int displaywidth, int displayhight)
 void OllCharacterData::CalcInput(const Input& input)
 {
 	MyInput = input;
-
 }
 
 void OllCharacterData::Update()

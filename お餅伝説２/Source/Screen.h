@@ -10,8 +10,13 @@
 class MeinScreenChanger
 {
 private:
+	
+	
 	 int StartSound = LoadSoundMem("Sound/UIsound_10.mp3");
+	 int MainScreenBgm = LoadSoundMem("Sound/adventurers.ogg");
 public:
+
+	bool mainbgmflg = false;
 	bool ClickStartSound = false;
 	bool ClickOptionSound =false;
 	 int StartEfectNum = 89;
@@ -43,6 +48,7 @@ public:
 	/// @param MeinscreenHorizontal 
 	void Draw(int* screenchange);	
 	
+	void Music();
 };
 
 

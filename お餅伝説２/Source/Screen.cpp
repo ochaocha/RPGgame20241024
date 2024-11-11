@@ -26,11 +26,16 @@ void MeinScreenChanger::Draw(int* screenchange)
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//////////////音量設定
 	//////////////////////////////////////////////////////////////////////////////////////////
+	
 	ChangeVolumeSoundMem(50, StartSound);
-	ChangeVolumeSoundMem(100, StartDesition);
+	
+	ChangeVolumeSoundMem(100, StartDesition);	
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//////////////色設定と画像設定
 	//////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	
 	//スタートの文字の色
 	unsigned int StatrString = GetColor(ColorHandle, ColorHandle, ColorHandle);
 	//オプションの文字の色
@@ -127,5 +132,12 @@ void MeinScreenChanger::Draw(int* screenchange)
 }
 
 
-
+void MeinScreenChanger::Music()
+{
+	if (CheckSoundMem(MainScreenBgm)==0)
+	{
+		ChangeVolumeSoundMem(82, MainScreenBgm);
+		PlaySoundMem(MainScreenBgm, DX_PLAYTYPE_LOOP, TRUE);
+	}
+}
 

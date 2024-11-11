@@ -16,25 +16,29 @@ void BattleData::InputEncounterCheck(
 )
 
 {
-	Time += 1.0f / 60.f;
-	if (Time <= 3)
+	if (MoveLeftCount == true || MoveRightCount == true || MoveDownCount == true || MoveUpCount == true)
 	{
-		//—”‚Ì‰Šú‰»
-		srand((unsigned int)time(NULL));
-		//player‚ª“®‚¢‚Ä‚¢‚é‚Æ‚«
-
-		randomEncounter = rand() % 100;
-		if (randomEncounter < MINNUM)
+		Time += 1.0f / 60.f;
+		if (Time <= 3)
 		{
-			battle = TRUE;
-			if (battle == TRUE)
-			{
-				*screenchange = 3;
+			//—”‚Ì‰Šú‰»
+			srand((unsigned int)time(NULL));
+			//player‚ª“®‚¢‚Ä‚¢‚é‚Æ‚«
 
+			randomEncounter = rand() % 100;
+			if (randomEncounter < MINNUM)
+			{
+				battle = TRUE;
+				if (battle == TRUE)
+				{
+					*screenchange = 3;
+
+				}
 			}
+			Time = 0.f;
 		}
-		Time = 0.f;
 	}
+	
 
 }
 

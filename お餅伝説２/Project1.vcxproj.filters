@@ -13,14 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ソース ファイル\戦闘ファイル">
-      <UniqueIdentifier>{48724a5d-c219-438f-be79-9239b212ac49}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ヘッダー ファイル\描画関係">
       <UniqueIdentifier>{d77bc500-df33-4764-b92c-65ec99357029}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\当たり判定">
-      <UniqueIdentifier>{896044bb-1ebf-4b31-b55a-30f8f958d94f}</UniqueIdentifier>
     </Filter>
     <Filter Include="ソース ファイル\Source">
       <UniqueIdentifier>{98cf5518-e217-4e1e-85cc-057dcca4535c}</UniqueIdentifier>
@@ -54,6 +48,9 @@
     <ClInclude Include="Source\Screen.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
+    <ClInclude Include="option.h">
+      <Filter>ソース ファイル\Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Battle.cpp">
@@ -65,9 +62,6 @@
     <ClCompile Include="Source\fps.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\main.cpp">
-      <Filter>ソース ファイル\Source</Filter>
-    </ClCompile>
     <ClCompile Include="Source\map.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
@@ -75,6 +69,12 @@
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\player.cpp">
+      <Filter>ソース ファイル\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\main.cpp">
+      <Filter>ソース ファイル\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="option.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
   </ItemGroup>

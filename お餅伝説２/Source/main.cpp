@@ -10,19 +10,19 @@
 int displaywidhtX = 0;
 int displayhigthY = 0;
 
- int displaywidth2X = 1920;
- int displayhight2Y = 1080;
+int displaywidth2X = 1920;
+int displayhight2Y = 1080;
 
- int MeinscreenVertical = 1080;
- int MeinscreenHorizontal = 1920;
-
-
- 
+int MeinscreenVertical = 1080;
+int MeinscreenHorizontal = 1920;
 
 
- int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
+
+
+
+int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 {
-	 //キャラクターのオブジェクト生成
+	//キャラクターのオブジェクト生成
 	CharacterManager::Create();
 
 #if SINGLETON
@@ -36,7 +36,7 @@ int displayhigthY = 0;
 #endif
 	//バトル画面のインターフェース
 	BattleScreenChanger battlescreen;
-	
+
 	//バトルのデータ構造を所有
 	BattleData battledata;
 
@@ -50,9 +50,9 @@ int displayhigthY = 0;
 	ChangeWindowMode(TRUE);
 
 	//SetGraphMode(displaywidth, displayhight, 16);
-	camera.Screen(displaywidhtX, displayhigthY, displaywidth2X,displayhight2Y);
+	camera.Screen(displaywidhtX, displayhigthY, displaywidth2X, displayhight2Y);
 
-	
+
 	//エラー処理
 	if (DxLib_Init() == -1)
 	{
@@ -61,7 +61,7 @@ int displayhigthY = 0;
 
 
 	//playerステータスのオブジェクト生成
-	
+
 	CharacterStatus obj;
 	obj.playerstatusInit();
 	CharacterStatus* playerstatus;
@@ -76,7 +76,7 @@ int displayhigthY = 0;
 	//MapDataOll変数を初期化
 	MapDataOllPtr->Engine();//マップの読み込み
 	MapDataOllPtr->Init();//マップの初期化
-	
+
 	int nowCount, prevCount;
 
 	nowCount = prevCount = GetNowCount();
@@ -85,7 +85,7 @@ int displayhigthY = 0;
 	FPSCtrl.Initialize();
 	//スクリーンの変数
 	int Exchange = 0;
-	
+
 	//バトルのエンカウント処理
 	bool BattleEncounterFlag = false;
 	//メインクラスを実態として定義
@@ -93,12 +93,12 @@ int displayhigthY = 0;
 	battlescreen.Imginitialize();
 	//メイン画面の描画入力処理をさせている
 	Mein.ScreenInit();
-	
+
 
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
 		//FPS計測を開始
-		FPSCtrl.StartMeasureTime(); 
+		FPSCtrl.StartMeasureTime();
 		// deltaTime計測
 		float deltaTime;
 
@@ -109,7 +109,11 @@ int displayhigthY = 0;
 		switch (Exchange)
 		{
 		case 0://ゲームスタートシーン
-
+			if (Exchange == 0)
+			{
+				Mein.Music();
+			}
+			
 			Mein.Draw(&Exchange);
 			break;
 
@@ -146,7 +150,7 @@ int displayhigthY = 0;
 				);
 				if (Exchange == 3)
 				{
-					
+
 					break;
 				}
 				CharacterManager::Instance()->GetChara(0).CalcInput(Player);
@@ -169,14 +173,14 @@ int displayhigthY = 0;
 			MapDataOllPtr->Draw();
 			//画面更新処理
 			CharacterManager::Instance()->Draw();			//プレイヤー描画
-			
+
 			break;
 
 
 			//バトルシーン
 		case 3:
 			//エンカウントの実装を確認しました
-	
+			
 			ClearDrawScreen();
 			//バトル中の背景画像
 			battlescreen.Scene();
@@ -194,13 +198,10 @@ int displayhigthY = 0;
 				playerstatus->CharacterAGI
 			);
 
-			
+
 			break;
-
-
-
 		};
-		
+
 
 		// ヒットしたか?を画面表示
 
