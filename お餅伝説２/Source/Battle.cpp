@@ -38,27 +38,27 @@ void BattleData::InputEncounterCheck(
 			Time = 0.f;
 		}
 	}
-	
-
 }
-
-void BattleScreenChanger::Scene()
-{
-
-	DrawExtendGraph(0, 0, 1920, 1080, BattleScreenHandle, TRUE);
-	DrawExtendGraph(1000, 800, 1800, 1000, BattleUIHandle, TRUE);
-	DrawExtendGraph(1000, 800, 1800, 1000, BattleUIHandle, TRUE);
-	DrawExtendGraph(1000, 800, 1800, 1000, BattleUIHandle, TRUE);
-}
-
 
 void BattleScreenChanger::Imginitialize()
 {
 	BattleScreenHandle = LoadGraph("Data/img/pipo-bg004c.png", TRUE);
-	BattleUIHandle = LoadGraph("Data/img/UI_Flat_Frame02a.png", TRUE);
+	BattleUIStatusHandle = LoadGraph("Data/img/UI_Flat_FrameSlot02a.png",TRUE);
+	BattleUICommandHandle = LoadGraph("Data/img/UI_Flat_FrameSlot02a.png",TRUE);
+	BattleUIAttckTypeHandle = LoadGraph("Data/img/UI_Flat_FrameSlot02a.png",TRUE);
+}
 
+void BattleScreenChanger::Scene()
+{
+	DrawExtendGraph(0, 0, 1920, 1080, BattleScreenHandle, TRUE);
+	DrawExtendGraph(1000, 800, 1800, 1000, BattleUIStatusHandle, TRUE);
+	DrawExtendGraph(420, 800, 1000, 1000, BattleUICommandHandle, TRUE);
+	DrawExtendGraph(100, 800, 400, 1000, BattleUIAttckTypeHandle, TRUE);
 
 }
+
+
+
 
 void BattleScreenChanger::PlayerDraw()
 {

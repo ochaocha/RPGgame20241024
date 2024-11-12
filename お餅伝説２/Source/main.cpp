@@ -16,10 +16,6 @@ int displayhight2Y = 1080;
 int MeinscreenVertical = 1080;
 int MeinscreenHorizontal = 1920;
 
-
-
-
-
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 {
 	//キャラクターのオブジェクト生成
@@ -179,11 +175,12 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 
 			//バトルシーン
 		case 3:
-			//エンカウントの実装を確認しました
 			
+			//エンカウントの実装を確認しました
 			ClearDrawScreen();
 			//バトル中の背景画像
 			battlescreen.Scene();
+		
 			//バトル中のplayerを描画
 			battlescreen.PlayerDraw();
 			//バトル中のEnemyを描画
@@ -199,6 +196,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 			);
 
 
+	
 			break;
 		};
 

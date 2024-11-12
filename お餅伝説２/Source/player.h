@@ -19,18 +19,14 @@ class CharacterStatus {
 	GROUP       MyGroup{};
 public:
 
-	int CharacterHP;
-	int CharacterATK;
-	int CharacterMP;
-	int CharacterDEF;
-	int CharacterLUCK;
-	int CharacterAGI;
+	int CharacterHP=0;
+	int CharacterATK=0;
+	int CharacterMP=0;
+	int CharacterDEF=0;
+	int CharacterLUCK=0;
+	int CharacterAGI=0;
 public:
-
-
 	void playerstatusInit();
-
-
 };
 
 
@@ -73,7 +69,7 @@ class OllCharacterData {
 
 	Vector2DX PlayerVelocity;
 
-	Vector2DX PlayerPos;						//プレイヤーの初期座標
+	Vector2DX PlayerPos;							//プレイヤーの初期座標
 	int animNowType = 0;							//プレイヤーの配列の縦要素数
 	int animNowIndex = 0;							//プレイヤーの現在のアニメーション
 	int animDirectionOffset = 0;					//アニメーションの方向を変えるための変数
@@ -91,6 +87,8 @@ class OllCharacterData {
 	Input MyInput;
 	int drawOffsetX = 0;								//プレイヤーの大きさを変える変数
 	int drawOffsetY = 0;
+
+
 
 	int charaimg[animPatternNum * animTypeNum] = { 0 };			//キャラクターのアニメーション要素数
 
@@ -115,8 +113,10 @@ public:
 
 
 
-class CharacterManager {
+class CharacterManager
+{
 private:
+	//シングルトンの宣言
 	static const CharacterManager* s_Singleton;
 public:
 	static void Create(void) noexcept { s_Singleton = new CharacterManager(); }
@@ -136,19 +136,17 @@ public:
 		PlayerFunctionOll.resize(PlayerFunctionOll.size() + 1);
 		PlayerFunctionOll.back().PlayerInit(FirstXPos, FirstYPos);
 	}
-
 	void Update() {
-		for (auto& p : PlayerFunctionOll) {
+		for (auto& p : PlayerFunctionOll)
+		{
 			p.Update();		//プレイヤーの更新
 		}
 	}
-
 	void Draw() {
 		for (auto& p : PlayerFunctionOll) {
 			p.PlayerDraw();			//プレイヤー描画
 		}
 	}
-
 	void DeleteChara() {
 		for (auto& p : PlayerFunctionOll) {
 			p.PlayerFinalize();

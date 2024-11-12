@@ -77,7 +77,6 @@ void MapData::Init()
 
 void  MapData::Draw()
 {
-
 	for (int y = 0; y < GetMapYsize(); y++)
 	{
 		for (int x = 0; x < GetMapXsize(); x++)
@@ -104,6 +103,7 @@ void  MapData::Draw()
 
 		}
 	}
+
 }
 
 void MapData::Update()

@@ -51,6 +51,9 @@
     <ClInclude Include="option.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Enemy.hpp">
+      <Filter>ソース ファイル\Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Battle.cpp">
@@ -75,6 +78,9 @@
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
     <ClCompile Include="option.cpp">
+      <Filter>ソース ファイル\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Enemy.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
   </ItemGroup>

@@ -28,8 +28,6 @@ public:
 	int EfectImg[StartEfectXNum * StartEfectYNum] = { 0 };
 	float time = 0.f;
 	
-
-	 
 	int StartDesition = LoadSoundMem("Sound/Œˆ’èƒ{ƒ^ƒ“‚ð‰Ÿ‚·36.mp3");
 	
 

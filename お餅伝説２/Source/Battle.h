@@ -20,7 +20,6 @@ public:
 		int& CharacterDEF,
 		int& CharacterLUCK,
 		int& CharacterAGI);
-
 	void InputEncounterCheck(
 		bool& battle,
 		int* screenchange,
@@ -36,12 +35,11 @@ class BattleScreenChanger
 private:
 	int BattleProbability;
 	bool BattlePlayFlag = false;
-	int BattleScreenHandle = LoadGraph("Data/img/pipo-bg004c.png");
-
-	int BattleUIHandle = -1;
+	int BattleScreenHandle;
+	int BattleUIStatusHandle;
+	int BattleUICommandHandle;
+	int BattleUIAttckTypeHandle;
 public:
-
-
 
 	/// @brief バトル画面の描画
 	void Scene();
@@ -49,10 +47,6 @@ public:
 	void PlayerDraw();
 	/// @brief 敵キャラクターの描画
 	void EnemyDraw();
-	/// @brief 
-	void UI();
-
+	/// @brief 画像の初期化
 	void Imginitialize();
 };
-
-static BattleScreenChanger Battle;

@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 #include "map.h"
+#include "player.h"
 
 #include "Algorithm/Vector2D.h"
 
@@ -51,8 +52,9 @@ public://メンバ関数
 
 #define SINGLETON (TRUE)
 
-class MapData {
-#if SINGLETON//Emiya 2-1:シングルトンのインターフェースを追加します。SINGLETONのdefineをFALSE->TRUEにすると有効化されます。
+class MapData
+{
+#if SINGLETON
 private:
     /// <summary>
     /// シングルトンとして変数を宣言
@@ -94,7 +96,7 @@ private:
 
     const int riverImgYNum = 5;	 //海のマップチップ画像の縦方向チップ数
 
-    std::vector<std::vector<Location>>  Maploca;
+    std::vector<std::vector<Location>> Maploca;
 
     int mapChipImg[88] = { 0 }; // 画像ハンドル配列
 
