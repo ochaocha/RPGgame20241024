@@ -4,9 +4,10 @@
 #include <cstdlib>
 
 //“G‚É‘˜‹ö‚·‚éŠm—¦
-constexpr int MINNUM = 40;
+constexpr int MINNUM = 1;
 
-void BattleData::InputEncounterCheck(
+void BattleData::InputEncounterCheck
+(
 	bool& battle,
 	int* screenchange,
 	bool MoveLeftCount,
@@ -14,7 +15,6 @@ void BattleData::InputEncounterCheck(
 	bool MoveDownCount,
 	bool MoveUpCount
 )
-
 {
 	if (MoveLeftCount == true || MoveRightCount == true || MoveDownCount == true || MoveUpCount == true)
 	{

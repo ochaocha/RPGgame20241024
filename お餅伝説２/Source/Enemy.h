@@ -15,15 +15,14 @@ enum class NormalEnemyName
 
 enum class EnemyStutas
 {
-	ATTACK,		//UŒ‚
-	DEFENCE,	//–hŒä
+	ATK,		//UŒ‚
+	DEF,	//–hŒä
 	AGI,		//‘f‘‚³
-	FLEE,		//“¦‚°‚é
+	MP,			//ƒ}ƒWƒbƒNƒ|ƒCƒ“ƒg
 };
 
 
-
-class OllEnemyData
+class AllEnemyData
 {
 private:
 	int RandomExtraction = 0;
@@ -31,17 +30,19 @@ private:
 	int monster2X = 450;
 	int monsterY = 300;
 	int monster2Y = 450;
-
+	bool AliveEnemy = false;
+	int EnemyHp=0;
+	
 public:
-	EnemyStutas* stutas;
+	std::vector<EnemyStutas> stutas;
+	std::vector<NormalEnemyName> enemies;
 	int normalenemy[9];
 
+	std::vector<EnemyStutas>StutasGeneration();
 	// ‰Šú‰»
 	void Init();
-
 	// ƒ‰ƒ“ƒ_ƒ€‚É“G‚ğ’Šo‚µ‚Ä•Ô‚·
 	std::vector<NormalEnemyName> Rand();
 
 	void Draw();
-	void Stutus(EnemyStutas& stutas);
 };

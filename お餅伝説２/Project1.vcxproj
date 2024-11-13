@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="Source\Algorithm\Vector2D.h" />
     <ClInclude Include="Source\Battle.h" />
     <ClInclude Include="Source\camera2D.h" />

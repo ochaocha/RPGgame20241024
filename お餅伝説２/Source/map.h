@@ -7,7 +7,6 @@
 #include <vector>
 #include "map.h"
 #include "player.h"
-
 #include "Algorithm/Vector2D.h"
 
 static const int mapChipSize = 40;  // マップチップ１個の大きさ
@@ -60,6 +59,7 @@ private:
     /// シングルトンとして変数を宣言
     /// </summary>
     static const MapData* m_Singleton;
+
 public:
     /// <summary>
     /// シングルトンを作成
@@ -68,7 +68,8 @@ public:
     /// <summary>
     /// シングルトンのポインタを取得
     /// </summary>
-    static MapData* Instance(void) noexcept {
+    static MapData* Instance(void) noexcept
+    {
         if (m_Singleton == nullptr) {
             MessageBox(NULL, "Failed Instance Create", "", MB_OK);//エラーメッセージを出しています。
             exit(-1);

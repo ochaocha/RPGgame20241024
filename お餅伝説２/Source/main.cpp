@@ -67,7 +67,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 	CharacterStatus* playerstatus;
 	playerstatus = &obj;
 
-	OllEnemyData normalenemydata;
+	AllEnemyData normalenemydata;
 	
 	NormalEnemyName normal{};
 	//NPCのオブジェクト生成
@@ -180,16 +180,17 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 			CharacterManager::Instance()->Draw();			//プレイヤー描画
 
 			break;
-
-
 			//バトルシーン
 		case 3:
 			
 			//エンカウントの実装を確認しました
 			ClearDrawScreen();
+
 			//バトル中の背景画像
 			battlescreen.Scene();
+			//敵をランダムに抽出
 			normalenemydata.Rand();
+			//敵の画像を描画
 			normalenemydata.Draw();
 			//バトル中のplayerを描画
 			battlescreen.PlayerDraw();
@@ -205,12 +206,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 				playerstatus->CharacterAGI
 			);
 
-
-	
 			break;
 		};
-
-
 		// ヒットしたか?を画面表示
 
 		FPSCtrl.Draw();		//FPS描画

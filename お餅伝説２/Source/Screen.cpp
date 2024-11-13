@@ -10,27 +10,23 @@ void MeinScreenChanger::ScreenInit()
 {
 	EfectNowIndex = 0;
 	LoadDivGraph("Data/Free/startscreenfile/233.png",StartEfectNum,StartEfectXNum,StartEfectYNum, StartEfectXSize, StartEfectYSize, EfectImg);
-
 }
-
-
 
 
 /// @briefスタート画面の関数
 /// @param change 
 /// @param MeinscreenVertical 
-/// @param MeinscreenHorizontal 
+/// @param MeinscreenHorizontal
 void MeinScreenChanger::Draw(int* screenchange)
 {
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//////////////音量設定
 	//////////////////////////////////////////////////////////////////////////////////////////
 	ChangeVolumeSoundMem(50, StartSound);	
-	ChangeVolumeSoundMem(100, StartDesition);	
+	ChangeVolumeSoundMem(100, StartDesition);
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//////////////色設定と画像設定
 	//////////////////////////////////////////////////////////////////////////////////////////
-	
 	
 	//スタートの文字の色
 	unsigned int StatrString = GetColor(ColorHandle, ColorHandle, ColorHandle);
@@ -57,7 +53,6 @@ void MeinScreenChanger::Draw(int* screenchange)
 	DrawString(graphX + 270, graphY + 150, "オプション", StatrString);
 
 	
-
 		//スタートの文字の範囲に入った時のif文
 		if (mauseX >= graphX+285 && mauseX <= graphX + 420 && mauseY >= graphY+100&& mauseY <= graphY+ 134)
 		{
