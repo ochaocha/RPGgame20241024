@@ -4,7 +4,7 @@
 #include <cstdlib>
 
 //“G‚É‘˜‹ö‚·‚éŠm—¦
-constexpr int MINNUM = 10;
+constexpr int MINNUM = 40;
 
 void BattleData::InputEncounterCheck(
 	bool& battle,

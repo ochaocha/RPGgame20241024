@@ -5,31 +5,43 @@ enum class NormalEnemyName
 {
 	DRAGON,
 	REDDRAGON,
-	GOLEM,		
-	MINIDRAGON,	
+	GOLEM,
+	MINIDRAGON,
 	DRAGONBARN,
 	CHIMWRA,
 	DRAGONSERVANT,
 	COUNT
 };
 
+enum class EnemyStutas
+{
+	ATTACK,		//UŒ‚
+	DEFENCE,	//–hŒä
+	AGI,		//‘f‘‚³
+	FLEE,		//“¦‚°‚é
+};
+
+
+
 class OllEnemyData
 {
-	
 private:
-	int RandomExtraction=0;
-	int OneBattleEnemy = 0;
-	int monsterX =	300;
-	int monster2X =	 450;
+	int RandomExtraction = 0;
+	int monsterX = 300;
+	int monster2X = 450;
 	int monsterY = 300;
 	int monster2Y = 450;
-public:
 
-	
+public:
+	EnemyStutas* stutas;
 	int normalenemy[9];
-	//‰Šú‰»
+
+	// ‰Šú‰»
 	void Init();
-	NormalEnemyName Rand();
-	void  Draw();
-	NormalEnemyName Stutus();
+
+	// ƒ‰ƒ“ƒ_ƒ€‚É“G‚ğ’Šo‚µ‚Ä•Ô‚·
+	std::vector<NormalEnemyName> Rand();
+
+	void Draw();
+	void Stutus(EnemyStutas& stutas);
 };

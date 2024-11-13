@@ -34,12 +34,12 @@ public:
 class BattleScreenChanger
 {
 private:
-	int BattleProbability;
+	int BattleProbability=0;
 	bool BattlePlayFlag = false;
-	int BattleScreenHandle;
-	int BattleUIStatusHandle;
-	int BattleUICommandHandle;
-	int BattleUIAttckTypeHandle;
+	int BattleScreenHandle=0;
+	int BattleUIStatusHandle=0;
+	int BattleUICommandHandle=0;
+	int BattleUIAttckTypeHandle=0;
 public:
 
 	/// @brief ƒoƒgƒ‹‰æ–Ê‚Ì•`‰æ

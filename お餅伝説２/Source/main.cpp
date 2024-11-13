@@ -69,7 +69,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 
 	OllEnemyData normalenemydata;
 	
-	NormalEnemyName normal;
+	NormalEnemyName normal{};
 	//NPCのオブジェクト生成
 	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);
 	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);

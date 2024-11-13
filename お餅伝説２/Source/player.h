@@ -54,10 +54,10 @@ public:
 		MoveUp = moveUp;
 	}
 public:
-	bool IsMoveLeft() { return MoveLeft; }
-	bool IsMoveRight() { return MoveRight; }
-	bool IsMoveDown() { return MoveDown; }
-	bool IsMoveUp() { return MoveUp; }
+	bool const IsMoveLeft() { return MoveLeft; }
+	bool const IsMoveRight() { return MoveRight; }
+	bool const IsMoveDown() { return MoveDown; }
+	bool const IsMoveUp() { return MoveUp; }
 public:
 
 

@@ -1,41 +1,61 @@
-
 #include <ctime>
 #include<cstdlib>
 #include <vector>
 #include <tuple>
 #include "Enemy.h"
 
+void OllEnemyData::Init()
+{
+	normalenemy[0] = LoadGraph("Data/monster/c01_001.png", TRUE);
+	normalenemy[1] = LoadGraph("Data/monster/c01_003.png", TRUE);
+	normalenemy[2] = LoadGraph("Data/monster/c01_006.png", TRUE);
+	normalenemy[3] = LoadGraph("Data/monster/c01_009.png", TRUE);
+	normalenemy[4] = LoadGraph("Data/monster/c01_010.png", TRUE);
+	normalenemy[5] = LoadGraph("Data/monster/c01_012.png", TRUE);
+	normalenemy[6] = LoadGraph("Data/monster/c01_021.png", TRUE);
+	normalenemy[7] = LoadGraph("Data/monster/c02_003.png", TRUE);
+}
 
-
-NormalEnemyName OllEnemyData::Rand()
+std::vector<NormalEnemyName> OllEnemyData::Rand()
 {
 	std::srand(std::time(0));
-	
-	RandomExtraction = std::rand() % 4;
 
-	//0だった場合敵の中からランダムに１体だけ敵を抽出
+	RandomExtraction = std::rand() % 4; // 0, 1, 2, 3 のいずれか
+
+	std::vector<NormalEnemyName> enemies;
+
+	// 抽選された数に応じて敵を選ぶ
 	switch (RandomExtraction)
 	{
 	case 0:
-		//構造体からランダムに敵を一体だけ抽選
-		RandomExtraction = std::rand() % static_cast<int>(NormalEnemyName::COUNT);
-		//std::tuple<NormalEnemyName, NormalEnemyName> RandomExtraction;
-		return static_cast<NormalEnemyName>(RandomExtraction);
+		// 1体だけ抽選
+		enemies.push_back(static_cast<NormalEnemyName>(std::rand() % static_cast<int>(NormalEnemyName::COUNT)));
+		break;
 	case 1:
-		//構造体からランダムに敵を二体抽選
-		RandomExtraction = std::rand() % static_cast<int>(NormalEnemyName::COUNT);
-		return static_cast<NormalEnemyName>(RandomExtraction);
+		// 2体抽選
+		enemies.push_back(static_cast<NormalEnemyName>(std::rand() % static_cast<int>(NormalEnemyName::COUNT)));
+		enemies.push_back(static_cast<NormalEnemyName>(std::rand() % static_cast<int>(NormalEnemyName::COUNT)));
+		break;
 	case 2:
-		//構造体からランダムに敵を三体抽選
-		RandomExtraction = std::rand() % static_cast<int>(NormalEnemyName::COUNT);
-		return static_cast<NormalEnemyName>(RandomExtraction);
+		// 3体抽選
+		enemies.push_back(static_cast<NormalEnemyName>(std::rand() % static_cast<int>(NormalEnemyName::COUNT)));
+		enemies.push_back(static_cast<NormalEnemyName>(std::rand() % static_cast<int>(NormalEnemyName::COUNT)));
+		enemies.push_back(static_cast<NormalEnemyName>(std::rand() % static_cast<int>(NormalEnemyName::COUNT)));
+		break;
 	case 3:
-		//構造体からランダムに敵を四体抽選
-		RandomExtraction = std::rand() % static_cast<int>(NormalEnemyName::COUNT);
-		return static_cast<NormalEnemyName>(RandomExtraction);
+		// 4体抽選
+		enemies.push_back(static_cast<NormalEnemyName>(std::rand() % static_cast<int>(NormalEnemyName::COUNT)));
+		enemies.push_back(static_cast<NormalEnemyName>(std::rand() % static_cast<int>(NormalEnemyName::COUNT)));
+		enemies.push_back(static_cast<NormalEnemyName>(std::rand() % static_cast<int>(NormalEnemyName::COUNT)));
+		enemies.push_back(static_cast<NormalEnemyName>(std::rand() % static_cast<int>(NormalEnemyName::COUNT)));
+		break;
 	}
+
+	return enemies;
 }
 
+
+//敵が増えるとその分　横に描画させるために後から修正する
 void OllEnemyData::Draw()
 {
 
@@ -77,15 +97,21 @@ void OllEnemyData::Draw()
 
 }
 
-void OllEnemyData::Init()
+void Stutus(EnemyStutas& stutas)
 {
-	 normalenemy[0]=LoadGraph("Data/monster/c01_001.png",TRUE);			
-	 normalenemy[1]=LoadGraph("Data/monster/c01_003.png",TRUE);		
-	 normalenemy[2]=LoadGraph("Data/monster/c01_006.png",TRUE);			
-	 normalenemy[3]=LoadGraph("Data/monster/c01_009.png",TRUE);			
-	 normalenemy[4]=LoadGraph("Data/monster/c01_010.png",TRUE);			
-	 normalenemy[5]=LoadGraph("Data/monster/c01_012.png",TRUE);			
-	 normalenemy[6]=LoadGraph("Data/monster/c01_021.png",TRUE);			
-	 normalenemy[7]=LoadGraph("Data/monster/c02_003.png",TRUE);
+	
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
 
