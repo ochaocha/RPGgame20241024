@@ -4,7 +4,7 @@
 #include <cstdlib>
 
 //“G‚É‘˜‹ö‚·‚éŠm—¦
-constexpr int MINNUM = 20;
+constexpr int MINNUM = 10;
 
 void BattleData::InputEncounterCheck(
 	bool& battle,
@@ -22,10 +22,12 @@ void BattleData::InputEncounterCheck(
 		if (Time <= 3)
 		{
 			//—”‚Ì‰Šú‰»
-			srand((unsigned int)time(NULL));
-			//player‚ª“®‚¢‚Ä‚¢‚é‚Æ‚«
 
+			srand((unsigned int)time(NULL));
+
+			//player‚ª“®‚¢‚Ä‚¢‚é‚Æ‚«
 			randomEncounter = rand() % 100;
+
 			if (randomEncounter < MINNUM)
 			{
 				battle = TRUE;
@@ -52,9 +54,8 @@ void BattleScreenChanger::Scene()
 {
 	DrawExtendGraph(0, 0, 1920, 1080, BattleScreenHandle, TRUE);
 	DrawExtendGraph(1000, 800, 1800, 1000, BattleUIStatusHandle, TRUE);
-	DrawExtendGraph(420, 800, 1000, 1000, BattleUICommandHandle, TRUE);
-	DrawExtendGraph(100, 800, 400, 1000, BattleUIAttckTypeHandle, TRUE);
-
+	DrawExtendGraph(420, 800, 1030, 1000, BattleUICommandHandle, TRUE);
+	DrawExtendGraph(100, 800, 430, 1000, BattleUIAttckTypeHandle, TRUE);
 }
 
 

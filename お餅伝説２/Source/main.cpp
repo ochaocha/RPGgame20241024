@@ -6,6 +6,7 @@
 #include "camera2D.h"
 #include <Windows.h>
 #include "Battle.h"
+#include "Enemy.h"
 
 int displaywidhtX = 0;
 int displayhigthY = 0;
@@ -30,6 +31,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 
 	MapData MapDataOll;
 #endif
+
+
+
 	//バトル画面のインターフェース
 	BattleScreenChanger battlescreen;
 
@@ -63,7 +67,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 	CharacterStatus* playerstatus;
 	playerstatus = &obj;
 
-
+	OllEnemyData normalenemydata;
+	
+	NormalEnemyName normal;
 	//NPCのオブジェクト生成
 	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);
 	CharacterManager::Instance()->AddCharacter(displaywidth2X, displayhight2Y);
@@ -72,11 +78,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 	//MapDataOll変数を初期化
 	MapDataOllPtr->Engine();//マップの読み込み
 	MapDataOllPtr->Init();//マップの初期化
-
+	//normalenemydata.Init();
 	int nowCount, prevCount;
 
 	nowCount = prevCount = GetNowCount();
-	// ゲームループ
+
 	//FPS初期化
 	FPSCtrl.Initialize();
 	//スクリーンの変数
@@ -87,10 +93,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 	//メインクラスを実態として定義
 	MeinScreenChanger Mein;
 	battlescreen.Imginitialize();
+	//ノーマルエネミーを初期化
+	normalenemydata.Init();
+	
 	//メイン画面の描画入力処理をさせている
 	Mein.ScreenInit();
 
-
+	// ゲームループ
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
 		//FPS計測を開始
@@ -180,7 +189,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 			ClearDrawScreen();
 			//バトル中の背景画像
 			battlescreen.Scene();
-		
+			normalenemydata.Rand();
+			normalenemydata.Draw();
 			//バトル中のplayerを描画
 			battlescreen.PlayerDraw();
 			//バトル中のEnemyを描画

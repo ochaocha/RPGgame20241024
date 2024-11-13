@@ -48,10 +48,10 @@
     <ClInclude Include="Source\Screen.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
-    <ClInclude Include="option.h">
+    <ClInclude Include="Source\option.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Enemy.hpp">
+    <ClInclude Include="Source\Enemy.h">
       <Filter>ソース ファイル\Source</Filter>
     </ClInclude>
   </ItemGroup>
@@ -77,7 +77,7 @@
     <ClCompile Include="Source\main.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
-    <ClCompile Include="option.cpp">
+    <ClCompile Include="Source\option.cpp">
       <Filter>ソース ファイル\Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Enemy.cpp">

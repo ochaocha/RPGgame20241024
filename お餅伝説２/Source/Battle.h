@@ -8,6 +8,7 @@ class BattleData
 	int Battle;
 
 	float Time;
+	float encounter;
 	float randomEncounter;
 public:
 	/// @brief キャラクターのステータスなどの情報を描画
