@@ -40,33 +40,37 @@ void OllEnemyData::Draw()
 {
 
 	//ドラゴンだった時の処理
-	if (NormalEnemyName::DRAGON== static_cast<NormalEnemyName>(RandomExtraction))
+	if (NormalEnemyName::DRAGON == static_cast<NormalEnemyName>(RandomExtraction))
 	{
 		DxLib::DrawExtendGraph(monsterX, monsterY, monster2X, monster2Y, normalenemy[0], TRUE);
 	}
 	//赤いドラゴンだった時
-	if (NormalEnemyName::GOLEM == static_cast<NormalEnemyName>(RandomExtraction))
+	if (NormalEnemyName::REDDRAGON == static_cast<NormalEnemyName>(RandomExtraction))
 	{
 		DxLib::DrawExtendGraph(monsterX, monsterY, monster2X, monster2Y, normalenemy[1], TRUE);
 	}
-	
-	if (NormalEnemyName::CHIMERA== static_cast<NormalEnemyName>(RandomExtraction))
+	//ゴーレムだった時
+	if (NormalEnemyName::GOLEM == static_cast<NormalEnemyName>(RandomExtraction))
 	{
 		DxLib::DrawExtendGraph(monsterX, monsterY, monster2X, monster2Y, normalenemy[2], TRUE);
 	}
-	if (NormalEnemyName::SLIME == static_cast<NormalEnemyName>(RandomExtraction))
+	//ミニドラゴンだった時
+	if (NormalEnemyName::MINIDRAGON == static_cast<NormalEnemyName>(RandomExtraction))
 	{
 		DxLib::DrawExtendGraph(monsterX, monsterY, monster2X, monster2Y, normalenemy[3], TRUE);
 	}
-	if (NormalEnemyName::DRAGON == static_cast<NormalEnemyName>(RandomExtraction))
+	//ドラゴンバーンだった時
+	if (NormalEnemyName::DRAGONBARN == static_cast<NormalEnemyName>(RandomExtraction))
 	{
 		DxLib::DrawExtendGraph(monsterX, monsterY, monster2X, monster2Y, normalenemy[4], TRUE);
 	}
-	if (NormalEnemyName::DRAGON == static_cast<NormalEnemyName>(RandomExtraction))
+	//キメラだった時
+	if (NormalEnemyName::CHIMWRA == static_cast<NormalEnemyName>(RandomExtraction))
 	{
 		DxLib::DrawExtendGraph(monsterX, monsterY, monster2X, monster2Y, normalenemy[5], TRUE);
 	}
-	if (NormalEnemyName::DRAGON == static_cast<NormalEnemyName>(RandomExtraction))
+	//ドラゴンメイドだった時
+	if (NormalEnemyName::DRAGONSERVANT == static_cast<NormalEnemyName>(RandomExtraction))
 	{
 		DxLib::DrawExtendGraph(monsterX, monsterY, monster2X, monster2Y, normalenemy[6], TRUE);
 	}

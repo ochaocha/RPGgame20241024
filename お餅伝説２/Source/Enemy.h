@@ -3,10 +3,13 @@
 
 enum class NormalEnemyName
 {
-	SLIME,          //0
-	GOLEM,			//1
-	CHIMERA,		//2
-	DRAGON,			//3
+	DRAGON,
+	REDDRAGON,
+	GOLEM,		
+	MINIDRAGON,	
+	DRAGONBARN,
+	CHIMWRA,
+	DRAGONSERVANT,
 	COUNT
 };
 
