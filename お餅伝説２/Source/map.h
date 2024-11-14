@@ -28,7 +28,7 @@ public://上記のローカル変数を必要な情報だけ開示するメンバ関数
     const int GetGraphID() const { return graphID; }
     const bool IsWall() const { return isWall; }
 
-public://メンバ関数
+public:
 
     void Setup(int xchip, int ychip, int DataByCSV) { // Emiya:貰ったデータをもとに各変数を決めるメンバ関数
         if (DataByCSV >= 0xFFFF)         //0xFFFF(65535)以上なら壁と判別します
@@ -163,7 +163,8 @@ public:
     }
 
     //特定のチップのマップデータが壁かどうかを判別します
-    bool IsWallMapChip(int x, int y) {
+    bool IsWallMapChip(int x, int y)
+    {
         //指定した座標が取得できない箇所である場合、壁として判別します
         if ((x < 0) || (GetMapXsize() <= x) || (y < 0) || (GetMapYsize() < y)) {
             return true;

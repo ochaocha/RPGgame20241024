@@ -67,6 +67,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 	CharacterStatus* playerstatus;
 	playerstatus = &obj;
 
+	EnemyNamberDraw odj;
+	EnemyNamberDraw* enemycoordinate;
+	enemycoordinate = &odj;
+	
+
 	AllEnemyData normalenemydata;
 	
 	NormalEnemyName normal{};
@@ -135,7 +140,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 			//プレイヤーの入力処理
 			{
 				Input Player;
-
 				Player.SetInput
 				(
 					CheckHitKey(KEY_INPUT_A),
@@ -190,8 +194,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 			battlescreen.Scene();
 			//敵をランダムに抽出
 			normalenemydata.Rand();
-			//敵の画像を描画
-			normalenemydata.Draw();
+			//敵の画像とステータスを描画
+			normalenemydata.Draw(*enemycoordinate);
 			//バトル中のplayerを描画
 			battlescreen.PlayerDraw();
 			//バトル中のEnemyを描画
