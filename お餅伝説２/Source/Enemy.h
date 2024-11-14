@@ -1,6 +1,8 @@
 #pragma once
 #include "DxLib.h"
 
+
+//敵の名前
 enum class NormalEnemyName
 {
 	DRAGON,
@@ -13,12 +15,14 @@ enum class NormalEnemyName
 	COUNT
 };
 
-enum class EnemyStutas
+//	敵のステータス
+struct EnemyStutas
 {
-	ATK,		//攻撃
-	DEF,	//防御
-	AGI,		//素早さ
-	MP,			//マジックポイント
+	int ATK;		//攻撃
+	int DEF;		//防御
+	int AGI;		//素早さ
+	int MP;		    //マジックポイント
+	int HP;			//ヒットポイント
 };
 
 
@@ -34,15 +38,12 @@ private:
 	int EnemyHp=0;
 	
 public:
-	std::vector<EnemyStutas> stutas;
 	std::vector<NormalEnemyName> enemies;
-	int normalenemy[9];
-
-	std::vector<EnemyStutas>StutasGeneration();
+	int normalenemy[9];	
 	// 初期化
 	void Init();
 	// ランダムに敵を抽出して返す
 	std::vector<NormalEnemyName> Rand();
-
+	//敵によっての描画とステータスの生成
 	void Draw();
 };
